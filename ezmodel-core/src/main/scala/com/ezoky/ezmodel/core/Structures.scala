@@ -2,25 +2,21 @@ package com.ezoky.ezmodel.core
 
 object Structures {
 
+  import com.ezoky.ezmodel.core.Atoms._
   import com.ezoky.ezmodel.storage.EventStore
 
-  import scala.language.implicitConversions
-  import scala.language.existentials
+import scala.language.{existentials, implicitConversions}
 
-  import com.ezoky.ezmodel.storage.EventStore
-
-  import Atoms._
-
-  case class State(qualifier: Qualifier)
-  object UnknownState extends State(Qualifier("<unknown>"))
-  object InitialState extends State(Qualifier("<initial>"))
-  implicit def stringState(qualifier: String) = new State(Qualifier(qualifier))
+  case class StateName(qualifier: Qualifier)
+  object UnknownStateName extends StateName(Qualifier("<unknown>"))
+  object InitialStateName extends StateName(Qualifier("<initial>"))
+  implicit def stringState(qualifier: String) = new StateName(Qualifier(qualifier))
 
   case class Entity(name: Name) extends Structure[Entity] with Attributing[Entity] with Referencing[Entity] with Aggregating[Entity]
   implicit def stringEntity(name: String) = Entity(Name(name))
 
   case class StateMachine(entity: Entity) {
-    val states: Map[State, EntityState] = Map()
+    val states: Map[StateName, EntityState] = Map()
 
     EventStore(Model).store(this)
 
@@ -32,10 +28,10 @@ object Structures {
     }
   }
 
-  case class EntityState(entity: Entity, state: State) extends Structure[EntityState] with Attributing[EntityState] with Referencing[EntityState] with Aggregating[EntityState] {
-    override val name = Name(s"${entity.name.name} [${state.qualifier.qualifier}]")
+  case class EntityState(entity: Entity, state: StateName) extends Structure[EntityState] with Attributing[EntityState] with Referencing[EntityState] with Aggregating[EntityState] {
+    override val name = Name(s"${entity.name} [${state.qualifier}]")
   }
-  class InitialEntityState(entity: Entity) extends EntityState(entity, InitialState)
+  class InitialEntityState(entity: Entity) extends EntityState(entity, InitialStateName)
 
   abstract case class Multiplicity(multiplicity: String)
   object single extends Multiplicity("single")
@@ -59,7 +55,7 @@ object Structures {
     def reference(name: Name, referenced: Structure[T], multiplicity: Multiplicity = single, mandatory: Boolean = false) = Referencing(this, name, referenced, multiplicity, mandatory)
     def reference(multiplicity: Multiplicity, referenced: Structure[T]) = Referencing(this, DefaultName, referenced)
 
-    override def toString = s"${getClass.getSimpleName}(${name})"
+    override def toString = s"${getClass.getSimpleName}($name)"
     EventStore(Model).store(this)
 
     override def equals(other: Any): Boolean =

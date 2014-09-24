@@ -1,20 +1,20 @@
 package com.ezoky.ezmodel.storage
 
 import scala.reflect.ClassTag
-import com.ezoky.ezmodel.storage.EventStore._
 
 object Repository {
-  def apply[T](eventStoreKey:Any)(implicit t: ClassTag[T]):Repository[T] = {
+  def apply[T](eventStoreKey: Any)(implicit t: ClassTag[T]): Repository[T] = {
     new Repository[T](eventStoreKey)(t)
   }
 }
-class Repository[T](eventStoreKey:Any)(implicit t: ClassTag[T]) {
+
+class Repository[T](eventStoreKey: Any)(implicit t: ClassTag[T]) {
 
   EventStore(eventStoreKey).subscribeTo[T](this)
 
-  def populate():Unit = {
-	EventStore(eventStoreKey).dequeue[T](this) match {
-	  case None => {}
+  def populate(): Unit = {
+    EventStore(eventStoreKey).dequeue[T](this) match {
+      case None => {}
       case Some(Event(entityVersion, _)) => {
         store(entityVersion)
         populate()
@@ -51,9 +51,9 @@ class Repository[T](eventStoreKey:Any)(implicit t: ClassTag[T]) {
       case Some(list) => list.size
     }
   }
-  
+
   def queryAllVersionsCount: Int = {
-    storage.values.foldLeft(0)((i,l)=>i + l.size)
+    storage.values.foldLeft(0)((i, l) => i + l.size)
   }
 
   def queryEntitiesCount: Int = {

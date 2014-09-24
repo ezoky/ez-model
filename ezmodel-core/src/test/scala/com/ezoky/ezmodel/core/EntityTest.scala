@@ -3,7 +3,7 @@ package com.ezoky.ezmodel.core
 import org.scalatest.FunSuite
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-import com.ezoky.ezmodel.core.Atoms.Model
+import com.ezoky.ezmodel.core.Atoms.{Name, Model}
 import com.ezoky.ezmodel.core.Structures._
 import com.ezoky.ezmodel.core.EzModel._
 import com.ezoky.ezmodel.storage.EventStore
@@ -11,36 +11,22 @@ import com.ezoky.ezmodel.storage.EventStore
 @RunWith(classOf[JUnitRunner])
 class EntityTest extends FunSuite {
 
-  test("Entity creation") {
-    EzModel // mandatory to init storage
+  test("Entity elaboration") {
 
-    val t1 = Entity("test")
-    assert(EventStore(Model).size === 1)
-    entityRepository.populate
-    assert(entityRepository.queryAllVersionsCount === 1)
-    assert(entityRepository.queryEntitiesCount === 1)
-    assert(entityRepository.queryEntities.head === t1)
+    val offre = Entity("Offre") aggregate(multiple, Entity("Gamme") aggregate(multiple, Entity("Sous-Gamme") aggregate(multiple, "Prestation"))) attribute ("nom")
 
-    val t2 = Entity("test").attribute("att1", single, false)
-    assert(EventStore(Model).size === 3)
-    entityRepository.populate
-    assert(entityRepository.queryAllVersionsCount === 3)
-    assert(entityRepository.queryEntitiesCount === 1)
-    assert(entityRepository.queryEntities.head === t1)
+    assert(offre.name === Name("Offre"))
 
-    val r = Entity("ref").attribute("att2", single, false)
-    assert(EventStore(Model).size === 5)
-    entityRepository.populate
-    assert(entityRepository.queryAllVersionsCount === 5)
-    assert(entityRepository.queryEntitiesCount === 2)
-    assert(entityRepository.query("ref").head === r)
+    assert(offre.attributes.size === 1)
+    assert(offre.attributes(0).name === Name("nom"))
 
-    t2.reference("referenced1", r, multiple, true)
-    assert(EventStore(Model).size === 7)
-    entityRepository.populate
-    assert(entityRepository.queryAllVersionsCount === 7)
-    assert(entityRepository.queryEntitiesCount === 2)
-    assert(entityRepository.query("ref").head === r)
-    assert(entityRepository.query("test").head.references.head.referenced === r)
+    assert(offre.aggregates.size === 1)
+    assert(offre.aggregates(0).leaf.name === Name("Gamme"))
+    assert(offre.aggregates(0).leaf.aggregates.size === 1)
+    assert(offre.aggregates(0).leaf.aggregates(0).leaf.name === Name("Sous-Gamme"))
+    assert(offre.aggregates(0).leaf.aggregates(0).leaf.aggregates.size === 1)
+    assert(offre.aggregates(0).leaf.aggregates(0).leaf.aggregates(0).leaf.name === Name("Prestation"))
+
+    assert(offre.references.size === 0)
   }
 }

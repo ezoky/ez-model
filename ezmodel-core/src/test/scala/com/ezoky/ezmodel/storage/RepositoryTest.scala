@@ -12,7 +12,7 @@ class RepositorySuite extends FunSuite {
 
   test("entity creation and direct repository storage") {
 
-    val r = Repository[MutableEntity]()
+    val r = Repository[MutableEntity]("Entity")
     val entityId = 10
 
     val e1 = MutableEntity(entityId)

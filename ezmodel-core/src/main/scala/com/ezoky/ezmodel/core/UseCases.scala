@@ -23,6 +23,11 @@ object UseCases {
       PostCondition(this, state)
     }
   }
+  object UseCase {
+    //  implicit def implicitUseCase1(useCase: (Actor, Goal) = UseCase(useCase._1, useCase._2)
+    implicit def implicitUseCase2(useCase: (String, String)) = UseCase(Actor(useCase._1), Goal(Action(useCase._2)))
+    implicit def implicitUseCase3(useCase: (String, String, String)) = UseCase(Actor(useCase._1), Goal(Action(useCase._2), ActionObject(the, useCase._3)))
+  }
 
   class PreCondition(useCase: UseCase, state: EntityState) extends UseCase(useCase) with Constrained {
     override val constraints = constrain(useCase, Pre, state)
@@ -35,12 +40,6 @@ object UseCases {
   }
   object PostCondition {
     def apply(useCase: UseCase, state: EntityState) = { new PostCondition(useCase, state) }
-  }
-
-  object UseCase {
-    //  implicit def implicitUseCase1(useCase: (Actor, Goal) = UseCase(useCase._1, useCase._2)
-    implicit def implicitUseCase2(useCase: (String, String)) = UseCase(Actor(useCase._1), Goal(Action(useCase._2)))
-    implicit def implicitUseCase3(useCase: (String, String, String)) = UseCase(Actor(useCase._1), Goal(Action(useCase._2), ActionObject(the, useCase._3)))
   }
 
   case class Actor(name: Name) {

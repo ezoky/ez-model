@@ -9,9 +9,16 @@ object EzModel {
   import Structures._
 
   import com.ezoky.ezmodel.storage.Repository
-  
-  val domainRepository = Repository[Domain](Model)
-  val useCaseRepository = Repository[UseCase](Model)
-  val entityRepository = Repository[Structure[Entity]](Model)
-  val stateMachineRepository = Repository[StateMachine](Model)
+
+  var domainRepository = Repository[Domain](Model)
+  var useCaseRepository = Repository[UseCase](Model)
+  var entityRepository = Repository[Structure[Entity]](Model)
+  var stateMachineRepository = Repository[StateMachine](Model)
+
+  def reset() {
+    domainRepository = Repository[Domain](Model)
+    useCaseRepository = Repository[UseCase](Model)
+    entityRepository = Repository[Structure[Entity]](Model)
+    stateMachineRepository = Repository[StateMachine](Model)
+  }
 }

@@ -8,10 +8,7 @@ object Domains {
   
   import com.ezoky.ezmodel.storage.EventStore
 
-  case class Domain(name: Name) {
-
-    val useCases: List[UseCase] = List()
-    val entities: List[Entity] = List()
+  case class Domain(name: Name,useCases: List[UseCase] = List(),entities: List[Entity] = List()) {
 
     EventStore(Model).store(this)
 
@@ -24,21 +21,11 @@ object Domains {
     }
 
     def useCase(uc: UseCase) = {
-      val parentUseCases = useCases
-      val parentEntities = entities
-      new Domain(name) {
-        override val useCases = uc :: parentUseCases
-        override val entities = parentEntities
-      }
+      copy(useCases = uc :: useCases)
     }
 
     def entity(ent: Entity) = {
-      val parentUseCases = useCases
-      val parentEntities = entities
-      new Domain(name) {
-        override val useCases = parentUseCases
-        override val entities = ent :: parentEntities
-      }
+      copy(entities = ent :: entities)
     }
   }
 }
