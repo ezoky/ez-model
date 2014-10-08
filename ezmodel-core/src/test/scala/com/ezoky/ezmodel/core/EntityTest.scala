@@ -1,12 +1,10 @@
 package com.ezoky.ezmodel.core
 
-import org.scalatest.FunSuite
+import com.ezoky.ezmodel.core.Atoms.Name
+import com.ezoky.ezmodel.core.Entities._
 import org.junit.runner.RunWith
+import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
-import com.ezoky.ezmodel.core.Atoms.{Name, Model}
-import com.ezoky.ezmodel.core.Structures._
-import com.ezoky.ezmodel.core.EzModel._
-import com.ezoky.ezmodel.storage.EventStore
 
 @RunWith(classOf[JUnitRunner])
 class EntityTest extends FunSuite {
@@ -18,14 +16,14 @@ class EntityTest extends FunSuite {
     assert(offre.name === Name("Offre"))
 
     assert(offre.attributes.size === 1)
-    assert(offre.attributes(0).name === Name("nom"))
+    assert(offre.attributes.head._1 === Name("nom"))
 
     assert(offre.aggregates.size === 1)
-    assert(offre.aggregates(0).leaf.name === Name("Gamme"))
-    assert(offre.aggregates(0).leaf.aggregates.size === 1)
-    assert(offre.aggregates(0).leaf.aggregates(0).leaf.name === Name("Sous-Gamme"))
-    assert(offre.aggregates(0).leaf.aggregates(0).leaf.aggregates.size === 1)
-    assert(offre.aggregates(0).leaf.aggregates(0).leaf.aggregates(0).leaf.name === Name("Prestation"))
+    assert(offre.aggregates.head._2.leaf.name === Name("Gamme"))
+    assert(offre.aggregates.head._2.leaf.aggregates.size === 1)
+    assert(offre.aggregates.head._2.leaf.aggregates.head._2.leaf.name === Name("Sous-Gamme"))
+    assert(offre.aggregates.head._2.leaf.aggregates.head._2.leaf.aggregates.size === 1)
+    assert(offre.aggregates.head._2.leaf.aggregates.head._2.leaf.aggregates.head._2.leaf.name === Name("Prestation"))
 
     assert(offre.references.size === 0)
   }

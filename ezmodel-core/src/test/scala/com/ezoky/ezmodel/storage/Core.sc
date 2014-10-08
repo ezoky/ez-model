@@ -5,7 +5,7 @@ object Core {
   import com.ezoky.ezmodel.core.Atoms._
   import com.ezoky.ezmodel.core.Domains._
   import com.ezoky.ezmodel.core.EzModel._
-  import com.ezoky.ezmodel.core.Structures._
+  import com.ezoky.ezmodel.core.Entities._
   import com.ezoky.ezmodel.core.UseCases._
   import com.ezoky.ezmodel.core._
 

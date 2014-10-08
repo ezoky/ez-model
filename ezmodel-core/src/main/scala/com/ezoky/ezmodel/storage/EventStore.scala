@@ -10,7 +10,7 @@ import com.github.nscala_time.time.Imports.richReadableInstant
 case class Event[T](entityVersion: T, date: DateTime = DateTime.now)
 
 object EventStore {
-  var eventStores: Map[Any, EventStore] = Map()
+  private var eventStores: Map[Any, EventStore] = Map()
 
   def apply(key: Any):EventStore = {
     eventStores.getOrElse(key, { 

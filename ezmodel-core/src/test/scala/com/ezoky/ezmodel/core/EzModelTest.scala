@@ -3,7 +3,7 @@ package com.ezoky.ezmodel.core
 import com.ezoky.ezmodel.core.Atoms.{Model, Name}
 import com.ezoky.ezmodel.core.Domains.Domain
 import com.ezoky.ezmodel.core.EzModel._
-import com.ezoky.ezmodel.core.Structures._
+import com.ezoky.ezmodel.core.Entities._
 import com.ezoky.ezmodel.storage.EventStore
 import org.junit.runner.RunWith
 import org.scalatest.FunSuite
@@ -14,6 +14,8 @@ class EzModelTest extends FunSuite {
 
   test("Entity Repository") {
     EzModel.reset() // mandatory to init storage
+    EventStore(Model).reset()
+
     val initialEventStoreSize = EventStore(Model).size
 
     val t1 = Entity("test")
@@ -43,12 +45,14 @@ class EzModelTest extends FunSuite {
     assert(entityRepository.queryAllVersionsCount === 7)
     assert(entityRepository.queryEntitiesCount === 2)
     assert(entityRepository.query("ref").head === r)
-    assert(entityRepository.query("test").head.references.head.referenced === r)
+    assert(entityRepository.query("test").head.references.head._2.referenced === r)
   }
 
   test("Domain Repository") {
 
     EzModel.reset() // mandatory to init storage
+    EventStore(Model).reset()
+
     val initialEventStoreSize = EventStore(Model).size
 
     val d1 = Domain("test")

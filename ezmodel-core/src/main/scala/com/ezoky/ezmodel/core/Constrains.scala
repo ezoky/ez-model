@@ -2,7 +2,7 @@ package com.ezoky.ezmodel.core
 
 object Constrains {
   
-  import Structures._
+  import Entities._
   
   abstract case class ConstraintType(constraintType: String)
   object Pre extends ConstraintType("pre-condition")

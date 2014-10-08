@@ -15,7 +15,7 @@ object Instantiator {
 //    }
 //  }
 //
-//  case class StateMachine(state: InstanceState, previousState: Option[StateMachine]) {
+//  case class StateMachine(stateOption: InstanceState, previousState: Option[StateMachine]) {
 //
 //    val history: List[StateMachine] = previousState match {
 //      case None => List(this)

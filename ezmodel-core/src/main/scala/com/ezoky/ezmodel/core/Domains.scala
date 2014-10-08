@@ -4,7 +4,7 @@ object Domains {
 
   import Atoms._
   import UseCases._
-  import Structures._
+  import Entities._
   
   import com.ezoky.ezmodel.storage.EventStore
 
