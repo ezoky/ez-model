@@ -3,7 +3,7 @@ package com.ezoky.ezmodel.actor
 import akka.actor.{ActorLogging, ActorRef, ActorSystem, Props}
 import akka.event.LoggingReceive
 import com.ezoky.ezmodel.actor.EntityActor.{CreateEntity, AddAttribute}
-import com.ezoky.ezmodel.actor.PersistentActor._
+import com.ezoky.ezmodel.actor.Clerk._
 import com.ezoky.ezmodel.core.Atoms.Name
 import com.ezoky.ezmodel.core.Entities._
 import com.typesafe.config.ConfigFactory
@@ -23,11 +23,11 @@ object EntityActor {
 
   case class AddAttribute(entityName:Name, name: Name, multiplicity: Multiplicity = single, mandatory: Boolean = false) extends EntityCommand(entityName)
 
-  case class AddedAttribute(entity: Entity) extends EntityEvent(entity)
+  case class AttributeAdded(entity: Entity) extends EntityEvent(entity)
 
 }
 
-class EntityActor(name: Name) extends PersistentActor[Entity, Name] {
+class EntityActor(name: Name) extends Clerk[Entity, Name] {
 
   import com.ezoky.ezmodel.actor.EntityActor._
 
@@ -37,7 +37,7 @@ class EntityActor(name: Name) extends PersistentActor[Entity, Name] {
     def create(name: Name) = Entity(name)
   }
 
-  override def initState = {
+  override def initState() = {
     self ! CreateEntity(name)
   }
 
@@ -64,7 +64,7 @@ class EntityActor(name: Name) extends PersistentActor[Entity, Name] {
       if (isInitialized) {
         val entity = state
         val nextEntity = entity.attribute(name, multiplicity, mandatory)
-        persist(AddedAttribute(nextEntity))(updateState)
+        persist(AttributeAdded(nextEntity))(updateState)
       }
       else {
         log.warning(s"Received AddAttribute($name) command but actor is not initialized")
@@ -72,7 +72,7 @@ class EntityActor(name: Name) extends PersistentActor[Entity, Name] {
 
   }: Receive) orElse super.receiveCommand
 
-  override def printState = {
+  override def printState() = {
     println(s"Actor: $self")
     if (isInitialized) {
       println(state)
@@ -84,15 +84,18 @@ class EntityActor(name: Name) extends PersistentActor[Entity, Name] {
 
 object EntityExample extends App {
 
-  val system = ActorSystem("example",ConfigFactory.parseString("akka { " +
-    "loglevel = \"DEBUG\"\n" +
-    "log-config-on-start = on\n" +
-    " actor {" +
-    "   debug {" +
-    "     lifecycle = on\n receive = on\n unhandled = on" +
-    "   }" +
-    " }" +
-    "}"))
+  val system = ActorSystem("example",ConfigFactory.parseString("""
+    akka {
+      loglevel = "DEBUG"
+      log-config-on-start = on
+      actor {
+        debug {
+          lifecycle = on
+          receive = on
+          unhandled = on
+        }
+      }
+    }"""))
   val office = system.actorOf(Props(Office[EntityActor]), "Entities")
 
 //  office ! AddAttribute(Name("AnotherEntity"),Name("a multiple mandatory attribute"), multiple, true)

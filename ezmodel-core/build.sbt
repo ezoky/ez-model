@@ -22,4 +22,3 @@ libraryDependencies += "com.typesafe.akka" %% "akka-testkit" % akkaVersion % "te
 
 libraryDependencies += "com.typesafe.akka" %% "akka-persistence-experimental" % akkaVersion
 
-

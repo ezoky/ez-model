@@ -24,7 +24,7 @@ object UseCases {
     }
   }
   object UseCase {
-    //  implicit def implicitUseCase1(useCase: (PersistentActor, Goal) = UseCase(useCase._1, useCase._2)
+    //  implicit def implicitUseCase1(useCase: (Clerk, Goal) = UseCase(useCase._1, useCase._2)
     implicit def implicitUseCase2(useCase: (String, String)) = UseCase(Actor(useCase._1), Goal(Action(useCase._2)))
     implicit def implicitUseCase3(useCase: (String, String, String)) = UseCase(Actor(useCase._1), Goal(Action(useCase._2), ActionObject(the, useCase._3)))
   }

@@ -1,7 +1,7 @@
 package com.ezoky.ezmodel.actor
 
 import akka.actor.{Props, ActorSystem}
-import com.ezoky.ezmodel.actor.PersistentActor.{Print, Command, Event}
+import com.ezoky.ezmodel.actor.Clerk.{Print, Command, Event}
 import com.ezoky.ezmodel.core.Atoms.Name
 import com.ezoky.ezmodel.core.UseCases.{Actor, Goal, UseCase}
 
@@ -18,7 +18,7 @@ object UseCaseActor {
 
 }
 
-class UseCaseActor(actor:Actor,goal:Goal) extends PersistentActor[UseCase, Name] {
+class UseCaseActor(actor:Actor,goal:Goal) extends Clerk[UseCase, Name] {
 
   import com.ezoky.ezmodel.actor.UseCaseActor._
 
@@ -28,13 +28,13 @@ class UseCaseActor(actor:Actor,goal:Goal) extends PersistentActor[UseCase, Name]
 
   override def businessId = s"as a $actor I want to $goal"
 
-  override def initState = {
+  override def initState() = {
     if (!isInitialized) {
       self ! CreateUseCase(actor, goal)
     }
   }
 
-  override def printState = {
+  override def printState() = {
     println(s"Actor: $self")
     if (isInitialized) {
       println(state)
@@ -42,7 +42,7 @@ class UseCaseActor(actor:Actor,goal:Goal) extends PersistentActor[UseCase, Name]
   }
 
   override def receiveCommand = ({
-    case CreateUseCase(actor, goal) if (!isInitialized) =>
+    case CreateUseCase(actor, goal) if !isInitialized =>
       val useCase = UseCaseFactory.create(actor, goal)
       persist(UseCaseCreated(useCase))(updateState)
 

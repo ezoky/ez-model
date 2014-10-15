@@ -1,7 +1,7 @@
 package com.ezoky.ezmodel.actor
 
 import akka.actor.Props
-import com.ezoky.ezmodel.actor.PersistentActor.{Command, Event}
+import com.ezoky.ezmodel.actor.Clerk.{Command, Event}
 import com.ezoky.ezmodel.core.Atoms.Name
 import com.ezoky.ezmodel.core.Domains.Domain
 import com.ezoky.ezmodel.core.Entities.Entity
@@ -28,7 +28,7 @@ object DomainActor {
 
 }
 
-class DomainActor(name:Name) extends PersistentActor[Domain,Name] {
+class DomainActor(name:Name) extends Clerk[Domain,Name] {
 
   import com.ezoky.ezmodel.actor.EntityActor._
   import com.ezoky.ezmodel.actor.DomainActor._
@@ -49,7 +49,7 @@ class DomainActor(name:Name) extends PersistentActor[Domain,Name] {
   }
 
   override def receiveCommand = {
-    case CreateDomain(name) if (!isInitialized) =>
+    case CreateDomain(name) if !isInitialized =>
       val domain = DomainFactory.create(name)
       persist(DomainCreated(domain))(updateState)
 
