@@ -13,29 +13,29 @@ import scala.reflect.ClassTag
 import scala.util.Failure
 
 
-abstract class PersistentActorTestToolkit[A](_system: ActorSystem)(implicit arClassTag: ClassTag[A])
+abstract class ClerkTestKit[A](_system: ActorSystem)(implicit arClassTag: ClassTag[A])
   extends TestKit(_system)
   with ImplicitSender
   with WordSpecLike
-//  with MockitoSugar
-//  with Matchers
+  //  with MockitoSugar
+  //  with Matchers
   with BeforeAndAfterAll with BeforeAndAfter {
 
-//  val settings = EcommerceSettings(system)
-  val domain:String
+  //  val settings = EcommerceSettings(system)
+  val domain: String
 
-//  implicit val logger = new RainbowLogger(suiteName)
-//
-//  implicit def topLevelParent(implicit system: ActorSystem): CreationSupport = {
-//    new CreationSupport {
-//      override def getChild(name: String): Option[ActorRef] = None
-//      override def createChild(props: Props, name: String): ActorRef = {
-//        system.actorOf(props, name)
-//      }
-//    }
-//  }
-//
-//  implicit def defaultCaseIdResolution[A] = new AggregateIdResolution[A]
+  //implicit val logger = new RainbowLogger(suiteName)
+  //
+  //  implicit def topLevelParent(implicit system: ActorSystem): CreationSupport = {
+  //    new CreationSupport {
+  //      override def getChild(name: String): Option[ActorRef] = None
+  //      override def createChild(props: Props, name: String): ActorRef = {
+  //        system.actorOf(props, name)
+  //      }
+  //    }
+  //  }
+  //
+  //  implicit def defaultCaseIdResolution[A] = new AggregateIdResolution[A]
 
   override def afterAll() {
     TestKit.shutdownActorSystem(system)
@@ -55,21 +55,21 @@ abstract class PersistentActorTestToolkit[A](_system: ActorSystem)(implicit arCl
     probe.expectMsgClass(10 seconds, t.runtimeClass)
   }
 
-  def expectEventPersisted[E,I](aggregateId: I)(when: => Unit)(implicit t: ClassTag[E]) {
-    expectLogMessageFromAR[I]("Event persisted: " + t.runtimeClass.getSimpleName, when)(aggregateId)
+  def expectEventPersisted[E, I](aggregateId: I)(when: => Unit)(implicit t: ClassTag[E]) {
+    expectLogMessageFromClerk[I](EVENT_PERSISTED_LOG_MESSAGE + t.runtimeClass.getSimpleName, when)(aggregateId)
   }
 
-  def expectEventPersisted[E,I](event: E)(aggregateRootId: I)(when: => Unit) {
-    expectLogMessageFromAR[I]("Event persisted: " + event.toString, when)(aggregateRootId)
+  def expectEventPersisted[E, I](event: E)(aggregateRootId: I)(when: => Unit) {
+    expectLogMessageFromClerk[I](EVENT_PERSISTED_LOG_MESSAGE + event.toString, when)(aggregateRootId)
   }
 
-  def expectLogMessageFromAR[I](messageStart: String, when: => Unit)(aggregateId: I) {
+  def expectLogMessageFromClerk[I](messageStart: String, when: => Unit)(aggregateId: I) {
     EventFilter.info(
       source = s"akka://Tests/user/$domain/${idToString(aggregateId)}",
       start = messageStart, occurrences = 1)
       .intercept {
-        when
-      }
+      when
+    }
   }
 
   def expectExceptionLogged[E <: Throwable](when: => Unit)(implicit t: ClassTag[E]) {
@@ -83,8 +83,8 @@ abstract class PersistentActorTestToolkit[A](_system: ActorSystem)(implicit arCl
       source = s"akka://Tests/user/$domain",
       start = messageStart, occurrences = 1)
       .intercept {
-        when
-      }
+      when
+    }
   }
 
   def expectFailure[E](awaitable: Future[Any])(implicit t: ClassTag[E]) {
@@ -98,7 +98,7 @@ abstract class PersistentActorTestToolkit[A](_system: ActorSystem)(implicit arCl
   }
 
   def expectReply[O](obj: O) {
-    expectMsg(20.seconds, obj)
+    expectMsg(1 seconds, obj)
   }
 
   def ensureActorTerminated(actor: ActorRef) = {
@@ -111,7 +111,5 @@ abstract class PersistentActorTestToolkit[A](_system: ActorSystem)(implicit arCl
         true
       case _ => false
     }
-
   }
-
 }

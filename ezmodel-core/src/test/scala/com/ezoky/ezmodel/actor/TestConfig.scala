@@ -8,7 +8,7 @@ object TestConfig {
     akka {
       loggers = ["akka.testkit.TestEventListener"]
       loglevel = "DEBUG"
-      log-config-on-start = on
+      log-config-on-start = off
       actor {
         debug {
           autoreceive = on

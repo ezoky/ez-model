@@ -33,6 +33,8 @@ object Entities {
 
   object multiple extends Multiplicity("multiple")
 
+  class Exactly(value: Int) extends Multiplicity(s"$value")
+
   class Range(min: Int, max: Int) extends Multiplicity(s"$min-$max") {
     assume(min >= 0 && min <= max)
   }

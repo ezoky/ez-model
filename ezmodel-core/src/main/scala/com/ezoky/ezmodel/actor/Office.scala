@@ -1,8 +1,8 @@
 package com.ezoky.ezmodel.actor
 
 import akka.actor._
-import akka.event.LoggingAdapter
-import com.ezoky.ezmodel.actor.Clerk.Command
+import akka.event.{LoggingReceive, LoggingAdapter}
+import com.ezoky.ezmodel.actor.Clerk.{Command,Event}
 
 import scala.reflect.ClassTag
 
@@ -35,16 +35,22 @@ case class Office[T](implicit classTag: ClassTag[T]) extends Actor with ActorLog
 
   import com.ezoky.ezmodel.actor.Office._
 
-  override def receive: Receive = {
+  override def receive: Receive = LoggingReceive {
     case command: Command[_] =>
       val actorId = command.targetActorId
       val actorName = command.targetActorName
       implicit val log = this.log
       val actorRef = getOrCreateChild(Props(classTag.runtimeClass, actorId), actorName)
       actorRef forward command
-    case m => throw new MessageUnhandledByRepository(m)
+
+    // as forwarding was done for Commands, this should happen only during creation process (which means Event is the result of Actor
+    // creation an should be forwarded to parent of the Office)
+    case event: Event[_] =>
+      log.debug(s"Forwarding Event $event to original Command sender ${context.parent}")
+      context.parent forward event
+    case m => throw new MessageUnhandledByOffice(m)
   }
 
-  class MessageUnhandledByRepository(message: Any) extends RuntimeException(s"Message $message is not handled by Office[${classTag.getClass.getSimpleName}]")
+  class MessageUnhandledByOffice(message: Any) extends RuntimeException(s"Message $message is not handled by Office[${classTag.getClass.getSimpleName}]")
 
 }

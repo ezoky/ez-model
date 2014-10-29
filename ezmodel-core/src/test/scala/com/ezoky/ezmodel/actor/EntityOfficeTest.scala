@@ -1,10 +1,10 @@
 package com.ezoky.ezmodel.actor
 
-import akka.actor.{ActorRef, Props}
-import com.ezoky.ezmodel.actor.EntityActor.{AddAttribute, AttributeAdded, CreateEntity, EntityCreated}
+import akka.actor.{ActorLogging, Props, ActorRef}
+import com.ezoky.ezmodel.actor.EntityClerk.{AddAttribute, AttributeAdded, CreateEntity, EntityCreated}
 import com.ezoky.ezmodel.actor.TestConfig._
 import com.ezoky.ezmodel.core.Atoms.Name
-import com.ezoky.ezmodel.core.Entities.single
+import com.ezoky.ezmodel.core.Entities.{Entity, single}
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 
@@ -12,7 +12,7 @@ import org.scalatest.junit.JUnitRunner
  * @author gweinbach
  */
 @RunWith(classOf[JUnitRunner])
-class EntityActorTest extends PersistentActorTestToolkit[EntityActor](testSystem)  {
+class EntityOfficeTest extends ClerkTestKit[EntityClerk](testSystem) {
 
   var entityOffice: ActorRef = system.deadLetters
   val officeId = "Entities"
@@ -20,7 +20,7 @@ class EntityActorTest extends PersistentActorTestToolkit[EntityActor](testSystem
   override val domain = officeId
 
   before {
-    entityOffice = system.actorOf(Props(Office[EntityActor]), officeId)
+    entityOffice = system.actorOf(Props(Office[EntityClerk]), officeId)
   }
 
   after {
@@ -28,22 +28,22 @@ class EntityActorTest extends PersistentActorTestToolkit[EntityActor](testSystem
   }
 
   "Entity clerk" should {
-    "communicate outcome with events" in {
-      
+    "communicate outcome with persistent events" in {
+
       val entityName = Name("TestEntity")
 
-      expectEventPersisted[EntityCreated,Name](entityName) {
-        entityOffice ! CreateEntity(entityName)
-      }
+//      expectEventPersisted[EntityCreated,Name](entityName) {
+//      }
+
       expectEventPersisted[AttributeAdded,Name](entityName) {
         entityOffice ! AddAttribute(entityName,"attribute name",single,mandatory = true)
       }
 
       // kill reservation office and all its clerks (aggregate roots)
       ensureActorTerminated(entityOffice)
-
     }
   }
 
 
 }
+
