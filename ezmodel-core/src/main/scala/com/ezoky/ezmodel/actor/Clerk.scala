@@ -15,12 +15,13 @@ object Clerk {
 
   def idToString(businessId:Any) =  URLEncoder.encode(businessId.toString,"UTF-8")
 
-  abstract class Command[I](val targetActorId:I) extends Serializable {
+  abstract class Command[I](val targetActorId:I)(implicit val ref: ActorRef) extends Serializable {
     def targetActorName = idToString(targetActorId)
   }
-  abstract class Event[S](val state:S) extends Serializable
-  case class Print[I](override val targetActorId:I) extends Command[I](targetActorId)
-  case class Reset[I](override val targetActorId:I) extends Command[I](targetActorId)
+  abstract class Event[S](val state:S)(implicit val replyTo: ActorRef) extends Serializable
+
+  case class Print[I](override val targetActorId:I)(implicit override val ref: ActorRef) extends Command[I](targetActorId)(ref)
+  case class Reset[I](override val targetActorId:I)(implicit override val ref: ActorRef) extends Command[I](targetActorId)(ref)
 
   case object Snap
 
@@ -34,9 +35,9 @@ trait Factory[S,I] {
 
   import com.ezoky.ezmodel.actor.Clerk._
 
-  def createCommand: (I => Command[I])
+  def createCommand: ((I) => Command[I])
   def createAction: (I => S)
-  def createdEvent: (S => Event[S])
+  def createdEvent: ((S,ActorRef) => Event[S])
 }
 
 /**
@@ -74,8 +75,7 @@ abstract class Clerk[S,I](implicit classTag: ClassTag[S]) extends PersistentActo
         if (cmd == createCommand(businessId)) {
           if (!isInitialised) {
             val entity = createAction(businessId)
-            //val commandSender = cmd.ref
-            persist(createdEvent(entity))(initState)
+            persist(createdEvent(entity,cmd.ref))(initState)
             unstashAll()
             context.unbecome()
           }
@@ -94,14 +94,14 @@ abstract class Clerk[S,I](implicit classTag: ClassTag[S]) extends PersistentActo
     log.info(EVENT_PERSISTED_LOG_MESSAGE + "{}", event)
     stateOption = Some(event.state)
     log.info(s"Sending back event $event to sender of command (${sender().path})")
-    sender ! event
+    event.replyTo ! event
     context.system.eventStream.publish(event)
   }
 
   def initState(event: Event[S]) = {
     stateOption = Some(event.state)
     log.info(s"Sending back event $event to parent (${context.parent.path})")
-    context.parent ! event
+    event.replyTo ! event
     context.system.eventStream.publish(event)
   }
 

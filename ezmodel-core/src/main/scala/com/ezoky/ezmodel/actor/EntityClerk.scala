@@ -14,24 +14,25 @@ object EntityClerk {
   type EntityCommand = Command[Name]
   type EntityEvent = Event[Entity]
 
-  case class CreateEntity(name: Name) extends EntityCommand(name)
+  case class CreateEntity(name: Name)(implicit override val ref:ActorRef) extends EntityCommand(name)(ref)
 
-  case class EntityCreated(entity: Entity) extends EntityEvent(entity)
+  case class EntityCreated(entity: Entity)(implicit override val replyTo:ActorRef) extends EntityEvent(entity)(replyTo)
 
-  case class AddAttribute(entityName: Name, name: Name, multiplicity: Multiplicity = single, mandatory: Boolean = false) extends EntityCommand(entityName)
+  case class AddAttribute(entityName: Name, name: Name, multiplicity: Multiplicity = single, mandatory: Boolean = false)(implicit override val ref:ActorRef) extends EntityCommand(entityName)
 
-  case class AttributeAdded(entity: Entity) extends EntityEvent(entity)
+  case class AttributeAdded(entity: Entity)(implicit override val replyTo:ActorRef) extends EntityEvent(entity)(replyTo)
 
 
 }
 
 trait EntityFactory extends Factory[Entity, Name] {
+  this: Clerk[Entity,Name] =>
 
   import com.ezoky.ezmodel.actor.EntityClerk._
 
-  override def createCommand = CreateEntity(_)
+  override def createCommand = CreateEntity(_)(context.sender())
   override def createAction = Entity(_)
-  override def createdEvent = EntityCreated(_)
+  override def createdEvent = EntityCreated(_)(_)
 }
 
 class EntityClerk(name: Name) extends Clerk[Entity, Name] with EntityFactory {
@@ -82,6 +83,7 @@ object EntityExample extends App {
     }"""))
   val office = system.actorOf(Props(Office[EntityClerk]), "Entities")
 
+  implicit val ref:ActorRef = system.deadLetters
   //  office ! AddAttribute(Name("AnotherEntity"),Name("a multiple mandatory attribute"), multiple, true)
   office ! AddAttribute(Name("AnotherEntity"), Name("an attribute"))
   //  office ! AddAttribute(Name("AnEntity"),Name("a multiple mandatory attribute"), multiple, true)

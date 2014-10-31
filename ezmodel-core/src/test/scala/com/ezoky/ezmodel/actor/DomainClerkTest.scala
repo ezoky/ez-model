@@ -32,8 +32,8 @@ class DomainClerkTest
         val entityId = "TestEntity"
         val test = testSystem.actorOf(Props(new DomainClerk(Name(domainId))), domainId)
 
-//        test ! CreateEntity(Name(domainId),Name(entityId))
-//        expectMsg(EntityAdded(Domain(Name(domainId),List(),List(Entity(Name(entityId))))))
+        test ! CreateEntity(Name(domainId),Name(entityId))
+        expectMsg(EntityAdded(Domain(Name(domainId),List(),List(Entity(Name(entityId))))))
 
       }
       finally {
