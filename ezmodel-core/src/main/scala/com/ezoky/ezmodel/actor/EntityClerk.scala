@@ -30,7 +30,7 @@ trait EntityFactory extends Factory[Entity, Name] {
 
   import com.ezoky.ezmodel.actor.EntityClerk._
 
-  override def createCommand = CreateEntity(_)(context.sender())
+  override def createCommand = CreateEntity(_)
   override def createAction = Entity(_)
   override def createdEvent = EntityCreated(_)(_)
 }
@@ -43,14 +43,14 @@ class EntityClerk(name: Name) extends Clerk[Entity, Name] with EntityFactory {
 
   override def receiveCommand = LoggingReceive({
 
-    case AddAttribute(_, attributeName, multiplicity, mandatory) =>
+    case c:AddAttribute =>
       if (isInitialised) {
         val entity = state
-        val nextEntity = entity.attribute(attributeName, multiplicity, mandatory)
-        persist(AttributeAdded(nextEntity))(updateState)
+        val nextEntity = entity.attribute(c.name, c.multiplicity, c.mandatory)
+        persist(AttributeAdded(nextEntity)(c.ref))(updateState)
       }
       else {
-        log.warning(s"Received AddAttribute($attributeName) command but actor is not initialized")
+        log.warning(s"Received AddAttribute(${c.name}) command but actor is not initialized")
       }
 
   }: Receive) orElse super.receiveCommand

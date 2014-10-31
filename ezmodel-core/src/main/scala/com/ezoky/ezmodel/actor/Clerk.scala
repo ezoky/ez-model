@@ -33,9 +33,11 @@ class ClerkNotInitializedException extends RuntimeException
 
 trait Factory[S,I] {
 
+  this: Clerk[S,I] =>
+
   import com.ezoky.ezmodel.actor.Clerk._
 
-  def createCommand: ((I) => Command[I])
+  def createCommand: (I => Command[I])
   def createAction: (I => S)
   def createdEvent: ((S,ActorRef) => Event[S])
 }

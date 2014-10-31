@@ -25,9 +25,7 @@ trait UseCaseFactory extends Factory[UseCase, (Actor, Goal)] {
   import com.ezoky.ezmodel.actor.UseCaseClerk._
 
   override def createCommand = (id: (Actor, Goal)) => CreateUseCase(id._1, id._2)
-
   override def createAction = (id: (Actor, Goal)) => UseCase(id._1, id._2)
-
   override def createdEvent = UseCaseCreated(_)(_)
 }
 
