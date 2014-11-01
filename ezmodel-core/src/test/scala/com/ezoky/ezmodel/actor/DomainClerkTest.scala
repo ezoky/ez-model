@@ -1,13 +1,8 @@
 package com.ezoky.ezmodel.actor
 
-import akka.actor.Props
 import akka.testkit.{ImplicitSender, TestKit}
-import com.ezoky.ezmodel.actor.DomainClerk.CreateEntity
-import com.ezoky.ezmodel.actor.DomainClerk.EntityAdded
+import com.ezoky.ezmodel.actor.DomainClerk._
 import com.ezoky.ezmodel.actor.TestConfig._
-import com.ezoky.ezmodel.core.Atoms.Name
-import com.ezoky.ezmodel.core.Domains.Domain
-import com.ezoky.ezmodel.core.Entities.{Entity, single}
 import org.junit.runner.RunWith
 import org.scalatest.WordSpecLike
 import org.scalatest.junit.JUnitRunner
@@ -30,7 +25,7 @@ class DomainClerkTest
 
         val domainId = "TestDomain"
         val entityId = "TestEntity"
-        val test = testSystem.actorOf(Props(new DomainClerk(Name(domainId))), domainId)
+        val test = domainClerk(domainId)
 
 //        test ! CreateEntity(Name(domainId),Name(entityId))
 //        expectMsg(EntityAdded(Domain(Name(domainId),List(),List(Entity(Name(entityId))))))

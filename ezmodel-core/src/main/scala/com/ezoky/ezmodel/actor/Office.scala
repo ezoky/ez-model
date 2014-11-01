@@ -1,8 +1,8 @@
 package com.ezoky.ezmodel.actor
 
 import akka.actor._
-import akka.event.{LoggingReceive, LoggingAdapter}
-import com.ezoky.ezmodel.actor.Clerk.{Command,Event}
+import akka.event.{LoggingAdapter, LoggingReceive}
+import com.ezoky.ezmodel.actor.Clerk.{Command, Event}
 
 import scala.reflect.ClassTag
 
@@ -16,13 +16,17 @@ object Office {
     * uniqueness of an Office dealing with a particular type of Actors in a particular context
     */
   def office[T](implicit classTag: ClassTag[T], context: ActorContext, log: LoggingAdapter) = {
+    getOrCreateChild(props[T], classTag.runtimeClass.getSimpleName)
+  }
+
+  def props[T](implicit classTag: ClassTag[T]) = {
     val officeName = classTag.runtimeClass.getSimpleName
-    getOrCreateChild(Props(Office[T]()), officeName)
+    Props(Office[T]())
   }
 
   private def getChild(name: String)(implicit context: ActorContext): Option[ActorRef] = context.child(name)
 
-  private def createChild(props: Props, name: String)(implicit context: ActorContext, log: LoggingAdapter): ActorRef = {
+  private def createChild(props: Props, name: String)(implicit context: ActorRefFactory, log: LoggingAdapter): ActorRef = {
     val actorRef: ActorRef = context.actorOf(props, name)
     log.info(s"Actor created $actorRef")
     actorRef
@@ -35,11 +39,12 @@ case class Office[T](implicit classTag: ClassTag[T]) extends Actor with ActorLog
 
   import com.ezoky.ezmodel.actor.Office._
 
+  implicit val logger:LoggingAdapter = this.log
+
   override def receive: Receive = LoggingReceive {
     case command: Command[_] =>
       val actorId = command.targetActorId
       val actorName = command.targetActorName
-      implicit val log = this.log
       val actorRef = getOrCreateChild(Props(classTag.runtimeClass, actorId), actorName)
       actorRef forward command
 

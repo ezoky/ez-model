@@ -13,8 +13,8 @@ import scala.reflect.ClassTag
 import scala.util.Failure
 
 
-abstract class ClerkTestKit[A](_system: ActorSystem)(implicit arClassTag: ClassTag[A])
-  extends TestKit(_system)
+abstract class ClerkTestKit[A](actorSystem: ActorSystem)(implicit arClassTag: ClassTag[A])
+  extends TestKit(actorSystem)
   with ImplicitSender
   with WordSpecLike
   //  with MockitoSugar

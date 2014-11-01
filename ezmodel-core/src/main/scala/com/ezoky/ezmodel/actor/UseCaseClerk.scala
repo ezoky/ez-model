@@ -1,6 +1,6 @@
 package com.ezoky.ezmodel.actor
 
-import akka.actor.{Props, ActorSystem}
+import akka.actor.{ActorRefFactory, Props, ActorSystem}
 import com.ezoky.ezmodel.actor.Clerk.{Print, Command, Event}
 import com.ezoky.ezmodel.core.Atoms.Name
 import com.ezoky.ezmodel.core.UseCases.{Actor, Goal, UseCase}
@@ -15,6 +15,9 @@ object UseCaseClerk {
   case class CreateUseCase(actor:Actor,goal:Goal) extends UseCaseCommand((actor,goal))
 
   case class UseCaseCreated(useCase: UseCase) extends UseCaseEvent(useCase)
+
+  def useCaseClerk(actor:Actor,goal:Goal)(implicit factory:ActorRefFactory) = factory.actorOf(Props(new UseCaseClerk(actor,goal)), "as a $actor I want to $goal")
+
 }
 
 

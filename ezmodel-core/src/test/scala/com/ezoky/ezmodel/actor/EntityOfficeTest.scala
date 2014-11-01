@@ -1,10 +1,11 @@
 package com.ezoky.ezmodel.actor
 
-import akka.actor.{ActorLogging, Props, ActorRef}
-import com.ezoky.ezmodel.actor.EntityClerk.{AddAttribute, AttributeAdded, CreateEntity, EntityCreated}
+import akka.actor.ActorRef
+import com.ezoky.ezmodel.actor.EntityClerk.{AddAttribute, AttributeAdded}
+import com.ezoky.ezmodel.actor.Office._
 import com.ezoky.ezmodel.actor.TestConfig._
 import com.ezoky.ezmodel.core.Atoms.Name
-import com.ezoky.ezmodel.core.Entities.{Entity, single}
+import com.ezoky.ezmodel.core.Entities.single
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
 
@@ -20,7 +21,7 @@ class EntityOfficeTest extends ClerkTestKit[EntityClerk](testSystem) {
   override val domain = officeId
 
   before {
-    entityOffice = system.actorOf(Props(Office[EntityClerk]), officeId)
+    entityOffice = system.actorOf(props[EntityClerk],"Entities")
   }
 
   after {

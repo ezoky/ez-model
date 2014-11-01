@@ -1,19 +1,18 @@
 package com.ezoky.ezmodel.actor
 
-import akka.actor.{ActorRef, Props}
+import akka.actor.{ActorLogging, ActorRefFactory, Props}
 import akka.event.LoggingReceive
 import com.ezoky.ezmodel.actor.Clerk.{Command, Event}
+import com.ezoky.ezmodel.actor.Office._
 import com.ezoky.ezmodel.core.Atoms.Name
 import com.ezoky.ezmodel.core.Domains.Domain
-import com.ezoky.ezmodel.core.Entities.Entity
-import com.ezoky.ezmodel.core.UseCases.UseCase
 
 /**
  * @author gweinbach
  */
 object DomainClerk {
 
-  import com.ezoky.ezmodel.core.UseCases.{Actor,Goal}
+  import com.ezoky.ezmodel.core.UseCases.{Actor, Goal}
 
   type DomainCommand = Command[Name]
   type DomainEvent = Event[Domain]
@@ -27,6 +26,8 @@ object DomainClerk {
   case class CreateUseCase(domainName:Name,actor: Actor, goal: Goal) extends DomainCommand(domainName)
   case class UseCaseAdded(domain: Domain) extends DomainEvent(domain)
 
+  def domainClerk(domainId:String)(implicit factory:ActorRefFactory) = factory.actorOf(Props(new DomainClerk(Name(domainId))), domainId)
+
 }
 
 trait DomainFactory extends Factory[Domain, Name] {
@@ -38,15 +39,14 @@ trait DomainFactory extends Factory[Domain, Name] {
   override def createdEvent = DomainCreated(_)
 }
 
-class DomainClerk(name:Name) extends Clerk[Domain,Name] with DomainFactory {
+class DomainClerk(name:Name) extends Clerk[Domain,Name] with DomainFactory with ActorLogging {
 
-  import com.ezoky.ezmodel.actor.EntityClerk._
   import com.ezoky.ezmodel.actor.DomainClerk._
 
   override def businessId = name
 
-  val useCases = context.actorOf(Props(Office[UseCaseClerk]),"UseCases")
-  val entities = context.actorOf(Props(Office[EntityClerk]),"Entities")
+  val useCases = office[UseCaseClerk]
+  val entities = office[EntityClerk]
 
   override def receiveCommand = LoggingReceive {
 

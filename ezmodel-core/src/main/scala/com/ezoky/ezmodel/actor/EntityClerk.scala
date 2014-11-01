@@ -1,6 +1,6 @@
 package com.ezoky.ezmodel.actor
 
-import akka.actor.{ActorRef, ActorSystem, Props}
+import akka.actor.{ActorRefFactory, ActorSystem, Props}
 import akka.event.LoggingReceive
 import com.ezoky.ezmodel.actor.Clerk._
 import com.ezoky.ezmodel.core.Atoms.Name
@@ -22,6 +22,7 @@ object EntityClerk {
 
   case class AttributeAdded(entity: Entity) extends EntityEvent(entity)
 
+  def entityClerk(entityId:String)(implicit factory:ActorRefFactory) = factory.actorOf(Props(new EntityClerk(Name(entityId))), entityId)
 
 }
 

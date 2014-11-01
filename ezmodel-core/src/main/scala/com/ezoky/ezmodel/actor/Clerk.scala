@@ -1,7 +1,7 @@
 package com.ezoky.ezmodel.actor
 
 import akka.actor.{ActorRef, ActorLogging, Stash}
-import akka.event.LoggingReceive
+import akka.event.{LoggingAdapter, LoggingReceive}
 import akka.persistence.{PersistentActor, RecoveryCompleted}
 
 import scala.reflect.ClassTag
@@ -50,6 +50,8 @@ abstract class Clerk[S,I](implicit classTag: ClassTag[S]) extends PersistentActo
 
   import akka.persistence.{RecoveryFailure, SnapshotOffer}
   import com.ezoky.ezmodel.actor.Clerk._
+
+  implicit val logger:LoggingAdapter = this.log
 
   def businessId:I
 

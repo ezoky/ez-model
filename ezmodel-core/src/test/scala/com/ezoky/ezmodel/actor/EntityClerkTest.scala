@@ -1,16 +1,14 @@
 package com.ezoky.ezmodel.actor
 
-import akka.actor.Props
 import akka.testkit.{ImplicitSender, TestKit}
-import com.ezoky.ezmodel.actor.EntityClerk.{AttributeAdded, AddAttribute, EntityCreated}
+import com.ezoky.ezmodel.actor.EntityClerk._
 import com.ezoky.ezmodel.actor.TestConfig._
 import com.ezoky.ezmodel.core.Atoms.Name
-import com.ezoky.ezmodel.core.Entities.{single, Entity}
+import com.ezoky.ezmodel.core.Entities.{Entity, single}
 import org.junit.runner.RunWith
 import org.scalatest.WordSpecLike
 import org.scalatest.junit.JUnitRunner
 
-import scala.concurrent.duration._
 import scala.language.postfixOps
 
 /**
@@ -28,7 +26,7 @@ class EntityClerkTest
       try {
 
         val entityId = "TestEntity"
-        val test = testSystem.actorOf(Props(new EntityClerk(Name(entityId))), entityId)
+        val test = entityClerk(entityId)
         //expectMsg(EntityCreated(Entity(entityId)))
 
         //within(1 second) {
