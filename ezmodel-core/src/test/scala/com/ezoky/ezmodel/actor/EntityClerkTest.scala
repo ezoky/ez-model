@@ -27,6 +27,7 @@ class EntityClerkTest
 
         val entityId = "TestEntity"
         val test = entityClerk(entityId)
+
         //expectMsg(EntityCreated(Entity(entityId)))
 
         //within(1 second) {
@@ -35,7 +36,6 @@ class EntityClerkTest
 
         test ! AddAttribute(Name(entityId),Name("an attribute"),single,mandatory = true)
         expectMsg(AttributeAdded(Entity(Name(entityId))))
-
       }
       finally {
         system.shutdown()

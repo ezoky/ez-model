@@ -18,7 +18,8 @@ object Clerk {
   abstract class Command[I](val targetActorId:I) extends Serializable {
     def targetActorName = idToString(targetActorId)
   }
-  abstract class Event[S](val state:S) extends Serializable
+  abstract class Event[S](val state:S)(implicit val replyTo: ActorRef) extends Serializable
+
   case class Print[I](override val targetActorId:I) extends Command[I](targetActorId)
   case class Reset[I](override val targetActorId:I) extends Command[I](targetActorId)
 
@@ -32,11 +33,13 @@ class ClerkNotInitializedException extends RuntimeException
 
 trait Factory[S,I] {
 
+  this: Clerk[S,I] =>
+
   import com.ezoky.ezmodel.actor.Clerk._
 
   def createCommand: (I => Command[I])
   def createAction: (I => S)
-  def createdEvent: (S => Event[S])
+  def createdEvent: ((S,ActorRef) => Event[S])
 }
 
 /**
@@ -76,8 +79,7 @@ abstract class Clerk[S,I](implicit classTag: ClassTag[S]) extends PersistentActo
         if (cmd == createCommand(businessId)) {
           if (!isInitialised) {
             val entity = createAction(businessId)
-            //val commandSender = cmd.ref
-            persist(createdEvent(entity))(initState)
+            persist(createdEvent(entity,context.parent))(updateState)
             unstashAll()
             context.unbecome()
           }
@@ -95,15 +97,8 @@ abstract class Clerk[S,I](implicit classTag: ClassTag[S]) extends PersistentActo
   def updateState(event: Event[S]) = {
     log.info(EVENT_PERSISTED_LOG_MESSAGE + "{}", event)
     stateOption = Some(event.state)
-    log.info(s"Sending back event $event to sender of command (${sender().path})")
-    sender ! event
-    context.system.eventStream.publish(event)
-  }
-
-  def initState(event: Event[S]) = {
-    stateOption = Some(event.state)
-    log.info(s"Sending back event $event to parent (${context.parent.path})")
-    context.parent ! event
+    log.info(s"Sending back event $event to sender of command (${event.replyTo.path})")
+    event.replyTo ! event
     context.system.eventStream.publish(event)
   }
 

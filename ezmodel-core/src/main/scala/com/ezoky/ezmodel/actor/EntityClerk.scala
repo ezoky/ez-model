@@ -16,23 +16,24 @@ object EntityClerk {
 
   case class CreateEntity(name: Name) extends EntityCommand(name)
 
-  case class EntityCreated(entity: Entity) extends EntityEvent(entity)
+  case class EntityCreated(entity: Entity)(implicit override val replyTo:ActorRef) extends EntityEvent(entity)(replyTo)
 
   case class AddAttribute(entityName: Name, name: Name, multiplicity: Multiplicity = single, mandatory: Boolean = false) extends EntityCommand(entityName)
 
-  case class AttributeAdded(entity: Entity) extends EntityEvent(entity)
+  case class AttributeAdded(entity: Entity)(implicit override val replyTo:ActorRef) extends EntityEvent(entity)(replyTo)
 
   def entityClerk(entityId:String)(implicit factory:ActorRefFactory) = factory.actorOf(Props(new EntityClerk(Name(entityId))), entityId)
 
 }
 
 trait EntityFactory extends Factory[Entity, Name] {
+  this: Clerk[Entity,Name] =>
 
   import com.ezoky.ezmodel.actor.EntityClerk._
 
   override def createCommand = CreateEntity(_)
   override def createAction = Entity(_)
-  override def createdEvent = EntityCreated(_)
+  override def createdEvent = EntityCreated(_)(_)
 }
 
 class EntityClerk(name: Name) extends Clerk[Entity, Name] with EntityFactory {
@@ -43,14 +44,14 @@ class EntityClerk(name: Name) extends Clerk[Entity, Name] with EntityFactory {
 
   override def receiveCommand = LoggingReceive({
 
-    case AddAttribute(_, attributeName, multiplicity, mandatory) =>
+    case AddAttribute(_,name,multiplicity,mandatory) =>
       if (isInitialised) {
         val entity = state
-        val nextEntity = entity.attribute(attributeName, multiplicity, mandatory)
-        persist(AttributeAdded(nextEntity))(updateState)
+        val nextEntity = entity.attribute(name, multiplicity, mandatory)
+        persist(AttributeAdded(nextEntity)(sender()))(updateState)
       }
       else {
-        log.warning(s"Received AddAttribute($attributeName) command but actor is not initialized")
+        log.warning(s"Received AddAttribute(${name}) command but actor is not initialized")
       }
 
   }: Receive) orElse super.receiveCommand
@@ -83,6 +84,7 @@ object EntityExample extends App {
     }"""))
   val office = system.actorOf(Props(Office[EntityClerk]), "Entities")
 
+  implicit val ref:ActorRef = system.deadLetters
   //  office ! AddAttribute(Name("AnotherEntity"),Name("a multiple mandatory attribute"), multiple, true)
   office ! AddAttribute(Name("AnotherEntity"), Name("an attribute"))
   //  office ! AddAttribute(Name("AnEntity"),Name("a multiple mandatory attribute"), multiple, true)
