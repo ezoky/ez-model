@@ -1,6 +1,6 @@
 package com.ezoky.ezmodel.actor
 
-import akka.actor.{ActorLogging, ActorRefFactory, Props}
+import akka.actor.{ActorRef, ActorLogging, ActorRefFactory, Props}
 import akka.event.LoggingReceive
 import com.ezoky.ezmodel.actor.Clerk.{Command, Event}
 import com.ezoky.ezmodel.actor.Office._

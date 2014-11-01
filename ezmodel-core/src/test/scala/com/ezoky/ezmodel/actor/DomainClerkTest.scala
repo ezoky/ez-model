@@ -3,6 +3,9 @@ package com.ezoky.ezmodel.actor
 import akka.testkit.{ImplicitSender, TestKit}
 import com.ezoky.ezmodel.actor.DomainClerk._
 import com.ezoky.ezmodel.actor.TestConfig._
+import com.ezoky.ezmodel.core.Atoms.Name
+import com.ezoky.ezmodel.core.Domains.Domain
+import com.ezoky.ezmodel.core.Entities.Entity
 import org.junit.runner.RunWith
 import org.scalatest.WordSpecLike
 import org.scalatest.junit.JUnitRunner

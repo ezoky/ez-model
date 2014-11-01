@@ -1,6 +1,6 @@
 package com.ezoky.ezmodel.actor
 
-import akka.actor.{ActorRefFactory, ActorSystem, Props}
+import akka.actor.{ActorRef, ActorRefFactory, ActorSystem, Props}
 import akka.event.LoggingReceive
 import com.ezoky.ezmodel.actor.Clerk._
 import com.ezoky.ezmodel.core.Atoms.Name

@@ -1,12 +1,7 @@
 package com.ezoky.ezmodel.actor
 
-<<<<<<< HEAD
-import akka.actor.{ActorRefFactory, Props, ActorSystem}
-import com.ezoky.ezmodel.actor.Clerk.{Print, Command, Event}
-=======
-import akka.actor.{ActorRef, ActorSystem, Props}
+import akka.actor.{ActorRefFactory, ActorRef, ActorSystem, Props}
 import com.ezoky.ezmodel.actor.Clerk.{Command, Event, Print}
->>>>>>> direct-event-reply
 import com.ezoky.ezmodel.core.Atoms.Name
 import com.ezoky.ezmodel.core.UseCases.{Actor, Goal, UseCase}
 
