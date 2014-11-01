@@ -18,13 +18,13 @@ object DomainClerk {
   type DomainCommand = Command[Name]
   type DomainEvent = Event[Domain]
 
-  case class CreateDomain(name: Name)(implicit override val ref:ActorRef) extends DomainCommand(name)(ref)
+  case class CreateDomain(name: Name) extends DomainCommand(name)
   case class DomainCreated(domain:Domain)(implicit override val replyTo:ActorRef) extends DomainEvent(domain)(replyTo)
 
-  case class CreateEntity(domainName:Name,name: Name)(implicit override val ref:ActorRef) extends DomainCommand(domainName)(ref)
+  case class CreateEntity(domainName:Name,name: Name) extends DomainCommand(domainName)
   case class EntityAdded(domain: Domain)(implicit override val replyTo:ActorRef) extends DomainEvent(domain)(replyTo)
 
-  case class CreateUseCase(domainName:Name,actor: Actor, goal: Goal)(implicit override val ref:ActorRef) extends DomainCommand(domainName)(ref)
+  case class CreateUseCase(domainName:Name,actor: Actor, goal: Goal) extends DomainCommand(domainName)
   case class UseCaseAdded(domain: Domain)(implicit override val replyTo:ActorRef) extends DomainEvent(domain)(replyTo)
 
 }

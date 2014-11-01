@@ -32,19 +32,19 @@ class EzModelTest extends FunSuite {
     assert(entityRepository.queryEntitiesCount === 1)
     assert(entityRepository.queryEntities.head === t1)
 
-    val r = Entity("self").attribute("att2", single, false)
+    val r = Entity("ref").attribute("att2", single, false)
     assert(EventStore(Model).size === initialEventStoreSize + 5)
     entityRepository.populate
     assert(entityRepository.queryAllVersionsCount === 5)
     assert(entityRepository.queryEntitiesCount === 2)
-    assert(entityRepository.query("self").head === r)
+    assert(entityRepository.query("ref").head === r)
 
     t2.reference("referenced1", r, multiple, true)
     assert(EventStore(Model).size === initialEventStoreSize + 7)
     entityRepository.populate
     assert(entityRepository.queryAllVersionsCount === 7)
     assert(entityRepository.queryEntitiesCount === 2)
-    assert(entityRepository.query("self").head === r)
+    assert(entityRepository.query("ref").head === r)
     assert(entityRepository.query("test").head.references.head._2.referenced === r)
   }
 

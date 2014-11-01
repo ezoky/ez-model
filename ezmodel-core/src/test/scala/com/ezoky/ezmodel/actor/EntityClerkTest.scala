@@ -30,7 +30,7 @@ class EntityClerkTest
         val entityId = "TestEntity"
         val test = testSystem.actorOf(Props(new EntityClerk(Name(entityId))), entityId)
 
-         //expectMsg(EntityCreated(Entity(entityId)))
+        //expectMsg(EntityCreated(Entity(entityId)))
 
         //within(1 second) {
           //expectMsg(EntityCreated(Entity(entityId)))

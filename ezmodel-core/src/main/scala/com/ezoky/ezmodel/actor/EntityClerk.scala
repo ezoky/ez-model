@@ -14,11 +14,11 @@ object EntityClerk {
   type EntityCommand = Command[Name]
   type EntityEvent = Event[Entity]
 
-  case class CreateEntity(name: Name)(implicit override val ref:ActorRef) extends EntityCommand(name)(ref)
+  case class CreateEntity(name: Name) extends EntityCommand(name)
 
   case class EntityCreated(entity: Entity)(implicit override val replyTo:ActorRef) extends EntityEvent(entity)(replyTo)
 
-  case class AddAttribute(entityName: Name, name: Name, multiplicity: Multiplicity = single, mandatory: Boolean = false)(implicit override val ref:ActorRef) extends EntityCommand(entityName)
+  case class AddAttribute(entityName: Name, name: Name, multiplicity: Multiplicity = single, mandatory: Boolean = false) extends EntityCommand(entityName)
 
   case class AttributeAdded(entity: Entity)(implicit override val replyTo:ActorRef) extends EntityEvent(entity)(replyTo)
 
@@ -43,14 +43,14 @@ class EntityClerk(name: Name) extends Clerk[Entity, Name] with EntityFactory {
 
   override def receiveCommand = LoggingReceive({
 
-    case c:AddAttribute =>
+    case AddAttribute(_,name,multiplicity,mandatory) =>
       if (isInitialised) {
         val entity = state
-        val nextEntity = entity.attribute(c.name, c.multiplicity, c.mandatory)
-        persist(AttributeAdded(nextEntity)(c.ref))(updateState)
+        val nextEntity = entity.attribute(name, multiplicity, mandatory)
+        persist(AttributeAdded(nextEntity)(sender()))(updateState)
       }
       else {
-        log.warning(s"Received AddAttribute(${c.name}) command but actor is not initialized")
+        log.warning(s"Received AddAttribute(${name}) command but actor is not initialized")
       }
 
   }: Receive) orElse super.receiveCommand

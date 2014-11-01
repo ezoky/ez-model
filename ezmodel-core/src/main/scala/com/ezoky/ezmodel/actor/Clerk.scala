@@ -15,13 +15,13 @@ object Clerk {
 
   def idToString(businessId:Any) =  URLEncoder.encode(businessId.toString,"UTF-8")
 
-  abstract class Command[I](val targetActorId:I)(implicit val ref: ActorRef) extends Serializable {
+  abstract class Command[I](val targetActorId:I) extends Serializable {
     def targetActorName = idToString(targetActorId)
   }
   abstract class Event[S](val state:S)(implicit val replyTo: ActorRef) extends Serializable
 
-  case class Print[I](override val targetActorId:I)(implicit override val ref: ActorRef) extends Command[I](targetActorId)(ref)
-  case class Reset[I](override val targetActorId:I)(implicit override val ref: ActorRef) extends Command[I](targetActorId)(ref)
+  case class Print[I](override val targetActorId:I) extends Command[I](targetActorId)
+  case class Reset[I](override val targetActorId:I) extends Command[I](targetActorId)
 
   case object Snap
 
@@ -77,7 +77,7 @@ abstract class Clerk[S,I](implicit classTag: ClassTag[S]) extends PersistentActo
         if (cmd == createCommand(businessId)) {
           if (!isInitialised) {
             val entity = createAction(businessId)
-            persist(createdEvent(entity,cmd.ref))(initState)
+            persist(createdEvent(entity,context.parent))(updateState)
             unstashAll()
             context.unbecome()
           }
@@ -95,14 +95,7 @@ abstract class Clerk[S,I](implicit classTag: ClassTag[S]) extends PersistentActo
   def updateState(event: Event[S]) = {
     log.info(EVENT_PERSISTED_LOG_MESSAGE + "{}", event)
     stateOption = Some(event.state)
-    log.info(s"Sending back event $event to sender of command (${sender().path})")
-    event.replyTo ! event
-    context.system.eventStream.publish(event)
-  }
-
-  def initState(event: Event[S]) = {
-    stateOption = Some(event.state)
-    log.info(s"Sending back event $event to parent (${context.parent.path})")
+    log.info(s"Sending back event $event to sender of command (${event.replyTo.path})")
     event.replyTo ! event
     context.system.eventStream.publish(event)
   }

@@ -12,7 +12,7 @@ object UseCaseClerk {
   type UseCaseCommand = Command[(Actor, Goal)]
   type UseCaseEvent = Event[UseCase]
 
-  case class CreateUseCase(actor: Actor, goal: Goal)(implicit override val ref: ActorRef) extends UseCaseCommand((actor, goal))
+  case class CreateUseCase(actor: Actor, goal: Goal) extends UseCaseCommand((actor, goal))
 
   case class UseCaseCreated(useCase: UseCase)(implicit override val replyTo: ActorRef) extends UseCaseEvent(useCase)(replyTo)
 
