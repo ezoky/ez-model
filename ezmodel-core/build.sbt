@@ -2,7 +2,7 @@ name := "ezmodel-core"
 
 version := "1.0.0"
 
-scalaVersion := "2.11.2"
+scalaVersion := "2.11.4"
 
 val akkaVersion = "2.3.6"
 
