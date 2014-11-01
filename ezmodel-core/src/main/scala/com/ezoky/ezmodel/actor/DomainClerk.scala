@@ -53,16 +53,33 @@ class DomainClerk(name:Name) extends Clerk[Domain,Name] with DomainFactory {
 
     case DomainClerk.CreateEntity(_, entityName) =>
       entities ! EntityClerk.CreateEntity(entityName)
-
-    case EntityClerk.EntityCreated(entity) =>
-      val next = state.entity(entity)
-      persist(EntityAdded(next))(updateState)
+      context.become(waitForEntityCreation(sender()))
 
     case DomainClerk.CreateUseCase(_,actor, goal) =>
       useCases ! UseCaseClerk.CreateUseCase(actor,goal)
+      context.become(waitForUseCaseCreation(sender()))
+
+  }
+
+  def waitForEntityCreation(replyTo: ActorRef) = LoggingReceive {
+
+    case EntityClerk.EntityCreated(entity) =>
+      val next = state.entity(entity)
+      persist(EntityAdded(next)(replyTo))(updateState)
+      context.unbecome()
+      unstashAll()
+
+    case _ => stash()
+  }
+
+  def waitForUseCaseCreation(replyTo: ActorRef) = LoggingReceive {
 
     case UseCaseClerk.UseCaseCreated(useCase) =>
       val next = state.useCase(useCase)
-      persist(UseCaseAdded(next))(updateState)
+      persist(UseCaseAdded(next)(replyTo))(updateState)
+      context.unbecome()
+      unstashAll()
+
+    case _ => stash()
   }
 }
