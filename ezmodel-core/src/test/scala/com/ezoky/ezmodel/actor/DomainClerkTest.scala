@@ -6,6 +6,7 @@ import com.ezoky.ezmodel.actor.TestConfig._
 import com.ezoky.ezmodel.core.Atoms.Name
 import com.ezoky.ezmodel.core.Domains.Domain
 import com.ezoky.ezmodel.core.Entities.Entity
+import com.ezoky.ezmodel.core.UseCases.{UseCase, Goal, Actor}
 import org.junit.runner.RunWith
 import org.scalatest.WordSpecLike
 import org.scalatest.junit.JUnitRunner
@@ -22,16 +23,22 @@ class DomainClerkTest
   with WordSpecLike {
 
   "Domain Actor" should {
-    "reply 'EntityCreated' when asked to create an Entity" in {
+    "reply '<something>Added' when asked to add <something>" in {
 
       try {
 
         val domainId = "TestDomain"
-        val entityId = "TestEntity"
         val test = domainClerk(domainId)
 
-        test ! CreateEntity(Name(domainId),Name(entityId))
-        expectMsg(EntityAdded(Domain(Name(domainId),List(),List(Entity(Name(entityId))))))
+        val entityName = Name("TestEntity")
+        test ! CreateEntity(Name(domainId), entityName)
+        expectMsg(EntityAdded(Domain(Name(domainId), List(), List(Entity(entityName)))))
+
+        val actor = Actor("an Actor")
+        val goal = Goal("a Goal")
+        test ! CreateUseCase(Name(domainId),actor,goal)
+        expectMsg(UseCaseAdded(Domain(Name(domainId), List(UseCase(actor,goal)), List(Entity(entityName)))))
+
 
       }
       finally {

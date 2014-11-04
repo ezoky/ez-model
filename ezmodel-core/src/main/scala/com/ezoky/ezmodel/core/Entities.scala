@@ -6,7 +6,7 @@ object Entities {
   import com.ezoky.ezmodel.core.Atoms._
   import com.ezoky.ezmodel.storage.EventStore
 
-  import scala.language.{existentials, implicitConversions}
+import scala.language.{existentials, implicitConversions}
 
   case class StateName(qualifier: Qualifier)
 
@@ -24,6 +24,10 @@ object Entities {
   }
 
   class EntityState(val entity: Entity, val state: StateName) extends Entity(Name(s"${entity.name} [${state.qualifier}]"))
+
+  object EntityState {
+    def apply(entity: Entity, state: StateName) = new EntityState(entity,state)
+  }
 
   class InitialEntityState(entity: Entity) extends EntityState(entity, InitialStateName)
 

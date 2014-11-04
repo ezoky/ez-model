@@ -22,7 +22,7 @@ object EntityClerk {
 
   case class AttributeAdded(entity: Entity)(implicit override val replyTo:ActorRef) extends EntityEvent(entity)(replyTo)
 
-  def entityClerk(entityId:String)(implicit factory:ActorRefFactory) = factory.actorOf(Props(new EntityClerk(Name(entityId))), entityId)
+  def entityClerk(entityId:String)(implicit factory:ActorRefFactory) = factory.actorOf(Props(new EntityClerk(Name(entityId))), idToString(entityId))
 
 }
 
@@ -42,19 +42,14 @@ class EntityClerk(name: Name) extends Clerk[Entity, Name] with EntityFactory {
 
   override def businessId = name
 
-  override def receiveCommand = LoggingReceive({
+  override def receiveCommand = LoggingReceive {
 
     case AddAttribute(_,name,multiplicity,mandatory) =>
-      if (isInitialised) {
-        val entity = state
-        val nextEntity = entity.attribute(name, multiplicity, mandatory)
-        persist(AttributeAdded(nextEntity)(sender()))(updateState)
-      }
-      else {
-        log.warning(s"Received AddAttribute(${name}) command but actor is not initialized")
-      }
+      val entity = state
+      val nextEntity = entity.attribute(name, multiplicity, mandatory)
+      persist(AttributeAdded(nextEntity)(sender()))(updateState)
 
-  }: Receive) orElse super.receiveCommand
+  } orElse super.receiveCommand
 
   override def printState() = {
     println(s"Actor: $self")
@@ -86,13 +81,13 @@ object EntityExample extends App {
 
   implicit val ref:ActorRef = system.deadLetters
   //  office ! AddAttribute(Name("AnotherEntity"),Name("a multiple mandatory attribute"), multiple, true)
-  office ! AddAttribute(Name("AnotherEntity"), Name("an attribute"))
+  office ! AddAttribute(Name("Another Entity"), Name("an attribute"))
   //  office ! AddAttribute(Name("AnEntity"),Name("a multiple mandatory attribute"), multiple, true)
   //  office ! AddAttribute(Name("YetAnotherEntity"),Name("a multiple mandatory attribute"), multiple, true)
   //  Thread.sleep(1000)
-  office ! Print(Name("AnEntity"))
-  office ! Print(Name("AnotherEntity"))
-  office ! Print(Name("YetAnotherEntity"))
+  office ! Print(Name("An Entity"))
+  office ! Print(Name("Another Entity"))
+  office ! Print(Name("Yet Another Entity"))
 
   import akka.pattern.gracefulStop
 

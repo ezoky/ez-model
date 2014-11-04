@@ -25,7 +25,7 @@ class EntityClerkTest
 
       try {
 
-        val entityId = "TestEntity"
+        val entityId = "Test Entity"
         val test = entityClerk(entityId)
 
         //expectMsg(EntityCreated(Entity(entityId)))
