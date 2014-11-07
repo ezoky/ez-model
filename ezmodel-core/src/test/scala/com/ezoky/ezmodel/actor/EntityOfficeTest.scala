@@ -44,7 +44,5 @@ class EntityOfficeTest extends ClerkTestKit[EntityClerk](testSystem) {
       ensureActorTerminated(entityOffice)
     }
   }
-
-
 }
 
