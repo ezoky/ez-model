@@ -64,6 +64,6 @@ object UseCases {
     implicit def implicitActionObject1(nameGroup: NameGroup) = ActionObject(nameGroup)
     implicit def implicitActionObject2(nameGroup: (Determinant, Name)) = ActionObject(NameGroup(nameGroup._1, nameGroup._2))
     implicit def implicitActionObject3(nameGroup: (Determinant, String)) = ActionObject(NameGroup(nameGroup._1, Name(nameGroup._2)))
-    implicit def implicitActionObject1(nameGroup: String) = ActionObject(the, nameGroup)
+    implicit def implicitActionObject4(nameGroup: String) = ActionObject(the, nameGroup)
   }
 }
