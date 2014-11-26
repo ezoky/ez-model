@@ -1,9 +1,12 @@
 package com.ezoky.ezmodel.ddd
 
+import com.ezoky.ezmodel.ddd.Identity._
 import com.ezoky.ezmodel.ddd.State._
 import org.junit.runner.RunWith
 import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
+
+import scala.language.implicitConversions
 
 /**
  * @author gweinbach
@@ -68,6 +71,13 @@ class EntityTest extends FunSuite {
     assert(e1.isIdentical(e2 + "state 1"))
   }
 
+  test("Changing to Identity State does not change state") {
+
+    val e1 = Entity("A", "state 1")
+
+    assert(e1.hasSameState(e1 + IdentityState))
+  }
+
   test("Default state of a DDD entity is InitialState") {
     val e1 = Entity("A")
 
@@ -75,6 +85,8 @@ class EntityTest extends FunSuite {
   }
 
   test("Cannot change state after FinalState is reached") {
+    implicit val classTag = ""
+
     val e1 = Entity("A")
     val e2 = e1.changeState(FinalState)
 
