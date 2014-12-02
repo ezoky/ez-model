@@ -16,23 +16,25 @@ object EntityClerk {
 
   case class CreateEntity(name: Name) extends EntityCommand(name)
 
-  case class EntityCreated(entity: Entity)(implicit override val replyTo:ActorRef) extends EntityEvent(entity)(replyTo)
+  case class EntityCreated(entity: Entity)(implicit override val replyTo: ActorRef) extends EntityEvent(entity)(replyTo)
 
   case class AddAttribute(entityName: Name, name: Name, multiplicity: Multiplicity = single, mandatory: Boolean = false) extends EntityCommand(entityName)
 
-  case class AttributeAdded(entity: Entity)(implicit override val replyTo:ActorRef) extends EntityEvent(entity)(replyTo)
+  case class AttributeAdded(entity: Entity)(implicit override val replyTo: ActorRef) extends EntityEvent(entity)(replyTo)
 
-  def entityClerk(entityId:String)(implicit factory:ActorRefFactory) = factory.actorOf(Props(new EntityClerk(Name(entityId))), idToString(entityId))
+  def entityClerk(entityId: String)(implicit factory: ActorRefFactory) = factory.actorOf(Props(new EntityClerk(Name(entityId))), idToString(entityId))
 
 }
 
 trait EntityFactory extends Factory[Entity, Name] {
-  this: Clerk[Entity,Name] =>
+  this: Clerk[Entity, Name] =>
 
   import com.ezmodel.actor.EntityClerk._
 
   override def createCommand = CreateEntity(_)
+
   override def createAction = Entity(_)
+
   override def createdEvent = EntityCreated(_)(_)
 }
 
@@ -44,7 +46,7 @@ class EntityClerk(name: Name) extends Clerk[Entity, Name] with EntityFactory {
 
   override def receiveCommand = LoggingReceive {
 
-    case AddAttribute(_,name,multiplicity,mandatory) =>
+    case AddAttribute(_, name, multiplicity, mandatory) =>
       val entity = state
       val nextEntity = entity.attribute(name, multiplicity, mandatory)
       persist(AttributeAdded(nextEntity)(sender()))(updateState)
@@ -79,7 +81,7 @@ object EntityExample extends App {
     }"""))
   val office = system.actorOf(Props(Office[EntityClerk]), "Entities")
 
-  implicit val ref:ActorRef = system.deadLetters
+  implicit val ref: ActorRef = system.deadLetters
   //  office ! AddAttribute(Name("AnotherEntity"),Name("a multiple mandatory attribute"), multiple, true)
   office ! AddAttribute(Name("Another Entity"), Name("an attribute"))
   //  office ! AddAttribute(Name("AnEntity"),Name("a multiple mandatory attribute"), multiple, true)

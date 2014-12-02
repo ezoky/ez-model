@@ -3,11 +3,10 @@ package com.ezmodel.core
 
 object EzModel {
 
-  import Atoms.Model
-  import Domains._
-  import UseCases._
-  import Entities._
-
+  import com.ezmodel.core.Atoms.Model
+  import com.ezmodel.core.Domains._
+  import com.ezmodel.core.Entities._
+  import com.ezmodel.core.UseCases._
   import com.ezmodel.storage.Repository
 
   var domainRepository = Repository[Domain](Model)

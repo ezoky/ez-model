@@ -4,7 +4,7 @@ import akka.actor.ActorSystem
 import com.typesafe.config.{Config, ConfigFactory}
 
 object TestConfig {
-  val config = ConfigFactory.parseString("""
+  val config = ConfigFactory.parseString( """
     akka {
       loggers = ["akka.testkit.TestEventListener"]
       loglevel = "DEBUG"

@@ -89,7 +89,7 @@ class EntityTest extends FunSuite {
 
   test("Cannot change state after FinalState is reached") {
 
-    val e1 = Entity[String,String]("A","id 1")
+    val e1 = Entity[String, String]("A", "id 1")
     val e2 = e1.changeState(FinalState("B"))
 
     assert(e2.isFinal)
@@ -100,7 +100,7 @@ class EntityTest extends FunSuite {
 
   test("+ operator changes state") {
 
-    val e1 = Entity[String,String]("A","id")
+    val e1 = Entity[String, String]("A", "id")
     val state1 = "state 1"
     val state2 = "state 2"
     val e2 = e1 + state1 + state2
@@ -126,7 +126,7 @@ class EntityTest extends FunSuite {
 
     case class StateExample(id1: Int, id2: Int)
 
-    val state = StateExample(1,2)
+    val state = StateExample(1, 2)
 
     val stateId1: Identity[StateExample, Int] = (_.stateValue.id1)
     val stateId2: Identity[StateExample, Int] = (_.stateValue.id2)
@@ -142,8 +142,8 @@ class EntityTest extends FunSuite {
     case class StateExample1(id1: Int, aVal: String)
     case class StateExample2(valS: String, id2: Int)
 
-    val state1 = StateExample1(1,"val 1")
-    val state2 = StateExample2("val 2",1)
+    val state1 = StateExample1(1, "val 1")
+    val state2 = StateExample2("val 2", 1)
 
     val stateId1: Identity[StateExample1, Int] = (_.stateValue.id1)
     val stateId2: Identity[StateExample2, Int] = (_.stateValue.id2)

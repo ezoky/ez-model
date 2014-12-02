@@ -21,7 +21,7 @@ class EntityOfficeTest extends ClerkTestKit[EntityClerk](testSystem) {
   override val domain = officeId
 
   before {
-    entityOffice = system.actorOf(props[EntityClerk],"Entities")
+    entityOffice = system.actorOf(props[EntityClerk], "Entities")
   }
 
   after {
@@ -33,11 +33,11 @@ class EntityOfficeTest extends ClerkTestKit[EntityClerk](testSystem) {
 
       val entityName = Name("TestEntity")
 
-//      expectEventPersisted[EntityCreated,Name](entityName) {
-//      }
+      //      expectEventPersisted[EntityCreated,Name](entityName) {
+      //      }
 
-      expectEventPersisted[AttributeAdded,Name](entityName) {
-        entityOffice ! AddAttribute(entityName,"attribute name",single,mandatory = true)
+      expectEventPersisted[AttributeAdded, Name](entityName) {
+        entityOffice ! AddAttribute(entityName, "attribute name", single, mandatory = true)
       }
 
       // kill reservation office and all its clerks (aggregate roots)

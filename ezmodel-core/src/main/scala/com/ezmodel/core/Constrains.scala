@@ -1,11 +1,13 @@
 package com.ezmodel.core
 
 object Constrains {
-  
-  import Entities._
-  
+
+  import com.ezmodel.core.Entities._
+
   abstract case class ConstraintType(constraintType: String)
+
   object Pre extends ConstraintType("pre-condition")
+
   object Post extends ConstraintType("post-condition")
 
   trait Constrained {
@@ -27,4 +29,5 @@ object Constrains {
       }
     }
   }
+
 }

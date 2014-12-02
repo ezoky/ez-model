@@ -26,7 +26,7 @@ import scala.language.{existentials, implicitConversions}
   class EntityState(val entity: Entity, val state: StateName) extends Entity(Name(s"${entity.name} [${state.qualifier}]"))
 
   object EntityState {
-    def apply(entity: Entity, state: StateName) = new EntityState(entity,state)
+    def apply(entity: Entity, state: StateName) = new EntityState(entity, state)
   }
 
   class InitialEntityState(entity: Entity) extends EntityState(entity, InitialStateName)

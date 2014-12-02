@@ -1,25 +1,25 @@
 package com.ezmodel.storage
 
-import scala.collection.immutable.Queue
-import scala.reflect.ClassTag
-
+import com.github.nscala_time.time.Imports.richReadableInstant
 import org.joda.time.DateTime
 
-import com.github.nscala_time.time.Imports.richReadableInstant
+import scala.collection.immutable.Queue
+import scala.reflect.ClassTag
 
 case class Event[T](entityVersion: T, date: DateTime = DateTime.now)
 
 object EventStore {
   private var eventStores: Map[Any, EventStore] = Map()
 
-  def apply(key: Any):EventStore = {
-    eventStores.getOrElse(key, { 
-      val newEventStore:EventStore = new EventStore()
+  def apply(key: Any): EventStore = {
+    eventStores.getOrElse(key, {
+      val newEventStore: EventStore = new EventStore()
       eventStores += (key -> newEventStore)
       newEventStore
     })
   }
 }
+
 class EventStore extends Publisher {
 
   var events: List[Event[_]] = Nil

@@ -7,7 +7,7 @@ import scalaz.Monoid
  */
 sealed trait State[-S] {
 
-  def +[T <: S](s:State[T]):State[T] = implicitly[Monoid[State[T]]].append(this,s)
+  def +[T <: S](s: State[T]): State[T] = implicitly[Monoid[State[T]]].append(this, s)
 }
 
 object State {
@@ -41,9 +41,9 @@ object ValuedState {
 
   implicit def implicitState[S](stateValue: S): ValuedState[S] = ValuedState[S](stateValue)
 
-  def apply[S](stateValue:S): ValuedState[S] = new ValuedState(stateValue)
+  def apply[S](stateValue: S): ValuedState[S] = new ValuedState(stateValue)
 
-  def unapply[S](stateValue:S):Option[ValuedState[S]] = Option(ValuedState(stateValue))
+  def unapply[S](stateValue: S): Option[ValuedState[S]] = Option(ValuedState(stateValue))
 }
 
 class ValuedState[S](val stateValue: S) extends State[S] {

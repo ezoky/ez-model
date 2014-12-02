@@ -8,7 +8,10 @@ import org.scalatest.junit.JUnitRunner
 class RepositorySuite extends FunSuite {
 
   case class ImmutableEntity(i: Int)
-  case class MutableEntity(i: Int) { var j: Int = 0 }
+
+  case class MutableEntity(i: Int) {
+    var j: Int = 0
+  }
 
   test("entity creation and direct repository storage") {
 
@@ -48,9 +51,9 @@ class RepositorySuite extends FunSuite {
   }
 
   test("CQRS: event storage then repository querying") {
-    
-	val EntityEventStore = EventStore("Entity")
-    
+
+    val EntityEventStore = EventStore("Entity")
+
     EntityEventStore.reset()
     val r = Repository[MutableEntity]("Entity")
     val entityId = 10
@@ -106,20 +109,20 @@ class RepositorySuite extends FunSuite {
   }
 
   test("CQRS: multiple types = multiple repositories") {
-	
+
     val EntityEventStore = EventStore("Entity")
-    
+
     EntityEventStore.reset()
     assert(EntityEventStore.size === 0)
-    
+
     val rm = Repository[MutableEntity]("Entity")
     val ri = Repository[ImmutableEntity]("Entity")
-    
+
     val entityId = 10
 
     val m1 = MutableEntity(entityId)
     val i1 = ImmutableEntity(entityId)
-    
+
     assert(rm.queryEntitiesCount === 0)
     assert(rm.queryVersionCount(m1) === 0)
     assert(ri.queryEntitiesCount === 0)

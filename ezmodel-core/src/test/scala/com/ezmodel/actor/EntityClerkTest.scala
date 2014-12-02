@@ -31,10 +31,10 @@ class EntityClerkTest
         //expectMsg(EntityCreated(Entity(entityId)))
 
         //within(1 second) {
-          //expectMsg(EntityCreated(Entity(entityId)))
+        //expectMsg(EntityCreated(Entity(entityId)))
         //}
 
-        test ! AddAttribute(Name(entityId),Name("an attribute"),single,mandatory = true)
+        test ! AddAttribute(Name(entityId), Name("an attribute"), single, mandatory = true)
         expectMsg(AttributeAdded(Entity(Name(entityId))))
       }
       finally {

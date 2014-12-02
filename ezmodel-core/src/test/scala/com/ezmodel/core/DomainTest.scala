@@ -13,7 +13,7 @@ class DomainTest extends FunSuite {
 
   test("Domain elaboration") {
 
-    val dom = Domain("Driving") useCase("Driver", "change", "Gear") useCase("Driver", "brake") entity("Gear")
+    val dom = Domain("Driving") useCase("Driver", "change", "Gear") useCase("Driver", "brake") entity ("Gear")
 
     assert(dom.useCases.size === 2)
     assert(dom.entities.size === 1)

@@ -27,20 +27,20 @@ class UseCaseClerkTest
 
         val actor = Actor("an Actor")
         val goal = Goal("a Goal")
-        val test = useCaseClerk(actor,goal)
+        val test = useCaseClerk(actor, goal)
 
         //within(1 second) {
         //expectMsg(UseCaseCreated(UseCase(actor,goal)))
         //}
 
-        val preCondition = EntityState(Entity("an entity"),"a pre-condition state")
-        val postCondition = EntityState(Entity("an entity"),"a post-condition state")
+        val preCondition = EntityState(Entity("an entity"), "a pre-condition state")
+        val postCondition = EntityState(Entity("an entity"), "a post-condition state")
 
-        test ! AddPreCondition(actor,goal,preCondition)
-        expectMsg(ConstrainedUseCase(PreCondition(UseCase(actor,goal),preCondition)) )
+        test ! AddPreCondition(actor, goal, preCondition)
+        expectMsg(ConstrainedUseCase(PreCondition(UseCase(actor, goal), preCondition)))
 
-        test ! AddPostCondition(actor,goal,preCondition)
-        expectMsg(ConstrainedUseCase(PostCondition(UseCase(actor,goal),postCondition))) // equality of Use Cases is based on equality of their id, i.e. actor + goal
+        test ! AddPostCondition(actor, goal, preCondition)
+        expectMsg(ConstrainedUseCase(PostCondition(UseCase(actor, goal), postCondition))) // equality of Use Cases is based on equality of their id, i.e. actor + goal
       }
       finally {
         system.shutdown()

@@ -28,7 +28,7 @@ sealed case class Entity[S, I](state: ValuedState[S], identity: Identity[S, I] =
   @throws(classOf[EntityIdentityMustNotMutate])
   @throws(classOf[TargetStateHasNoValue])
   def changeState(nextState: State[S]): Entity[S, I] = {
-    val targetState:State[S] = state + nextState
+    val targetState: State[S] = state + nextState
     targetState match {
       case ValuedState(_) =>
         val valuedState = targetState.asInstanceOf[ValuedState[S]]

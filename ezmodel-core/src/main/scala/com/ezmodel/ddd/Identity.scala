@@ -7,8 +7,8 @@ object Identity {
 
   import scala.language.implicitConversions
 
-  type Identity[S,I] = (ValuedState[S] => I)
+  type Identity[S, I] = (ValuedState[S] => I)
 
-  implicit def implicitIdentity[S,I](idVal: I):Identity[S,I] = (_ => idVal)
+  implicit def implicitIdentity[S, I](idVal: I): Identity[S, I] = (_ => idVal)
 }
 

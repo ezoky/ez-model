@@ -8,6 +8,7 @@ import org.scalatest.junit.JUnitRunner
 class EventStoreModelSuite extends FunSuite {
 
   case class IntEntity(i: Int)
+
   case class StringEntity(s: String)
 
   test("Event Queue queues and dequeues events") {
@@ -30,13 +31,13 @@ class EventStoreModelSuite extends FunSuite {
   }
 
   test("Publisher") {
-    
+
     val listened = new Publisher {}
-    
+
     listened.subscribeTo[IntEntity](this)
     assert(listened.queueSize(this) === 0)
     assert(listened.queueSize(new Object) === 0)
-    
+
     listened.enqueue(Event(IntEntity(1)))
     assert(listened.queueSize(this) === 1)
     listened.enqueue(Event(StringEntity("a")))
@@ -44,7 +45,7 @@ class EventStoreModelSuite extends FunSuite {
     listened.enqueue(Event(IntEntity(2)))
     assert(listened.queueSize(this) === 2)
     assert(listened.queueSize(new Object) === 0)
-    
+
     assert(listened.dequeue[IntEntity](this).get.entityVersion.i === 1)
     assert(listened.dequeue[IntEntity](new Object) === None)
     listened.enqueue(Event(IntEntity(3)))
@@ -52,12 +53,12 @@ class EventStoreModelSuite extends FunSuite {
     assert(listened.dequeue[IntEntity](this).get.entityVersion.asInstanceOf[IntEntity].i === 3)
     assert(listened.dequeue[IntEntity](this) === None)
   }
-  
+
   test("Entity store") {
 
     val EventStoreModel = EventStore("entities")
     EventStoreModel.reset()
-    
+
     val events0 = EventStoreModel.queryAll[IntEntity]
     assert(events0.size === 0)
 
@@ -75,7 +76,7 @@ class EventStoreModelSuite extends FunSuite {
 
     val events3 = EventStoreModel.queryAll[StringEntity]
     assert(events3.size === 2)
-    
+
     val s3 = StringEntity("hello")
     EventStoreModel.store(s3)
     val events4 = EventStoreModel.queryAll[StringEntity]

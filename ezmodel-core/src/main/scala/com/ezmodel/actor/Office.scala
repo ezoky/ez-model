@@ -39,7 +39,7 @@ case class Office[T](implicit classTag: ClassTag[T]) extends Actor with ActorLog
 
   import com.ezmodel.actor.Office._
 
-  implicit val logger:LoggingAdapter = this.log
+  implicit val logger: LoggingAdapter = this.log
 
   override def receive: Receive = LoggingReceive {
     case command: Command[_] =>

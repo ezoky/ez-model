@@ -1,6 +1,6 @@
 package com.ezmodel.actor
 
-import akka.actor.{ActorRef, ActorLogging, Stash}
+import akka.actor.{ActorLogging, ActorRef, Stash}
 import akka.event.{LoggingAdapter, LoggingReceive}
 import akka.persistence.{PersistentActor, RecoveryCompleted}
 
@@ -13,15 +13,17 @@ object Clerk {
 
   import java.net.URLEncoder
 
-  def idToString(businessId:Any) =  URLEncoder.encode(businessId.toString,"UTF-8")
+  def idToString(businessId: Any) = URLEncoder.encode(businessId.toString, "UTF-8")
 
-  abstract class Command[I](val targetActorId:I) extends Serializable {
+  abstract class Command[I](val targetActorId: I) extends Serializable {
     def targetActorName = idToString(targetActorId)
   }
-  abstract class Event[S](val state:S)(implicit val replyTo: ActorRef) extends Serializable
 
-  case class Print[I](override val targetActorId:I) extends Command[I](targetActorId)
-  case class Reset[I](override val targetActorId:I) extends Command[I](targetActorId)
+  abstract class Event[S](val state: S)(implicit val replyTo: ActorRef) extends Serializable
+
+  case class Print[I](override val targetActorId: I) extends Command[I](targetActorId)
+
+  case class Reset[I](override val targetActorId: I) extends Command[I](targetActorId)
 
   case object Snap
 
@@ -31,15 +33,17 @@ object Clerk {
 class ClerkNotInitializedException extends RuntimeException
 
 
-trait Factory[S,I] {
+trait Factory[S, I] {
 
-  this: Clerk[S,I] =>
+  this: Clerk[S, I] =>
 
   import com.ezmodel.actor.Clerk._
 
   def createCommand: (I => Command[I])
+
   def createAction: (I => S)
-  def createdEvent: ((S,ActorRef) => Event[S])
+
+  def createdEvent: ((S, ActorRef) => Event[S])
 }
 
 /**
@@ -49,14 +53,14 @@ trait Factory[S,I] {
  * @tparam S Type of elements used as actor state
  * @tparam I Type of unique (in the business context) business identifier of both actor and state
  */
-abstract class Clerk[S,I](implicit classTag: ClassTag[S]) extends PersistentActor with ActorLogging with Stash with Factory[S,I] {
+abstract class Clerk[S, I](implicit classTag: ClassTag[S]) extends PersistentActor with ActorLogging with Stash with Factory[S, I] {
 
   import akka.persistence.{RecoveryFailure, SnapshotOffer}
   import com.ezmodel.actor.Clerk._
 
-  implicit val logger:LoggingAdapter = this.log
+  implicit val logger: LoggingAdapter = this.log
 
-  def businessId:I
+  def businessId: I
 
   override def persistenceId = s"${classTag.runtimeClass.getSimpleName}/${idToString(businessId)}"
 
@@ -70,7 +74,7 @@ abstract class Clerk[S,I](implicit classTag: ClassTag[S]) extends PersistentActo
     self ! createCommand(businessId)
   }
 
-  def initActor: Receive  = {
+  def initActor: Receive = {
 
     LoggingReceive {
 
@@ -79,7 +83,7 @@ abstract class Clerk[S,I](implicit classTag: ClassTag[S]) extends PersistentActo
         if (cmd == createCommand(businessId)) {
           if (!isInitialised) {
             val entity = createAction(businessId)
-            persist(createdEvent(entity,context.parent))(updateState)
+            persist(createdEvent(entity, context.parent))(updateState)
             unstashAll()
             context.unbecome()
           }

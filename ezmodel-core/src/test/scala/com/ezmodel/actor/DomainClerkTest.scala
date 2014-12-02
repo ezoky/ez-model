@@ -74,7 +74,7 @@ class DomainClerkTest
     }
   }
 
-  override def afterAll {
+  override def afterAll() {
     system.shutdown()
   }
 }

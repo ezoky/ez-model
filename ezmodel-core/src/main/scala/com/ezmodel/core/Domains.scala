@@ -2,13 +2,12 @@ package com.ezmodel.core
 
 object Domains {
 
-  import Atoms._
-  import UseCases._
-  import Entities._
-  
+  import com.ezmodel.core.Atoms._
+  import com.ezmodel.core.Entities._
+  import com.ezmodel.core.UseCases._
   import com.ezmodel.storage.EventStore
 
-  case class Domain(name: Name,useCases: List[UseCase] = List(),entities: List[Entity] = List()) {
+  case class Domain(name: Name, useCases: List[UseCase] = List(), entities: List[Entity] = List()) {
 
     EventStore(Model).store(this)
 
@@ -28,4 +27,5 @@ object Domains {
       copy(entities = ent :: entities)
     }
   }
+
 }

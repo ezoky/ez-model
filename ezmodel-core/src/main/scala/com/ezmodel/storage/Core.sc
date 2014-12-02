@@ -4,8 +4,8 @@ object Core {
 
   import com.ezmodel.core.Atoms._
   import com.ezmodel.core.Domains._
-  import com.ezmodel.core.EzModel._
   import com.ezmodel.core.Entities._
+  import com.ezmodel.core.EzModel._
   import com.ezmodel.core.UseCases._
   import com.ezmodel.core._
 

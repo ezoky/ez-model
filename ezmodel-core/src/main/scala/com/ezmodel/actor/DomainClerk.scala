@@ -1,6 +1,6 @@
 package com.ezmodel.actor
 
-import akka.actor.{ActorRef, ActorLogging, ActorRefFactory, Props}
+import akka.actor.{ActorLogging, ActorRef, ActorRefFactory, Props}
 import akka.event.LoggingReceive
 import com.ezmodel.actor.Clerk._
 import com.ezmodel.actor.Office._
@@ -18,29 +18,34 @@ object DomainClerk {
   type DomainEvent = Event[Domain]
 
   case class CreateDomain(name: Name) extends DomainCommand(name)
-  case class DomainCreated(domain:Domain)(implicit override val replyTo:ActorRef) extends DomainEvent(domain)(replyTo)
 
-  case class CreateEntity(domainName:Name,name: Name) extends DomainCommand(domainName)
-  case class EntityAdded(domain: Domain)(implicit override val replyTo:ActorRef) extends DomainEvent(domain)(replyTo)
+  case class DomainCreated(domain: Domain)(implicit override val replyTo: ActorRef) extends DomainEvent(domain)(replyTo)
 
-  case class CreateUseCase(domainName:Name,actor: Actor, goal: Goal) extends DomainCommand(domainName)
-  case class UseCaseAdded(domain: Domain)(implicit override val replyTo:ActorRef) extends DomainEvent(domain)(replyTo)
+  case class CreateEntity(domainName: Name, name: Name) extends DomainCommand(domainName)
 
-  def domainClerk(domainId:String)(implicit factory:ActorRefFactory) = factory.actorOf(Props(new DomainClerk(Name(domainId))), idToString(domainId))
+  case class EntityAdded(domain: Domain)(implicit override val replyTo: ActorRef) extends DomainEvent(domain)(replyTo)
+
+  case class CreateUseCase(domainName: Name, actor: Actor, goal: Goal) extends DomainCommand(domainName)
+
+  case class UseCaseAdded(domain: Domain)(implicit override val replyTo: ActorRef) extends DomainEvent(domain)(replyTo)
+
+  def domainClerk(domainId: String)(implicit factory: ActorRefFactory) = factory.actorOf(Props(new DomainClerk(Name(domainId))), idToString(domainId))
 
 }
 
 trait DomainFactory extends Factory[Domain, Name] {
-  this: Clerk[Domain,Name] =>
+  this: Clerk[Domain, Name] =>
 
   import com.ezmodel.actor.DomainClerk._
 
   override def createCommand = CreateDomain(_)
+
   override def createAction = Domain(_)
+
   override def createdEvent = DomainCreated(_)(_)
 }
 
-class DomainClerk(name:Name) extends Clerk[Domain,Name] with DomainFactory with ActorLogging {
+class DomainClerk(name: Name) extends Clerk[Domain, Name] with DomainFactory with ActorLogging {
 
   import com.ezmodel.actor.DomainClerk._
 
@@ -55,8 +60,8 @@ class DomainClerk(name:Name) extends Clerk[Domain,Name] with DomainFactory with 
       entities ! EntityClerk.CreateEntity(entityName)
       context.become(waitForEntityCreation(sender()))
 
-    case DomainClerk.CreateUseCase(_,actor, goal) =>
-      useCases ! UseCaseClerk.CreateUseCase(actor,goal)
+    case DomainClerk.CreateUseCase(_, actor, goal) =>
+      useCases ! UseCaseClerk.CreateUseCase(actor, goal)
       context.become(waitForUseCaseCreation(sender()))
   }
 
