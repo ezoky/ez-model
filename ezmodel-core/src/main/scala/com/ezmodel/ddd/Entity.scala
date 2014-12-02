@@ -55,6 +55,6 @@ sealed case class Entity[S, I](state: ValuedState[S], identity: Identity[S, I] =
   override def hashCode() = id.hashCode()
 }
 
-class EntityIdentityMustNotMutate() extends RuntimeException
+final class EntityIdentityMustNotMutate() extends RuntimeException
 
-class TargetStateHasNoValue() extends RuntimeException
+final class TargetStateHasNoValue() extends RuntimeException

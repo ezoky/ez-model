@@ -31,9 +31,9 @@ object State {
   }
 }
 
-class CannotChangeFromFinalState extends RuntimeException
+final class CannotChangeFromFinalState extends RuntimeException
 
-class CannotChangeToInitialState extends RuntimeException
+final class CannotChangeToInitialState extends RuntimeException
 
 object ValuedState {
 

@@ -153,6 +153,4 @@ class EntityTest extends FunSuite {
 
     assert(!e1.hasSameState(e2) && (e1 === e2))
   }
-
-
 }
