@@ -3,12 +3,12 @@ package com.ezoky.ezmodel.ddd
 /**
  * @author gweinbach
  */
-trait AbstractIdentity[-I] {
-}
-
 object Identity {
+
   import scala.language.implicitConversions
 
-  implicit def implicitIdentity[I](idValue:I):AbstractIdentity[I] = Identity(idValue)
+  type Identity[S,I] = (ValuedState[S] => I)
+
+  implicit def implicitIdentity[S,I](idVal: I):Identity[S,I] = (_ => idVal)
 }
-case class Identity[I](idValue: I) extends AbstractIdentity[I]
+

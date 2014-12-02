@@ -142,6 +142,6 @@ abstract class Clerk[S,I](implicit classTag: ClassTag[S]) extends PersistentActo
       log.info(s"Trying to recover $persistenceId from failure: $cause")
       deleteMessages(lastSequenceNr)
       self ! Reset
-      log.info(s"Recovery started for $persistenceId. State reset has been triggered.")
+      log.info(s"Recovery started for $persistenceId. ValuedState reset has been triggered.")
   }
 }

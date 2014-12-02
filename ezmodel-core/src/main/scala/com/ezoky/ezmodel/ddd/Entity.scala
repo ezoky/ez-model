@@ -1,16 +1,47 @@
 package com.ezoky.ezmodel.ddd
 
+import com.ezoky.ezmodel.ddd.Identity._
+
+object Entity {
+  def defaultIdentity[S, I]: Identity[S, I] = (state => state.stateValue.asInstanceOf[I])
+}
 
 /**
  * @author gweinbach
  */
-sealed case class Entity[I, S](val identity: AbstractIdentity[I], val state: AbstractState[S] = InitialState) {
+sealed case class Entity[S, I](state: ValuedState[S], identity: Identity[S, I] = Entity.defaultIdentity[S, I]) {
 
-  def +(nextState: AbstractState[S]): Entity[I, S] = changeState(nextState)
+  val id = identity(state)
 
-  def changeState(nextState: AbstractState[S]): Entity[I, S] = copy(state = state + nextState)
+  val isInitial = state match {
+    case InitialState(_) => true
+    case _ => false
+  }
 
-  def hasSameIdentity(other: Entity[_, _]) = identity.equals(other.identity)
+  val isFinal = state match {
+    case FinalState(_) => true
+    case _ => false
+  }
+
+  def +(nextState: State[S]): Entity[S, I] = changeState(nextState)
+
+  @throws(classOf[EntityIdentityMustNotMutate])
+  @throws(classOf[TargetStateHasNoValue])
+  def changeState(nextState: State[S]): Entity[S, I] = {
+    val targetState:State[S] = state + nextState
+    targetState match {
+      case ValuedState(_) =>
+        val valuedState = targetState.asInstanceOf[ValuedState[S]]
+        if (identity(valuedState) != identity(state)) {
+          throw new EntityIdentityMustNotMutate()
+        }
+        copy(state = valuedState)
+
+      case _ => throw new TargetStateHasNoValue()
+    }
+  }
+
+  def hasSameIdentity(other: Entity[_, _]) = id.equals(other.id)
 
   def hasSameState(other: Entity[_, _]) = state.equals(other.state)
 
@@ -21,6 +52,9 @@ sealed case class Entity[I, S](val identity: AbstractIdentity[I], val state: Abs
     case _ => false
   }
 
-  override def hashCode() = identity.hashCode()
+  override def hashCode() = id.hashCode()
 }
 
+class EntityIdentityMustNotMutate() extends RuntimeException
+
+class TargetStateHasNoValue() extends RuntimeException
