@@ -2,16 +2,16 @@ package com.ezmodel.ddd
 
 import com.ezmodel.ddd.Identity._
 
+/**
+ * @author gweinbach
+ */
 object Entity {
   def defaultIdentity[S, I]: Identity[S, I] = (state => state.stateValue.asInstanceOf[I])
 }
 
-/**
- * @author gweinbach
- */
 sealed case class Entity[S, I](state: ValuedState[S], identity: Identity[S, I] = Entity.defaultIdentity[S, I]) {
 
-  val id = identity(state)
+  lazy val id = identity(state)
 
   val isInitial = state match {
     case InitialState(_) => true

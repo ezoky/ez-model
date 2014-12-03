@@ -5,9 +5,9 @@ import scalaz.Monoid
 /**
  * @author gweinbach
  */
-sealed trait State[-S] {
+sealed trait State[+S] {
 
-  def +[T <: S](s: State[T]): State[T] = implicitly[Monoid[State[T]]].append(this, s)
+  def +[T >: S](s: State[T]): State[T] = implicitly[Monoid[State[T]]].append(this, s)
 }
 
 object State {
@@ -67,5 +67,5 @@ case class InitialState[S](override val stateValue: S) extends ValuedState[S](st
 
 case class FinalState[S](override val stateValue: S) extends ValuedState[S](stateValue)
 
-case object IdentityState extends State[Any]
+case object IdentityState extends State[Nothing]
 
