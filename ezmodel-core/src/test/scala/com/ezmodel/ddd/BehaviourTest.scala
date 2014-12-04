@@ -10,7 +10,7 @@ import org.scalatest.junit.JUnitRunner
 @RunWith(classOf[JUnitRunner])
 class BehaviourTest extends FunSuite {
 
-  test("Identity Behaviour does not do anything") {
+  test("Identify Behaviour does not do anything") {
     val s1 = "A"
     val ib = ImmutableBehaviour[String]
     val s2 = ib(s1)

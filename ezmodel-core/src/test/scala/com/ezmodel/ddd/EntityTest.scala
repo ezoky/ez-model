@@ -1,6 +1,6 @@
 package com.ezmodel.ddd
 
-import com.ezmodel.ddd.Identity._
+import com.ezmodel.ddd.Identify._
 import com.ezmodel.ddd.ValuedState._
 import org.junit.runner.RunWith
 import org.scalatest.FunSuite
@@ -70,7 +70,7 @@ class EntityTest extends FunSuite {
     assert(e1.isIdentical(e2 + "state 1"))
   }
 
-  test("Changing to Identity ValuedState does not change state") {
+  test("Changing to Identify ValuedState does not change state") {
 
     val e1 = Entity[String, String]("state 1", "id A")
 
@@ -113,7 +113,7 @@ class EntityTest extends FunSuite {
 
     case class StateExample(id: Int, value: String)
 
-    val stateId: Identity[StateExample, Int] = (_.stateValue.id)
+    val stateId: Identify[StateExample, Int] = (_.stateValue.id)
 
     val e1 = Entity(StateExample(1, "state 1"), stateId)
 
@@ -128,8 +128,8 @@ class EntityTest extends FunSuite {
 
     val state = StateExample(1, 2)
 
-    val stateId1: Identity[StateExample, Int] = (_.stateValue.id1)
-    val stateId2: Identity[StateExample, Int] = (_.stateValue.id2)
+    val stateId1: Identify[StateExample, Int] = (_.stateValue.id1)
+    val stateId2: Identify[StateExample, Int] = (_.stateValue.id2)
 
     val e1 = Entity(state, stateId1)
     val e2 = Entity(state, stateId2)
@@ -145,8 +145,8 @@ class EntityTest extends FunSuite {
     val state1 = StateExample1(1, "val 1")
     val state2 = StateExample2("val 2", 1)
 
-    val stateId1: Identity[StateExample1, Int] = (_.stateValue.id1)
-    val stateId2: Identity[StateExample2, Int] = (_.stateValue.id2)
+    val stateId1: Identify[StateExample1, Int] = (_.stateValue.id1)
+    val stateId2: Identify[StateExample2, Int] = (_.stateValue.id2)
 
     val e1 = Entity(state1, stateId1)
     val e2 = Entity(state2, stateId2)

@@ -1,15 +1,15 @@
 package com.ezmodel.ddd
 
-import com.ezmodel.ddd.Identity._
+import com.ezmodel.ddd.Identify._
 
 /**
  * @author gweinbach
  */
 object Entity {
-  def defaultIdentity[S, I]: Identity[S, I] = (state => state.stateValue.asInstanceOf[I])
+  def defaultIdentity[S, I]: Identify[S, I] = (state => state.stateValue.asInstanceOf[I])
 }
 
-sealed case class Entity[S, I](state: ValuedState[S], identity: Identity[S, I] = Entity.defaultIdentity[S, I]) {
+sealed case class Entity[S, I](state: ValuedState[S], identity: Identify[S, I] = Entity.defaultIdentity[S, I]) {
 
   lazy val id = identity(state)
 
