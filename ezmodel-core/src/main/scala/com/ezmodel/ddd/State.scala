@@ -37,16 +37,12 @@ final class CannotChangeToInitialState extends RuntimeException
 
 object ValuedState {
 
-  import scala.language.implicitConversions
-
-  implicit def implicitState[S](stateValue: S): ValuedState[S] = ValuedState[S](stateValue)
-
   def apply[S](stateValue: S): ValuedState[S] = new ValuedState(stateValue)
 
   def unapply[S](stateValue: S): Option[ValuedState[S]] = Option(ValuedState(stateValue))
 }
 
-class ValuedState[S](val stateValue: S) extends State[S] {
+class ValuedState[S](private[ddd] val stateValue: S) extends State[S] {
 
   def canEqual(other: Any): Boolean = other.isInstanceOf[ValuedState[S]]
 

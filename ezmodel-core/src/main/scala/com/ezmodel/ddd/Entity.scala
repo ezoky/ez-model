@@ -1,24 +1,18 @@
 package com.ezmodel.ddd
 
-import com.ezmodel.ddd.Identify._
-
 /**
  * @author gweinbach
  */
-object Entity {
-  def defaultIdentity[S, I]: Identify[S, I] = (state => state.stateValue.asInstanceOf[I])
-}
+sealed case class Entity[S, I](state: ValuedState[S])(identify: Identify[S, I]) {
 
-sealed case class Entity[S, I](state: ValuedState[S], identity: Identify[S, I] = Entity.defaultIdentity[S, I]) {
+  lazy val id = identify(state.stateValue)
 
-  lazy val id = identity(state)
-
-  val isInitial = state match {
+  lazy val isInitial = state match {
     case InitialState(_) => true
     case _ => false
   }
 
-  val isFinal = state match {
+  lazy val isFinal = state match {
     case FinalState(_) => true
     case _ => false
   }
@@ -32,10 +26,10 @@ sealed case class Entity[S, I](state: ValuedState[S], identity: Identify[S, I] =
     targetState match {
       case ValuedState(_) =>
         val valuedState = targetState.asInstanceOf[ValuedState[S]]
-        if (identity(valuedState) != identity(state)) {
+        if (identify(valuedState.stateValue) != id) {
           throw new EntityIdentityMustNotMutate()
         }
-        copy(state = valuedState)
+        Entity(valuedState)(identify)
 
       case _ => throw new TargetStateHasNoValue()
     }
