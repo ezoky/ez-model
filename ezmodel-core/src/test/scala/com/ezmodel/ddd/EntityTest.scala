@@ -58,7 +58,7 @@ class EntityTest extends FunSuite {
 
   test("Changing state of a DDD entity does not change its identity") {
     val e1 = Entity("state 1")("id A")
-    val e2 = e1.changeState("state 2")
+    val e2 = e1.changeState("state 2").get
 
     assert(!e1.hasSameState(e2))
     assert(e1.hasSameIdentity(e2))
@@ -85,12 +85,10 @@ class EntityTest extends FunSuite {
 
   test("Cannot change state of an Entity to an InitialState") {
 
-    val e1 = Entity("A")(defaultIdentify)
+    val e1 = Entity("A")("id 1")
 
-    assert(!e1.isInitial)
-    intercept[CannotChangeToInitialState] {
-      e1.changeState(InitialState("B"))
-    }
+    assert(!e1.isStateInitial)
+    assert(e1.changeState(InitialState("B")).state === new CannotChangeToInitialState("B"))
   }
 
   test("Cannot change state after FinalState is reached") {
@@ -98,10 +96,21 @@ class EntityTest extends FunSuite {
     val e1 = Entity("A")("id 1")
     val e2 = e1.changeState(FinalState("B"))
 
-    assert(e2.isFinal)
-    intercept[CannotChangeFromFinalState] {
-      e2.changeState("C")
-    }
+    assert(e2.isStateFinal)
+    assert(e2.changeState("C").state === new CannotChangeFromFinalState("B"))
+  }
+
+
+  test("Cannot change state after InvalidState is reached") {
+
+    val e1 = Entity("A")("id 1")
+    val e2 = e1.changeState(FinalState("B"))
+
+    assert(e2.isStateFinal)
+
+    val e3 = e2.changeState("C") // this is an invalid state
+    assert(e3.isStateInvalid)
+    assert(e3.changeState("D").state === new CannotChangeFromFinalState("B"))
   }
 
   test("+ operator changes state") {
@@ -123,9 +132,7 @@ class EntityTest extends FunSuite {
 
     val e1 = Entity(StateExample(1, "state 1"))(stateId)
 
-    intercept[EntityIdentityMustNotMutate] {
-      e1.changeState(StateExample(2, "state 1"))
-    }
+    assert(e1.changeState(StateExample(2, "state 1")) === None)
   }
 
   test("Entities can have same state but be different if they have different ids") {

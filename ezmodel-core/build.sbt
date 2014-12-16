@@ -35,8 +35,6 @@ libraryDependencies ++= Seq(
   "org.scalaz" %% "scalaz-scalacheck-binding" % scalazVersion % "test"
 )
 
-scalacOptions += "-feature"
-
 initialCommands in console := "import scalaz._, Scalaz._"
 
 //initialCommands in console in Test := "import scalaz._, Scalaz._, scalacheck.Scalaz

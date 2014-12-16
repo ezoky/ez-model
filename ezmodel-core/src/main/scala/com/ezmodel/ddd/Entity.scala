@@ -1,37 +1,35 @@
 package com.ezmodel.ddd
 
+import scalaz.\/
+
 /**
  * @author gweinbach
  */
-sealed case class Entity[S, I](state: ValuedState[S])(identify: Identify[S, I]) {
+sealed case class Entity[+S, +I](state: State[S])(identify: Identify[S, I]) {
 
-  lazy val id = identify(state.stateValue)
+  type Entity[+S,+I] = \/[InvalidEntity,Entity[S,I]]
 
-  lazy val isInitial = state match {
-    case InitialState(_) => true
-    case _ => false
-  }
+  lazy val id = identify(state.value)
 
-  lazy val isFinal = state match {
-    case FinalState(_) => true
-    case _ => false
-  }
+  lazy val isStateInitial = state.isInitial
 
-  def +(nextState: State[S]): Entity[S, I] = changeState(nextState)
+  lazy val isStateFinal = state.isFinal
 
-  @throws(classOf[EntityIdentityMustNotMutate])
-  @throws(classOf[TargetStateHasNoValue])
-  def changeState(nextState: State[S]): Entity[S, I] = {
-    val targetState: State[S] = state + nextState
-    targetState match {
-      case ValuedState(_) =>
-        val valuedState = targetState.asInstanceOf[ValuedState[S]]
-        if (identify(valuedState.stateValue) != id) {
-          throw new EntityIdentityMustNotMutate()
-        }
-        Entity(valuedState)(identify)
+  lazy val isStateInvalid = state.isInvalid
 
-      case _ => throw new TargetStateHasNoValue()
+  def +[T >: S](nextState: State[T]): Entity[T, I] = changeState(nextState)
+
+  def changeState[T >: S](nextState: State[T]): Entity[T, I] = {
+    val targetState = state + nextState
+     if (identify(targetState.value) != id) {
+        None // throw new EntityIdentityMustNotMutate()
+      }
+      else {
+        Some(Entity(valuedState)(identify))
+      }
+    }
+    else {
+      case _ => None // throw new TargetStateHasNoValue()
     }
   }
 
@@ -49,6 +47,4 @@ sealed case class Entity[S, I](state: ValuedState[S])(identify: Identify[S, I]) 
   override def hashCode() = id.hashCode()
 }
 
-final class EntityIdentityMustNotMutate() extends RuntimeException
-
-final class TargetStateHasNoValue() extends RuntimeException
+case class InvalidEntity(cause: String) extends Entity[Nothing,Nothing](null)(defaultIdentify)
