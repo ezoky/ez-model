@@ -1,24 +1,18 @@
 package com.ezmodel.ddd
 
-import scalaz.{-\/, Monoid, \/, \/-}
+import scalaz._
+import Scalaz._
 
 
 /**
  * @author gweinbach
  */
-trait State[+S] {
 
-  val value: S
-
-  val isValued: Boolean
-
-  val isInitial: Boolean
-
-  val isFinal: Boolean
-
-  val isInvalid: Boolean
+object State {
 
   type State[+S] = InvalidState[S] \/ ValidState[S]
+
+  def apply[S](stateValue:S):State[S] = CommonState(stateValue)
 
   import scala.language.implicitConversions
 
@@ -30,31 +24,70 @@ trait State[+S] {
 
       case (-\/(_), _) => f1 // no change of state after an InvalidState is reached
       case (_, \/-(IdentityState)) => f1
-      case (_, to: InitialState[S]) => -\/(CannotChangeToInitialState(to.value))
-      case (from: FinalState[S], _) => -\/(CannotChangeFromFinalState[S](from.value))
+      case (_, \/-(to:InitialState[S])) => -\/(CannotChangeToInitialState(to.value.get))
+      case (\/-(from:FinalState[S]), _) => -\/(CannotChangeFromFinalState(from.value.get))
       case _ => f2
     }
   }
 
+  implicit def disjunctionAsState[S](d:(InvalidState[S] \/ ValidState[S])): State[S] = d
 }
 
-/*
-object ValuedState {
+trait AbstractState[+S] {
 
-  def apply[S](stateValue: S): ValuedState[S] = new CommonState(stateValue)
+  val value: Option[S]
 
-  //def unapply[S](initialState: InitialState[S]): Option[InitialState[S]] = Option(new InitialState(initialState.get))
+  val isValued: Boolean
 
-  //def unapply[S](valuedState: ValuedState[S]): Option[ValuedState[S]] = Option(ValuedState(valuedState.get))
+  val isInitial: Boolean
+
+  val isFinal: Boolean
+
+  val isInvalid: Boolean
 }
-*/
+
+trait ValidState[+S] extends AbstractState[S] {
+
+  override val isInvalid = false
+
+  import State._
+
+  def +[T >: S](s: State[T]): State[T] = (\/-(this): State[T]) |+| s
+}
+
+case object IdentityState extends ValidState[Nothing] {
+
+  override val isValued = false
+  override val value = None
+
+  override val isInitial = false
+  override val isFinal = false
+}
+
+trait InitialState[+S] extends ValidState[S] {
+  override val isInitial = true
+}
+
+trait FinalState[+S] extends ValidState[S] {
+  override val isFinal = true
+}
+
+trait InvalidState[+S] extends AbstractState[S] {
+  override val isInvalid = true
+  override val isFinal = true
+  override val isInitial = false
+
+  import State._
+
+  def +[T >: S](s: State[T]): State[T] = (-\/(this): State[T]) |+| s
+}
 
 
-abstract class ValuedState[+S](protected val stateValue: S) extends State[S] {
+abstract class ValuedState[+S](protected val stateValue: S) extends AbstractState[S] {
 
   override val isValued = true
+  override val value = Some(stateValue)
 
-  override val value = stateValue
 
   def canEqual(other: Any): Boolean = other.isInstanceOf[ValuedState[S]]
 
@@ -71,41 +104,21 @@ abstract class ValuedState[+S](protected val stateValue: S) extends State[S] {
   }
 }
 
-trait ValidState[+S] extends State[S] {
-  override val isInvalid = false
 
-  def +[T >: S](s: State[T]): State[T] = implicitly[Monoid[State[T]]].append(\/-(this), s)
-}
-
-case object IdentityState extends ValidState[Nothing] {
-
-  override val isValued = false
-
-  override def value = throw new NoSuchElementException("IdentityState.get")
-
-  override val isInitial = false
-  override val isFinal = false
-}
-
-class CommonState[+S](override val stateValue: S) extends ValuedState {
+case class CommonState[+S](override val stateValue: S) extends ValuedState[S](stateValue) with ValidState[S] {
   override val isInitial = false
   override val isFinal = false
   override val isInvalid = false
 }
 
-trait InitialState[+S] extends ValidState[S] {
-  override val isInitial = true
+case class CommonInitialState[+S](override val stateValue: S) extends ValuedState[S](stateValue) with InitialState[S] {
+  override val isFinal = false
 }
 
-trait FinalState[+S] extends ValidState[S] {
-  override val isFinal = true
-}
-
-trait InvalidState[+S] extends State[S] {
-  override val isInvalid = true
-  override val isFinal = true
+case class CommonFinalState[+S](override val stateValue: S) extends ValuedState[S](stateValue) with FinalState[S] {
   override val isInitial = false
 }
+
 
 class ErrorMessageInvalidState[+S](val cause: String, override val stateValue: S) extends ValuedState[S](stateValue) with InvalidState[S]
 

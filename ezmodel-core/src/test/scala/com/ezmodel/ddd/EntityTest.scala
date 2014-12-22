@@ -4,6 +4,10 @@ import org.junit.runner.RunWith
 import org.scalatest.FunSuite
 import org.scalatest.junit.JUnitRunner
 
+import Entity._
+
+import scalaz._
+import Scalaz._
 
 /**
  * @author gweinbach
@@ -13,11 +17,11 @@ class EntityTest extends FunSuite {
 
   test("Equality of identity of DDD Entities is reflexive") {
 
-    val e1 = Entity(1)("id A")
-    val e2 = Entity(2)("id A")
-    val e3 = Entity(3)("id B")
+    val e1 = Entity[Int,String](1)("id A")
+    val e2 = Entity[Int,String](2)("id A")
+    val e3 = Entity[Int,String](3)("id B")
 
-//    assert(e1.hasSameIdentity(e2) && e2.hasSameIdentity(e1))
+    assert(e1.hasSameIdentity(e2) && e2.hasSameIdentity(e1))
     assert(!e1.hasSameIdentity(e3) && !e3.hasSameIdentity(e1))
   }
 
@@ -33,18 +37,18 @@ class EntityTest extends FunSuite {
 
   test("DDD entities are equal if they have same identity") {
 
-    val e1 = Entity("A")(defaultIdentify)
-    val e2 = Entity("A")(defaultIdentify)
-    val e3 = Entity("B")(defaultIdentify)
+    val e1 = Entity("A")(stateIdentify)
+    val e2 = Entity("A")(stateIdentify)
+    val e3 = Entity("B")(stateIdentify)
 
-    assert(e1.hasSameIdentity(e2) && e1 === e2)
+    assert(e1.hasSameIdentity(e2) && e1 == e2)
     assert(!e1.hasSameIdentity(e3) && (e1 !== e3))
 
-    val e4 = Entity("state 1")("id A")
-    val e5 = Entity("state 2")("id A")
-    val e6 = Entity("state 1")("id B")
+    val e4 = Entity[String,String]("state 1")("id A")
+    val e5 = Entity[String,String]("state 2")("id A")
+    val e6 = Entity[String,String]("state 1")("id B")
 
-    assert(e4 === e5)
+    assert(e4 == e5)
     assert(e4 !== e6)
   }
 
@@ -53,23 +57,23 @@ class EntityTest extends FunSuite {
     val e1:Entity[String,String] = Entity[String,String]("A")_
     val e2:Entity[String,String] = Entity("A")(s => s)
 
-    assert(e1.hasSameIdentity(e2) && e1 === e2)
+    assert(e1.hasSameIdentity(e2) && e1 == e2)
   }
 
   test("Changing state of a DDD entity does not change its identity") {
-    val e1 = Entity("state 1")("id A")
-    val e2 = e1.changeState("state 2").get
+    val e1 = Entity[String,String]("state 1")("id A")
+    val e2 = e1.changeState("state 2")
 
     assert(!e1.hasSameState(e2))
     assert(e1.hasSameIdentity(e2))
-    assert(e1 === e2)
+    assert(e1 == e2)
   }
 
   test("DDD Entities are identical if and only if they have same identity and same state") {
 
-    val e1 = Entity("state 1")("id A")
-    val e2 = Entity("state 2")("id A")
-    val e3 = Entity("state 1")("id B")
+    val e1 = Entity[String,String]("state 1")("id A")
+    val e2 = Entity[String,String]("state 2")("id A")
+    val e3 = Entity[String,String]("state 1")("id B")
 
     assert(!e1.isIdentical(e2))
     assert(!e1.isIdentical(e3))
@@ -78,44 +82,43 @@ class EntityTest extends FunSuite {
 
   test("Changing state to IdentityState does not change state") {
 
-    val e1 = Entity("state 1")("id A")
+    val e1 = Entity[String,String]("state 1")("id A")
 
     assert(e1.hasSameState(e1 + IdentityState))
   }
 
   test("Cannot change state of an Entity to an InitialState") {
 
-    val e1 = Entity("A")("id 1")
+    val e1 = Entity[String,String]("A")("id 1")
 
-    assert(!e1.isStateInitial)
-    assert(e1.changeState(InitialState("B")).state === new CannotChangeToInitialState("B"))
+    assert(e1.changeState(CommonInitialState("B")).state == CannotChangeToInitialState("B").left)
   }
 
   test("Cannot change state after FinalState is reached") {
 
-    val e1 = Entity("A")("id 1")
-    val e2 = e1.changeState(FinalState("B"))
+    val e1 = Entity[String,String]("A")("id 1")
+    val e2 = e1.changeState(CommonFinalState("B"))
 
-    assert(e2.isStateFinal)
-    assert(e2.changeState("C").state === new CannotChangeFromFinalState("B"))
+    assert(e2.isStateFinal == true.right)
+    assert(e2.changeState("C").state == CannotChangeFromFinalState("B").left)
   }
 
 
   test("Cannot change state after InvalidState is reached") {
 
-    val e1 = Entity("A")("id 1")
-    val e2 = e1.changeState(FinalState("B"))
+    val e1 = Entity[String,String]("A")("id 1")
+    val e2 = e1.changeState(CommonFinalState("B"))
 
-    assert(e2.isStateFinal)
+    assert(e2.isStateFinal == true.right)
 
     val e3 = e2.changeState("C") // this is an invalid state
-    assert(e3.isStateInvalid)
-    assert(e3.changeState("D").state === new CannotChangeFromFinalState("B"))
+    assert(e3.isStateInvalid.isLeft)
+    assert(e3.changeState("D").state == CannotChangeFromFinalState("B").left)
   }
 
   test("+ operator changes state") {
 
-    val e1 = Entity("A")("id")
+    val e1 = Entity[String,String]("A")("id")
     val state1 = "state 1"
     val state2 = "state 2"
     val e2 = e1 + state1 + state2
@@ -132,7 +135,7 @@ class EntityTest extends FunSuite {
 
     val e1 = Entity(StateExample(1, "state 1"))(stateId)
 
-    assert(e1.changeState(StateExample(2, "state 1")) === None)
+    assert(e1.changeState(StateExample(2, "state 1")) == InvalidEntity(IdentityHasMutated,StateExample(2, "state 1"))(stateId).left)
   }
 
   test("Entities can have same state but be different if they have different ids") {
@@ -164,6 +167,6 @@ class EntityTest extends FunSuite {
     val e1 = Entity(state1)(stateId1)
     val e2 = Entity(state2)(stateId2)
 
-    assert(!e1.hasSameState(e2) && (e1 === e2))
+    assert(!e1.hasSameState(e2) && (e1 == e2))
   }
 }

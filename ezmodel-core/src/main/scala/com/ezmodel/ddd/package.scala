@@ -1,5 +1,7 @@
 package com.ezmodel
 
+import scalaz.{-\/, \/-}
+
 /**
  * @author gweinbach
  */
@@ -7,20 +9,36 @@ package object ddd {
 
   import scala.language.implicitConversions
 
-  implicit def implicitState[S](stateValue: S): ValuedState[S] = ValuedState[S](stateValue)
+
+  type Identify[-S, +I] = (S => I)
+
+  def stateIdentify[S]: Identify[S, S] = ((s: S) => s)
+  def constantIdentify[S,I](constant: I): Identify[S,I] = ((s: S) => constant)
+
+  implicit def implicitIdentify[S, I](idVal: I): Identify[S, I] = constantIdentify[S,I](idVal)
 
 
-  type Identify[S, I] = (S => I)
 
-  implicit def implicitIdentify[S, I](idVal: I): Identify[S, I] = (_ => idVal)
+  import State.State
 
-  def defaultIdentify[S]: Identify[S, S] = ((s: S) => s)
+  implicit def implicitState[S](validState: ValidState[S]): State[S] = \/-(validState)
+  implicit def implicitState[S](invalidState: InvalidState[S]): State[S] = -\/(invalidState)
+  implicit def implicitState[S](stateValue: S): State[S] = \/-(CommonState[S](stateValue))
 
+
+
+  import Entity.Entity
 
   /**
    * This implicit to be able to use partial Entity as if it was a complete one.
    */
-  implicit def implicitCurriedEntity[S](f: Identify[S, S] => Entity[S, S]): Entity[S, S] = f(defaultIdentify[S])
+  implicit def implicitCurriedEntity[S](f: Identify[S, S] => Entity[S, S]): Entity[S, S] = f(stateIdentify[S])
 
-  implicit def implicitOptionEntity[S,I](option:Option[Entity[S,I]]): Entity[S,I] = option.getOrElse(InvalidEntity)
+  /**
+   * This is only possible because InvalidEntity and StatefulEntity have a common ancestor (AbstractEntity)
+   */
+  implicit def entityProjection[S, I](entity: Entity[S, I]): AbstractEntity[S, I] = entity.fold[AbstractEntity[S, I]](l => l, r => r)
+
+
+  abstract class ErrorCause(reason: String)
 }

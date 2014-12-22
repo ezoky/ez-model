@@ -1,50 +1,72 @@
 package com.ezmodel.ddd
 
-import scalaz.\/
+import com.ezmodel.ddd.State.State
+
+import scalaz.Scalaz._
+import scalaz._
 
 /**
  * @author gweinbach
  */
-sealed case class Entity[+S, +I](state: State[S])(identify: Identify[S, I]) {
+object Entity {
 
-  type Entity[+S,+I] = \/[InvalidEntity,Entity[S,I]]
+  type Entity[+S, +I] = \/[InvalidEntity[S, I], StatefulEntity[S, I]]
 
-  lazy val id = identify(state.value)
+  def apply[S, I](state: State[S])(identify: Identify[S, I]): Entity[S, I] = {
+    \/-(StatefulEntity(state)(identify))
+  }
+}
 
-  lazy val isStateInitial = state.isInitial
+sealed abstract class AbstractEntity[+S, +I](val state: State[S])(identify: => Identify[S, I]) {
 
-  lazy val isStateFinal = state.isFinal
+  import com.ezmodel.ddd.State._
 
-  lazy val isStateInvalid = state.isInvalid
+  lazy val id: \/[InvalidState[S], I] = state.map(s => identify(s.value.get))
+
+  lazy val isStateInitial: \/[InvalidState[S], Boolean] = state.map(_.isInitial)
+
+  lazy val isStateFinal: \/[InvalidState[S], Boolean] = state.map(_.isFinal)
+
+  /**
+   * Strange behaviour as it will return a left invalid state when invelid (and a right "false" if valid)
+   */
+  lazy val isStateInvalid: \/[InvalidState[S], Boolean] = state.map(_.isLeft)
+
+
+  import com.ezmodel.ddd.Entity.Entity
 
   def +[T >: S](nextState: State[T]): Entity[T, I] = changeState(nextState)
 
   def changeState[T >: S](nextState: State[T]): Entity[T, I] = {
-    val targetState = state + nextState
-     if (identify(targetState.value) != id) {
-        None // throw new EntityIdentityMustNotMutate()
-      }
-      else {
-        Some(Entity(valuedState)(identify))
-      }
+
+    val targetState = (state: State[T]) |+| nextState
+
+    if (targetState.map(s => identify(s.value.get.asInstanceOf[S])) != id) {
+      // Very ugly !!
+      -\/(InvalidEntity(IdentityHasMutated, targetState)(identify.asInstanceOf[T => I]))
     }
     else {
-      case _ => None // throw new TargetStateHasNoValue()
+      \/-(StatefulEntity[T, I](targetState)(identify.asInstanceOf[T => I])) // Very ugly !!
     }
   }
 
-  def hasSameIdentity(other: Entity[_, _]) = id.equals(other.id)
+  def hasSameIdentity(other: AbstractEntity[_, _]): Boolean = id.equals(other.id)
 
-  def hasSameState(other: Entity[_, _]) = state.equals(other.state)
+  def hasSameState(other: AbstractEntity[_, _]): Boolean = state.equals(other.state)
 
-  def isIdentical(other: Entity[_, _]) = hasSameIdentity(other) && hasSameState(other)
+  def isIdentical(other: AbstractEntity[_, _]): Boolean = hasSameIdentity(other) && hasSameState(other)
 
   override def equals(other: Any) = other match {
-    case otherEntity: Entity[_, _] => hasSameIdentity(otherEntity)
+    case otherEntity: AbstractEntity[_, _] => hasSameIdentity(otherEntity)
     case _ => false
   }
 
   override def hashCode() = id.hashCode()
 }
 
-case class InvalidEntity(cause: String) extends Entity[Nothing,Nothing](null)(defaultIdentify)
+
+case class StatefulEntity[+S, +I](override val state: State[S])(identify: Identify[S, I]) extends AbstractEntity[S, I](state)(identify)
+
+case class InvalidEntity[+S, +I](val cause: ErrorCause, override val state: State[S])(identify: Identify[S, I]) extends AbstractEntity[S, I](state)(identify)
+
+case object IdentityHasMutated extends ErrorCause("Identity has mutated")
