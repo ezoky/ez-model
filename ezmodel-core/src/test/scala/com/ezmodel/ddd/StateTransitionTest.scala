@@ -8,17 +8,18 @@ import org.scalatest.junit.JUnitRunner
  * @author gweinbach
  */
 @RunWith(classOf[JUnitRunner])
-class BehaviourTest extends FunSuite {
+class StateTransitionTest extends FunSuite {
 
-  test("Identify Behaviour does not do anything") {
+  test("Identify StateTransition does not do anything") {
     val s1 = "A"
-    val ib = ImmutableBehaviour[String]
-    val s2 = ib(s1)
+    val ib = ImmutableTransition[Int,String](3)
+    val (value,s2) = ib(s1)
 
+    assert(value === 3)
     assert(s1 === s2)
   }
 
-//  test("a reflexive method is a Behaviour") {
+//  test("a reflexive method is a StateTransition") {
 //    case class Test(value: Int) {
 //      def behaviour(t: Test) = Test(2 * value)
 //
@@ -39,7 +40,7 @@ class BehaviourTest extends FunSuite {
 //    val rbm = m.reflect(t)
 //    val behaviourMeth = rbm.reflectMethod(bm.asMethod)
 //
-//    val tm = ru.typeOf[Behaviour.type].member(ru.newTermName("type"))
+//    val tm = ru.typeOf[StateTransition.type].member(ru.newTermName("type"))
 //    val rtm = m.reflect(tm)
 //    val behaviourType = rtm.symbol.typeSignature
 //  }
