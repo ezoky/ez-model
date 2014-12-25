@@ -10,12 +10,20 @@ import org.scalatest.junit.JUnitRunner
 @RunWith(classOf[JUnitRunner])
 class StateTransitionTest extends FunSuite {
 
-  test("Identify StateTransition does not do anything") {
+  test("Identify StateAction does not do anything") {
     val s1 = "A"
-    val ib = ImmutableTransition[Int,String](3)
+    val ib = IdentityAction[Int,String](3)
     val (value,s2) = ib(s1)
 
     assert(value === 3)
+    assert(s1 === s2)
+  }
+
+  test("Identify StateTransition does not do anything") {
+    val s1 = "A"
+    val ib = IdentityTransition[String]
+    val s2 = ib(s1)
+
     assert(s1 === s2)
   }
 
