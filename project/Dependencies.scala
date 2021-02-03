@@ -6,6 +6,7 @@ object Dependencies {
 
   object Versions {
 
+
     val scala = "2.13.2"
 
     val ScalaParserCombinator = "1.1.2"
@@ -25,6 +26,8 @@ object Dependencies {
     val JodaMoney = "1.0.1"
 
     val BetterFiles = "3.9.1"
+
+    val EzLogging = "0.1.0"
 
     object Google {
       val GoogleSheets = "v4-rev568-1.25.0"
@@ -139,6 +142,9 @@ object Dependencies {
 
   // Ammonite REPL, Scripts and Shell
   val `ammonite` = "com.lihaoyi" % "ammonite" % Versions.Ammonite cross CrossVersion.full
+
+  // EZOKY
+  val `ez-logging` = "com.ezoky" %% "ez-logging" % Versions.EzLogging
 
   object Test {
     val junit = "junit" % "junit" % Versions.Test.Junit % sbt.Test

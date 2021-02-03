@@ -49,6 +49,7 @@ lazy val `ezmodel-core` =
         libraryDependencies += Dependencies.`nscala-time`,
         libraryDependencies += Dependencies.`akka-actor`,
         libraryDependencies += Dependencies.`akka-persistence`,
+        libraryDependencies += Dependencies.`ez-logging`,
         libraryDependencies += Dependencies.Test.`akka-testkit`
       ): _*
     )
