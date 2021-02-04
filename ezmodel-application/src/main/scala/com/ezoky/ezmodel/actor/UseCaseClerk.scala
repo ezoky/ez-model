@@ -49,7 +49,7 @@ class UseCaseClerk(id: (Actor, Goal)) extends Clerk[UseCase, (Actor, Goal)] with
 
   override def businessId = id //s"as a $actor I want to $goal"
 
-  override def printState() = {
+  override def printState = {
     println(s"Actor: $self")
     if (isInitialised) {
       println(state)
@@ -74,7 +74,7 @@ class UseCaseClerk(id: (Actor, Goal)) extends Clerk[UseCase, (Actor, Goal)] with
 object UseCaseExample extends App {
 
   val system = ActorSystem("example")
-  val repository = system.actorOf(Props(Office[UseCaseClerk]), "UseCases")
+  val repository = system.actorOf(Props(Office[UseCaseClerk]()), "UseCases")
 
   implicit val ref = system.deadLetters
   //office ! AddAttribute(Name("AnUseCase"),Name("an attribute"))

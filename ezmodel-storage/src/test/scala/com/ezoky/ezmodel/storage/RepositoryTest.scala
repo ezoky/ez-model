@@ -60,7 +60,7 @@ class RepositorySuite extends AnyFunSuite {
 
     EntityEventStore.store(e1)
     assert(EntityEventStore.size === 1)
-    r.populate
+    r.populate()
     assert(r.queryEntitiesCount === 1)
     assert(r.queryVersionCount(e1) === 1)
 
@@ -70,7 +70,7 @@ class RepositorySuite extends AnyFunSuite {
     e1.j = 1
     EntityEventStore.store(e1)
     assert(EntityEventStore.size === 2)
-    r.populate
+    r.populate()
     assert(r.queryEntitiesCount === 1)
     assert(r.queryVersionCount(e1) === 2)
     assert(r.query(e1).get.j === 1)
@@ -79,7 +79,7 @@ class RepositorySuite extends AnyFunSuite {
     e2.j = 2
     EntityEventStore.store(e2)
     assert(EntityEventStore.size === 3)
-    r.populate
+    r.populate()
     assert(r.queryEntitiesCount === 1)
     assert(r.queryVersionCount(e1) === 3)
     assert(r.query(e1).get.j === 2)
@@ -88,7 +88,7 @@ class RepositorySuite extends AnyFunSuite {
     e3.j = 3
     EntityEventStore.store(e3)
     assert(EntityEventStore.size === 4)
-    r.populate
+    r.populate()
     assert(r.queryEntitiesCount === 2)
     assert(r.queryVersionCount(e3) === 1)
     assert(r.query(e3).get.j === 3)
@@ -99,7 +99,7 @@ class RepositorySuite extends AnyFunSuite {
     val e5 = MutableEntity(entityId + 2)
     EntityEventStore.store(e5)
     assert(EntityEventStore.size === 6)
-    r.populate
+    r.populate()
     assert(r.queryEntitiesCount === 3)
     assert(r.queryVersionCount(e4) === 2)
   }
@@ -126,8 +126,8 @@ class RepositorySuite extends AnyFunSuite {
 
     EntityEventStore.store(m1)
     assert(EntityEventStore.size === 1)
-    ri.populate
-    rm.populate
+    ri.populate()
+    rm.populate()
     assert(ri.queryEntitiesCount === 0)
     assert(ri.queryVersionCount(i1) === 0)
     assert(rm.queryEntitiesCount === 1)
@@ -135,8 +135,8 @@ class RepositorySuite extends AnyFunSuite {
 
     EntityEventStore.store(i1)
     assert(EntityEventStore.size === 2)
-    ri.populate
-    rm.populate
+    ri.populate()
+    rm.populate()
     assert(ri.queryEntitiesCount === 1)
     assert(ri.queryVersionCount(i1) === 1)
     assert(rm.queryEntitiesCount === 1)

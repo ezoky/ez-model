@@ -10,21 +10,24 @@ object Entities {
 
   object InitialStateName extends StateName(Qualifier("<initial>"))
 
-  implicit def stringState(qualifier: String): StateName = new StateName(Qualifier(qualifier))
+  implicit def stringState(qualifier: String): StateName =
+    StateName(Qualifier(qualifier))
 
   case class StateMachine(entity: Entity,
                           states: Map[StateName, EntityState] = Map.empty) {
 
-    def state(entityState: EntityState) = copy(states = states + (entityState.state -> entityState))
+    def state(entityState: EntityState) =
+      copy(states = states + (entityState.state -> entityState))
   }
 
-  class EntityState(val entity: Entity, val state: StateName) extends Entity(Name(s"${entity.name} [${state.qualifier}]"))
-
-  object EntityState {
-    def apply(entity: Entity, state: StateName) = new EntityState(entity, state)
+  case class EntityState(entity: Entity,
+                         state: StateName) {
+    override def toString: String =
+      s"${entity} is ${state}"
   }
 
-  class InitialEntityState(entity: Entity) extends EntityState(entity, InitialStateName)
+  class InitialEntityState(entity: Entity)
+    extends EntityState(entity, InitialStateName)
 
   abstract case class Multiplicity(multiplicity: String)
 
@@ -50,17 +53,34 @@ object Entities {
                     aggregates: Map[Name, Aggregate] = Map.empty[Name, Aggregate],
                     references: Map[Name, Reference] = Map.empty[Name, Reference]) {
 
-    def attribute(attributeName: Name, multiplicity: Multiplicity = single, mandatory: Boolean = false) = copy(attributes = attributes + (attributeName -> Attribute(attributeName, multiplicity, mandatory)))
+    def attribute(attributeName: Name, multiplicity: Multiplicity = single, mandatory: Boolean = false) = copy(
+      attributes = attributes + (attributeName -> Attribute(attributeName, multiplicity, mandatory)))
 
-    def aggregate(aggregateName: Name, leaf: Entity, multiplicity: Multiplicity = single, mandatory: Boolean = false) = copy(aggregates = aggregates + (aggregateName -> Aggregate(this, aggregateName, leaf, multiplicity, mandatory)))
+    def aggregate(aggregateName: Name,
+                  leaf: Entity,
+                  multiplicity: Multiplicity = single,
+                  mandatory: Boolean = false) = copy(aggregates = aggregates + (aggregateName -> Aggregate(this,
+      aggregateName,
+      leaf,
+      multiplicity,
+      mandatory)))
 
     def aggregate(multiplicity: Multiplicity, leaf: Entity): Entity = aggregate(DefaultName, leaf, multiplicity)
 
-    def reference(referenceName: Name, referenced: Entity, multiplicity: Multiplicity = single, mandatory: Boolean = false) = copy(references = references + (referenceName -> Reference(referenceName, referenced, multiplicity, mandatory)))
+    def reference(referenceName: Name,
+                  referenced: Entity,
+                  multiplicity: Multiplicity = single,
+                  mandatory: Boolean = false) = copy(references = references + (referenceName -> Reference(referenceName,
+      referenced,
+      multiplicity,
+      mandatory)))
 
-    def reference(multiplicity: Multiplicity, referenced: Entity): Entity = reference(DefaultName, referenced, multiplicity)
+    def reference(multiplicity: Multiplicity, referenced: Entity): Entity = reference(DefaultName,
+      referenced,
+      multiplicity)
 
-    override def toString = s"${getClass.getSimpleName}($name)"
+    override def toString =
+      s"${getClass.getSimpleName}($name)"
 
     override def equals(other: Any): Boolean =
       other match {

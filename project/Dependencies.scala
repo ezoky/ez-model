@@ -6,8 +6,13 @@ object Dependencies {
 
   object Versions {
 
+    val scala211 = "2.11.12"
+    val scala212 = "2.12.12"
+    val scala213 = "2.13.3"
+    val scala3 = "3.0.0-M1"
 
-    val scala = "2.13.2"
+    val scala = scala213
+    val dotty = scala3
 
     val ScalaParserCombinator = "1.1.2"
 
@@ -39,24 +44,26 @@ object Dependencies {
     val Auth0 = "0.8.3"
 
     object Test {
-      val SLF4J = "1.7.26"
+      val SLF4J = "1.7.30"
 
       val Logback = "1.2.3"
 
-      val Junit = "4.12"
+      val JunitInterface = "0.11"
       val Concordion = "2.2.0"
       val Specs2 = "4.8.3"
-      val Scalatest = "3.2.1"
-      val ScalatestPlusScalacheck = "3.1.2.0"
+      val Scalatest = "3.2.2"
+      val ScalatestPlusScalacheck = "3.2.2.0"
       val ScalatestPlusPlay = "4.0.3"
       val Scalacheck = "1.14.3"
       val ScalacheckShapeless = "1.2.3"
+
+      val MockitoScala = "1.16.0"
     }
 
   }
 
   // Scala libraries
-  val `scala-reflect` = "org.scala-lang" % "scala-reflect" % Versions.scala
+  def `scala-reflect`(scalaVersionValue: String): ModuleID = "org.scala-lang" % "scala-reflect" % scalaVersionValue
   val `scala-parser-combinator` = "org.scala-lang.modules" %% "scala-parser-combinators" % Versions.ScalaParserCombinator
 
   // Compiler plugin
@@ -147,7 +154,8 @@ object Dependencies {
   val `ez-logging` = "com.ezoky" %% "ez-logging" % Versions.EzLogging
 
   object Test {
-    val junit = "junit" % "junit" % Versions.Test.Junit % sbt.Test
+    // Full multi-version scala JuUnit support. Pulls JUnit
+    val `junit-interface` = "com.novocode" % "junit-interface" % Versions.Test.JunitInterface % sbt.Test
     val scalatest = "org.scalatest" %% "scalatest" % Versions.Test.Scalatest % sbt.Test
     val concordion = "org.concordion" % "concordion" % Versions.Test.Concordion % sbt.Test
 
@@ -156,6 +164,10 @@ object Dependencies {
       "com.github.alexarchambault" %% "scalacheck-shapeless_1.14" % Versions.Test.ScalacheckShapeless % sbt.Test
     val `scalatest-plus-scalacheck` =
       "org.scalatestplus" %% "scalacheck-1-14" % Versions.Test.ScalatestPlusScalacheck% sbt.Test
+    val `scalacheck-minimal` = Seq(
+      scalacheck,
+      `scalatest-plus-scalacheck`
+    )
 
     val `specs2-core` = "org.specs2" %% "specs2-core" % Versions.Test.Specs2 % sbt.Test
     val `specs2-scalacheck` = "org.specs2" %% "specs2-scalacheck" % Versions.Test.Specs2 % sbt.Test
@@ -173,16 +185,21 @@ object Dependencies {
     )
 
     val `akka-testkit` = "com.typesafe.akka" %% "akka-testkit" % Versions.Akka % sbt.Test
-    
-    val `mockito-core` = "org.mockito" % "mockito-core" % "1.9.5" % sbt.Test
+
+    val `mockito-scala` = "org.mockito" %% "mockito-scala" % Versions.Test.MockitoScala % sbt.Test
 
     val Minimal = Seq(
       Dependencies.Test.scalatest,
-      Dependencies.Test.scalacheck,
-      Dependencies.Test.`scalatest-plus-scalacheck`,
-      Dependencies.`logback-classic` % sbt.Test
+      Dependencies.`logback-classic` % sbt.Test,
+      // This dependency on junit.jar enables to run JUnit tests from sbt and coverage tests from intelliJ
+      Dependencies.Test.`junit-interface`
     )
-
   }
 
+  // Should be added to `dependencyOverrides`
+  val Overrides = Seq(
+    Dependencies.`slf4j-api` // to force SLF4J version over the one pulled by logback
+  )
+
+  val scalaReflectModule = settingKey[ModuleID]("scala-reflect module depending on current scala version")
 }

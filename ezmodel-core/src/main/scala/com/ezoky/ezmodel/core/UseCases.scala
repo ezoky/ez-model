@@ -7,27 +7,23 @@ object UseCases {
   import Entities._
 
   case class UseCase(actor: Actor,
-                     goal: Goal)
+                     goal: Goal,
+                     constraints: Constraints = Constraints.Empty)
     extends Constrained[UseCase] {
 
     def this(useCase: UseCase) = {
       this(useCase.actor, useCase.goal)
     }
 
-    override val constraints: Map[ConstraintType, List[EntityState]] =
-      Constraints.Empty
+    def preCondition(state: EntityState): UseCase =
+      copy(constraints = constrain(Pre, state))
 
-    def preCondition(state: EntityState) = {
-      PreCondition(this, state)
-    }
-
-    def postCondition(state: EntityState) = {
-      PostCondition(this, state)
-    }
+    def postCondition(state: EntityState) =
+      copy(constraints = constrain(Post, state))
   }
 
   object UseCase {
-    //  implicit def implicitUseCase1(useCase: (Clerk, Goal) = UseCase(useCase._1, useCase._2)
+
     implicit def implicitUseCase2(useCase: (String, String)): UseCase =
       UseCase(Actor(useCase._1), Goal(Action(useCase._2)))
 
@@ -35,33 +31,13 @@ object UseCases {
       UseCase(Actor(useCase._1), Goal(Action(useCase._2), ActionObject(the, useCase._3)))
   }
 
-  class PreCondition(useCase: UseCase,
-                     state: EntityState)
-    extends UseCase(useCase) {
-    override val constraints = constrain(useCase, Pre, state)
-  }
+  def PreCondition(useCase: UseCase, state: EntityState): UseCase =
+    useCase.preCondition(state)
 
-  object PreCondition {
-    def apply(useCase: UseCase,
-              state: EntityState) = {
-      new PreCondition(useCase, state)
-    }
-  }
+  def PostCondition(useCase: UseCase, state: EntityState): UseCase =
+    useCase.postCondition(state)
 
-  class PostCondition(useCase: UseCase,
-                      state: EntityState)
-    extends UseCase(useCase) {
-    override val constraints = constrain(useCase, Post, state)
-  }
-
-  object PostCondition {
-    def apply(useCase: UseCase,
-              state: EntityState) = {
-      new PostCondition(useCase, state)
-    }
-  }
-
-  case class Actor(name: Name) {
+    case class Actor(name: Name) {
     def iWantTo(action: Action, actionObject: ActionObject) = UseCase(this, Goal(action, actionObject))
   }
 

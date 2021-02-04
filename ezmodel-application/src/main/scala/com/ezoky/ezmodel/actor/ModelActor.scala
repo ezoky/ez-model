@@ -7,7 +7,7 @@ import akka.actor.{Actor, Props}
  */
 class ModelActor extends Actor {
 
-  val domains = context.actorOf(Props(Office[DomainClerk]), "Domains")
+  val domains = context.actorOf(Props(Office[DomainClerk]()), "Domains")
   //val stateMachines = context.actorOf(Props(Office[StateMachineActor]),"StateMachines")
 
   override def receive: Receive = ???

@@ -10,18 +10,28 @@ object Constraints {
 
   object Post extends ConstraintType("post-condition")
 
-  val Empty: Map[ConstraintType, List[EntityState]] = Map.empty.withDefaultValue(List.empty)
+  type Constraints = Map[ConstraintType, List[EntityState]]
+
+  val Empty: Constraints = Map.empty.withDefaultValue(List.empty)
+
+  def apply(constrains: (ConstraintType, EntityState)*): Constraints =
+    constrains.foldLeft(Empty){
+      case (accConstraints, (constraintType, state)) =>
+        accConstraints.get(constraintType) match {
+          case None => accConstraints + (constraintType -> List(state))
+          case Some(states) => accConstraints + (constraintType -> (state :: states))
+        }
+    }
 
   trait Constrained[T <: Constrained[T]] {
 
-    val constraints: Map[ConstraintType, List[EntityState]]
+    val constraints: Constraints
 
-    protected def constrain(constrained: T,
-                            constraintType: ConstraintType,
-                            state: EntityState): Map[ConstraintType, List[EntityState]] =
-      constrained.constraints.get(constraintType) match {
-        case None => constrained.constraints + (constraintType -> List(state))
-        case Some(states) => constrained.constraints + (constraintType -> (state :: states))
+    protected def constrain(constraintType: ConstraintType,
+                            state: EntityState): Constraints =
+      constraints.get(constraintType) match {
+        case None => constraints + (constraintType -> List(state))
+        case Some(states) => constraints + (constraintType -> (state :: states))
       }
   }
 

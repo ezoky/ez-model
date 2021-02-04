@@ -1,4 +1,6 @@
 
+Global / onChangedBuildSource := ReloadOnSourceChanges
+
 name := "ezmodel"
 
 organization in ThisBuild := "com.ezoky"
@@ -38,7 +40,7 @@ lazy val `ezmodel` = project.in(file(".")).aggregate(
 )
 
 // This enables dependencies on junit.jar to run coverage tests from intelliJ
-libraryDependencies += Dependencies.Test.junit
+libraryDependencies += Dependencies.Test.`junit-interface`
 
 // Define individual projects, the directories they reside in, and other projects they depend on
 
@@ -47,8 +49,15 @@ lazy val `ezmodel-core` =
     .settings(
       Common.defaultSettings ++ Seq(
         libraryDependencies ++= Dependencies.`cats-minimal`,
-        libraryDependencies += Dependencies.`joda-time`,
         libraryDependencies += Dependencies.`ez-logging`,
+      ): _*
+    )
+
+lazy val `ezmodel-interaction` =
+  project.in(file("ezmodel-interaction"))
+    .dependsOn(`ezmodel-core`)
+    .settings(
+      Common.defaultSettings ++ Seq(
       ): _*
     )
 
@@ -56,6 +65,7 @@ lazy val `ezmodel-storage` =
   project.in(file("ezmodel-storage"))
     .settings(
       Common.defaultSettings ++ Seq(
+        libraryDependencies += Dependencies.`joda-time`,
         libraryDependencies += Dependencies.`nscala-time`,
       ): _*
     )

@@ -56,7 +56,7 @@ class EntityClerk(name: Name) extends Clerk[Entity, Name] with EntityFactory {
 
   } orElse super.receiveCommand
 
-  override def printState() = {
+  override def printState = {
     println(s"Actor: $self")
     if (isInitialised) {
       println(state)
@@ -82,7 +82,7 @@ object EntityExample extends App {
         }
       }
     }"""))
-  val office = system.actorOf(Props(Office[EntityClerk]), "Entities")
+  val office = system.actorOf(Props(Office[EntityClerk]()), "Entities")
 
   implicit val ref: ActorRef = system.deadLetters
   //  office ! AddAttribute(Name("AnotherEntity"),Name("a multiple mandatory attribute"), multiple, true)

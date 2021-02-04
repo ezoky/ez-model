@@ -17,7 +17,7 @@ class StateTransitionTest extends AnyFunSuite {
 
   test("Identify StateTransition does not do anything") {
     val s1 = "A"
-    val ib = IdentityTransition[String]
+    val ib = IdentityTransition[String]()
     val s2 = ib(s1)
 
     assert(s1 === s2)
