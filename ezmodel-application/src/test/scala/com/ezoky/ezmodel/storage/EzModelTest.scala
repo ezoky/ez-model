@@ -1,11 +1,8 @@
-package com.ezoky.ezmodel.core
-
-import java.util.UUID
+package com.ezoky.ezmodel.storage
 
 import com.ezoky.ezmodel.core.Atoms.Model
-import com.ezoky.ezmodel.core.Domains.Domain
+import com.ezoky.ezmodel.core.Domains._
 import com.ezoky.ezmodel.core.Entities._
-import com.ezoky.ezmodel.storage.EventStore
 import org.scalatest.funsuite.AnyFunSuite
 
 class EzModelTest extends AnyFunSuite {

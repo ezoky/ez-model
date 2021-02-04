@@ -2,8 +2,6 @@ package com.ezoky.ezmodel.core
 
 object Atoms {
 
-  import scala.language.implicitConversions
-
   object Model
 
   case class Name(name: String)

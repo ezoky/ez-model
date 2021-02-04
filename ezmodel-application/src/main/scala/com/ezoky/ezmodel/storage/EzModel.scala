@@ -1,16 +1,11 @@
-package com.ezoky.ezmodel.core
+package com.ezoky.ezmodel.storage
 
-import java.util.UUID
-
-import Atoms.Model
-import Domains._
-import Entities._
-import UseCases._
 import com.ezoky.ezmodel.core.Atoms.Model
 import com.ezoky.ezmodel.core.Domains.Domain
 import com.ezoky.ezmodel.core.Entities.{Entity, StateMachine}
 import com.ezoky.ezmodel.core.UseCases.UseCase
-import com.ezoky.ezmodel.storage.Repository
+
+import java.util.UUID
 
 object EzModel {
 

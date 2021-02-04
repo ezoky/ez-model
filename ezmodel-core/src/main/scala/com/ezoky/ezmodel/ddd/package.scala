@@ -5,9 +5,6 @@ package com.ezoky.ezmodel
  */
 package object ddd {
 
-  import scala.language.implicitConversions
-
-
   type Identify[-S, +I] = (S => I)
 
   def stateIdentify[S]: Identify[S, S] = ((s: S) => s)

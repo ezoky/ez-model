@@ -5,15 +5,10 @@ object UseCases {
   import Atoms._
   import Constraints._
   import Entities._
-  import com.ezoky.ezmodel.storage.EventStore
-
-  import scala.language.implicitConversions
 
   case class UseCase(actor: Actor,
                      goal: Goal)
     extends Constrained[UseCase] {
-
-    EventStore(Model).store(this)
 
     def this(useCase: UseCase) = {
       this(useCase.actor, useCase.goal)

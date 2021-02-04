@@ -3,9 +3,6 @@ package com.ezoky.ezmodel.core
 object Entities {
 
   import Atoms._
-  import com.ezoky.ezmodel.storage.EventStore
-
-  import scala.language.{existentials, implicitConversions}
 
   case class StateName(qualifier: Qualifier)
 
@@ -16,10 +13,7 @@ object Entities {
   implicit def stringState(qualifier: String): StateName = new StateName(Qualifier(qualifier))
 
   case class StateMachine(entity: Entity,
-                          states: Map[StateName, EntityState] = Map.empty)
-                         (implicit eventStore: EventStore) {
-
-    eventStore.store(this)
+                          states: Map[StateName, EntityState] = Map.empty) {
 
     def state(entityState: EntityState) = copy(states = states + (entityState.state -> entityState))
   }
@@ -55,8 +49,6 @@ object Entities {
                     attributes: Map[Name, Attribute] = Map.empty[Name, Attribute],
                     aggregates: Map[Name, Aggregate] = Map.empty[Name, Aggregate],
                     references: Map[Name, Reference] = Map.empty[Name, Reference]) {
-
-    EventStore(Model).store(this)
 
     def attribute(attributeName: Name, multiplicity: Multiplicity = single, mandatory: Boolean = false) = copy(attributes = attributes + (attributeName -> Attribute(attributeName, multiplicity, mandatory)))
 

@@ -5,13 +5,10 @@ object Domains {
   import Atoms._
   import Entities._
   import UseCases._
-  import com.ezoky.ezmodel.storage.EventStore
 
   case class Domain(name: Name,
                     useCases: List[UseCase] = List.empty,
                     entities: List[Entity] = List.empty) {
-
-    EventStore(Model).store(this)
 
     def this(domain: Domain) = {
       this(domain.name)

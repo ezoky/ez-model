@@ -32,7 +32,9 @@ addCompilerPlugin(Dependencies.`better-monadic-for`)
 
 // Define the root project, and make it compile all child projects
 lazy val `ezmodel` = project.in(file(".")).aggregate(
-  `ezmodel-core`
+  `ezmodel-core`,
+  `ezmodel-application`,
+  `ezmodel-storage`
 )
 
 // This enables dependencies on junit.jar to run coverage tests from intelliJ
@@ -46,10 +48,26 @@ lazy val `ezmodel-core` =
       Common.defaultSettings ++ Seq(
         libraryDependencies ++= Dependencies.`cats-minimal`,
         libraryDependencies += Dependencies.`joda-time`,
+        libraryDependencies += Dependencies.`ez-logging`,
+      ): _*
+    )
+
+lazy val `ezmodel-storage` =
+  project.in(file("ezmodel-storage"))
+    .settings(
+      Common.defaultSettings ++ Seq(
         libraryDependencies += Dependencies.`nscala-time`,
+      ): _*
+    )
+
+lazy val `ezmodel-application` =
+  project.in(file("ezmodel-application"))
+    .dependsOn(`ezmodel-core`)
+    .dependsOn(`ezmodel-storage`)
+    .settings(
+      Common.defaultSettings ++ Seq(
         libraryDependencies += Dependencies.`akka-actor`,
         libraryDependencies += Dependencies.`akka-persistence`,
-        libraryDependencies += Dependencies.`ez-logging`,
         libraryDependencies += Dependencies.Test.`akka-testkit`
       ): _*
     )
