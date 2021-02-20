@@ -58,6 +58,7 @@ lazy val `ezmodel-interaction` =
     .dependsOn(`ezmodel-core`)
     .settings(
       Common.defaultSettings ++ Seq(
+        libraryDependencies += Dependencies.shapeless
       ): _*
     )
 

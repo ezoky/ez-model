@@ -18,6 +18,7 @@ object Dependencies {
 
     val Scalaz = "7.3.1"
 
+    val Shapeless = "2.3.3"
     val Cats = "2.1.1"
     val Kittens = "2.1.0"
     val Akka = "2.6.8"
@@ -76,6 +77,9 @@ object Dependencies {
   val `joda-money` = "org.joda" % "joda-money" % Versions.JodaMoney
   // contains annotations required by Scala to load joda-time classes but not necessary for java
   val `joda-convert` = "org.joda" % "joda-convert" % Versions.JodaConvert
+
+  // Shapeless
+  val shapeless = "com.chuusai" %% "shapeless" % Versions.Shapeless
 
   // ScalaZ
   val `scalaz-core` = "org.scalaz" %% "scalaz-core" % Versions.Scalaz

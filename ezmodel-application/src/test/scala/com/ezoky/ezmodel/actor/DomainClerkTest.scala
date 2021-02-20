@@ -3,10 +3,7 @@ package com.ezoky.ezmodel.actor
 import akka.testkit.TestKit
 import com.ezoky.ezmodel.actor.DomainClerk._
 import TestConfig._
-import com.ezoky.ezmodel.core.Atoms.Name
-import com.ezoky.ezmodel.core.Domains.Domain
-import com.ezoky.ezmodel.core.Entities.Entity
-import com.ezoky.ezmodel.core.UseCases.{Actor, Goal, UseCase}
+import com.ezoky.ezmodel.core.Models._
 
 import scala.language.postfixOps
 
@@ -28,8 +25,8 @@ class DomainClerkTest
       test ! CreateEntity(Name(domainId), entityName)
       expectMsg(EntityAdded(Domain(Name(domainId), List(), List(Entity(entityName)))))
 
-      val actor = Actor("an Actor")
-      val goal = Goal("a Goal")
+      val actor = Actor(Name("an Actor"))
+      val goal = Goal(Action(Verb("a Goal")))
       test ! CreateUseCase(Name(domainId), actor, goal)
       expectMsg(UseCaseAdded(Domain(Name(domainId), List(UseCase(actor, goal)), List(Entity(entityName)))))
 
@@ -60,8 +57,8 @@ class DomainClerkTest
       val domainId = "yet another Domain"
       var test = domainClerk(domainId)
 
-      val actor = Actor("another Actor")
-      val goal = Goal("another Goal")
+      val actor = Actor(Name("another Actor"))
+      val goal = Goal(Action(Verb("another Goal")))
       test ! CreateUseCase(Name(domainId), actor, goal)
       expectMsg(UseCaseAdded(Domain(Name(domainId), List(UseCase(actor, goal)), List())))
 

@@ -1,14 +1,13 @@
 package com.ezoky.ezmodel.actor
 
-import akka.actor.ActorRef
 import com.ezoky.ezmodel.actor.EntityClerk.{AddAttribute, AttributeAdded}
 import com.ezoky.ezmodel.actor.Office._
-import TestConfig._
-import com.ezoky.ezmodel.core.Atoms.Name
-import com.ezoky.ezmodel.core.Entities.single
+import com.ezoky.ezmodel.actor.TestConfig._
+import com.ezoky.ezmodel.core.Models._
+
 /**
- * @author gweinbach
- */
+  * @author gweinbach
+  */
 class EntityOfficeTest extends ClerkTestKit[EntityClerk](testSystem) {
 
   val officeId = "Entities"
@@ -25,7 +24,7 @@ class EntityOfficeTest extends ClerkTestKit[EntityClerk](testSystem) {
       //      }
 
       expectEventPersisted[AttributeAdded, Name](entityName) {
-        entityOffice ! AddAttribute(entityName, "attribute name", single, mandatory = true)
+        entityOffice ! AddAttribute(entityName, Name("attribute name"), single, mandatory = true)
       }
 
       // kill reservation office and all its clerks (aggregate roots)

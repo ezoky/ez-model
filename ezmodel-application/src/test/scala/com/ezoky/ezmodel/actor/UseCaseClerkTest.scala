@@ -3,8 +3,7 @@ package com.ezoky.ezmodel.actor
 import akka.testkit.{ImplicitSender, TestKit}
 import TestConfig._
 import com.ezoky.ezmodel.actor.UseCaseClerk._
-import com.ezoky.ezmodel.core.Entities.{Entity, EntityState}
-import com.ezoky.ezmodel.core.UseCases._
+import com.ezoky.ezmodel.core.Models._
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.{BeforeAndAfterAll}
 import org.scalatest.wordspec.AnyWordSpecLike
@@ -26,22 +25,22 @@ class UseCaseClerkTest
 
       try {
 
-        val actor = Actor("an Actor")
-        val goal = Goal("a Goal")
+        val actor = Actor(Name("an Actor"))
+        val goal = Goal(Action(Verb("a Goal")))
         val test = useCaseClerk(actor, goal)
 
         //within(1 second) {
         //expectMsg(UseCaseCreated(UseCase(actor,goal)))
         //}
 
-        val preCondition = EntityState(Entity("an entity"), "a pre-condition state")
-        val postCondition = EntityState(Entity("an entity"), "a post-condition state")
+        val preCondition = EntityState(Entity(Name("entity")), StateName(Qualifier("a pre-condition state")))
+        val postCondition = EntityState(Entity(Name("entity")), StateName(Qualifier("a post-condition state")))
 
         test ! AddPreCondition(actor, goal, preCondition)
-        expectMsg(ConstrainedUseCase(PreCondition(UseCase(actor, goal), preCondition)))
+        expectMsg(ConstrainedUseCase(UseCase(actor, goal) withPreCondition  preCondition))
 
         test ! AddPostCondition(actor, goal, preCondition)
-        expectMsg(ConstrainedUseCase(PostCondition(UseCase(actor, goal), postCondition))) // equality of Use Cases is based on equality of their id, i.e. actor + goal
+        expectMsg(ConstrainedUseCase(UseCase(actor, goal) withPostCondition postCondition)) // equality of Use Cases is based on equality of their id, i.e. actor + goal
       }
       finally {
         TestKit.shutdownActorSystem(system)

@@ -3,8 +3,7 @@ package com.ezoky.ezmodel.actor
 import akka.testkit.{ImplicitSender, TestKit}
 import com.ezoky.ezmodel.actor.EntityClerk._
 import TestConfig._
-import com.ezoky.ezmodel.core.Atoms.Name
-import com.ezoky.ezmodel.core.Entities.{Entity, single}
+import com.ezoky.ezmodel.core.Models._
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike

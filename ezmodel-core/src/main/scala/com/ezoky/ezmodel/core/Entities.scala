@@ -1,8 +1,7 @@
 package com.ezoky.ezmodel.core
 
-object Entities {
-
-  import Atoms._
+private[core] trait Entities
+  extends Atoms {
 
   case class StateName(qualifier: Qualifier)
 
@@ -10,8 +9,6 @@ object Entities {
 
   object InitialStateName extends StateName(Qualifier("<initial>"))
 
-  implicit def stringState(qualifier: String): StateName =
-    StateName(Qualifier(qualifier))
 
   case class StateMachine(entity: Entity,
                           states: Map[StateName, EntityState] = Map.empty) {
@@ -29,6 +26,8 @@ object Entities {
   class InitialEntityState(entity: Entity)
     extends EntityState(entity, InitialStateName)
 
+
+  // Multiplicity
   abstract case class Multiplicity(multiplicity: String)
 
   object single extends Multiplicity("single")
@@ -42,6 +41,7 @@ object Entities {
   }
 
 
+  // Entity
   case class Attribute(name: Name, multiplicity: Multiplicity, mandatory: Boolean)
 
   case class Reference(name: Name, referenced: Entity, multiplicity: Multiplicity, mandatory: Boolean)
@@ -50,34 +50,31 @@ object Entities {
 
   case class Entity(name: Name,
                     attributes: Map[Name, Attribute] = Map.empty[Name, Attribute],
-                    aggregates: Map[Name, Aggregate] = Map.empty[Name, Aggregate],
-                    references: Map[Name, Reference] = Map.empty[Name, Reference]) {
+                    aggregated: Map[Name, Aggregate] = Map.empty[Name, Aggregate],
+                    referenced: Map[Name, Reference] = Map.empty[Name, Reference]) {
 
-    def attribute(attributeName: Name, multiplicity: Multiplicity = single, mandatory: Boolean = false) = copy(
-      attributes = attributes + (attributeName -> Attribute(attributeName, multiplicity, mandatory)))
+    def withAttribute(attributeName: Name,
+                      multiplicity: Multiplicity = single,
+                      mandatory: Boolean = false): Entity =
+      copy(
+        attributes = attributes + (attributeName -> Attribute(attributeName, multiplicity, mandatory))
+      )
 
-    def aggregate(aggregateName: Name,
-                  leaf: Entity,
-                  multiplicity: Multiplicity = single,
-                  mandatory: Boolean = false) = copy(aggregates = aggregates + (aggregateName -> Aggregate(this,
-      aggregateName,
-      leaf,
-      multiplicity,
-      mandatory)))
+    def withAggregate(aggregateName: Name,
+                      leaf: Entity,
+                      multiplicity: Multiplicity = single,
+                      mandatory: Boolean = false): Entity =
+      copy(
+        aggregated = aggregated + (aggregateName -> Aggregate(this, aggregateName, leaf, multiplicity, mandatory))
+      )
 
-    def aggregate(multiplicity: Multiplicity, leaf: Entity): Entity = aggregate(DefaultName, leaf, multiplicity)
-
-    def reference(referenceName: Name,
-                  referenced: Entity,
-                  multiplicity: Multiplicity = single,
-                  mandatory: Boolean = false) = copy(references = references + (referenceName -> Reference(referenceName,
-      referenced,
-      multiplicity,
-      mandatory)))
-
-    def reference(multiplicity: Multiplicity, referenced: Entity): Entity = reference(DefaultName,
-      referenced,
-      multiplicity)
+    def withReference(referenceName: Name,
+                      referencedEntity: Entity,
+                      multiplicity: Multiplicity = single,
+                      mandatory: Boolean = false): Entity =
+      copy(
+        referenced = referenced + (referenceName -> Reference(referenceName, referencedEntity, multiplicity, mandatory))
+      )
 
     override def toString =
       s"${getClass.getSimpleName}($name)"
@@ -92,5 +89,4 @@ object Entities {
       41 * name.hashCode
   }
 
-  implicit def stringEntity(name: String) = Entity(Name(name))
 }

@@ -1,30 +1,27 @@
 package com.ezoky.ezmodel.core
 
-object Domains {
-
-  import Atoms._
-  import Entities._
-  import UseCases._
+private[core] trait Domains
+  extends Atoms
+    with UseCases
+    with Entities {
 
   case class Domain(name: Name,
                     useCases: List[UseCase] = List.empty,
                     entities: List[Entity] = List.empty) {
 
-    def this(domain: Domain) = {
-      this(domain.name)
-    }
-
-    def this() = {
-      this(DefaultName)
-    }
-
-    def useCase(uc: UseCase) = {
+    def withUseCase(uc: UseCase): Domain = {
       copy(useCases = uc :: useCases)
     }
 
-    def entity(ent: Entity) = {
+    def withEntity(ent: Entity): Domain = {
       copy(entities = ent :: entities)
     }
+  }
+
+  object Domain {
+
+    def apply(): Domain =
+      Domain(DefaultName)
   }
 
 }

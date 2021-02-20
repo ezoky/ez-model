@@ -1,8 +1,7 @@
 package com.ezoky.ezmodel.core
 
-object Constraints {
-
-  import Entities._
+private[core] trait Constraints
+  extends Entities {
 
   abstract case class ConstraintType(constraintType: String)
 
@@ -12,16 +11,19 @@ object Constraints {
 
   type Constraints = Map[ConstraintType, List[EntityState]]
 
-  val Empty: Constraints = Map.empty.withDefaultValue(List.empty)
+  object Constraints {
+    
+    val Empty: Constraints = Map.empty.withDefaultValue(List.empty)
 
-  def apply(constrains: (ConstraintType, EntityState)*): Constraints =
-    constrains.foldLeft(Empty){
-      case (accConstraints, (constraintType, state)) =>
-        accConstraints.get(constraintType) match {
-          case None => accConstraints + (constraintType -> List(state))
-          case Some(states) => accConstraints + (constraintType -> (state :: states))
-        }
-    }
+    def apply(constrains: (ConstraintType, EntityState)*): Constraints =
+      constrains.foldLeft(Empty) {
+        case (accConstraints, (constraintType, state)) =>
+          accConstraints.get(constraintType) match {
+            case None => accConstraints + (constraintType -> List(state))
+            case Some(states) => accConstraints + (constraintType -> (state :: states))
+          }
+      }
+  }
 
   trait Constrained[T <: Constrained[T]] {
 
@@ -34,5 +36,4 @@ object Constraints {
         case Some(states) => constraints + (constraintType -> (state :: states))
       }
   }
-
 }

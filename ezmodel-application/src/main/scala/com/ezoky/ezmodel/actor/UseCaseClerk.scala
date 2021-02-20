@@ -4,11 +4,8 @@ import akka.actor.{ActorRef, ActorRefFactory, ActorSystem, Props}
 import akka.event.LoggingReceive
 import Clerk._
 import UseCaseClerk.{AddPostCondition, AddPreCondition, ConstrainedUseCase}
-import com.ezoky.ezmodel.core.Entities.EntityState
-import com.ezoky.ezmodel.core.UseCases.{Actor, Goal, UseCase}
 import com.ezoky.ezmodel.actor.Clerk.{Command, Event}
-import com.ezoky.ezmodel.core.Entities.EntityState
-import com.ezoky.ezmodel.core.UseCases.{Actor, Goal, UseCase}
+import com.ezoky.ezmodel.core.Models._
 
 /**
  * @author gweinbach
@@ -60,12 +57,12 @@ class UseCaseClerk(id: (Actor, Goal)) extends Clerk[UseCase, (Actor, Goal)] with
 
     case AddPreCondition(_, _, entityState) =>
       val useCase = state
-      val nextUseCase = useCase.preCondition(entityState)
+      val nextUseCase = useCase.withPreCondition(entityState)
       persist(ConstrainedUseCase(nextUseCase)(sender()))(updateState)
 
     case AddPostCondition(_, _, entityState) =>
       val useCase = state
-      val nextUseCase = useCase.postCondition(entityState)
+      val nextUseCase = useCase.withPostCondition(entityState)
       persist(ConstrainedUseCase(nextUseCase)(sender()))(updateState)
 
   } orElse super.receiveCommand
@@ -79,7 +76,7 @@ object UseCaseExample extends App {
   implicit val ref = system.deadLetters
   //office ! AddAttribute(Name("AnUseCase"),Name("an attribute"))
   //office ! AddAttribute(Name("AnUseCase"),Name("a multiple mandatory attribute"), multiple, true)
-  repository ! Print((Actor("an actor"), Goal("to do something")))
+  repository ! Print((Actor(Name("an actor")), Goal(Action(Verb("to do something")))))
 
   Thread.sleep(1000)
   system.terminate()

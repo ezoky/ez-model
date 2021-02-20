@@ -1,9 +1,6 @@
 package com.ezoky.ezmodel.storage
 
-import com.ezoky.ezmodel.core.Atoms.Model
-import com.ezoky.ezmodel.core.Domains.Domain
-import com.ezoky.ezmodel.core.Entities.{Entity, StateMachine}
-import com.ezoky.ezmodel.core.UseCases.UseCase
+import com.ezoky.ezmodel.core.Models._
 
 import java.util.UUID
 
@@ -11,6 +8,8 @@ object EzModel {
 
   def reset(): EzModel = EzModel()
 }
+
+case object Model
 
 case class EzModel(domainRepository: Repository[Domain] = Repository[Domain](Model),
                    useCaseRepository: Repository[UseCase] = Repository[UseCase](Model),

@@ -3,11 +3,8 @@ package com.ezoky.ezmodel.actor
 import akka.actor.{ActorRef, ActorRefFactory, ActorSystem, Props}
 import akka.event.LoggingReceive
 import Clerk._
-import com.ezoky.ezmodel.core.Atoms.Name
-import com.ezoky.ezmodel.core.Entities._
+import com.ezoky.ezmodel.core.Models._
 import com.ezoky.ezmodel.actor.Clerk.{Command, Event}
-import com.ezoky.ezmodel.core.Atoms.Name
-import com.ezoky.ezmodel.core.Entities.{Entity, Multiplicity, single}
 import com.typesafe.config.ConfigFactory
 
 /**
@@ -51,7 +48,7 @@ class EntityClerk(name: Name) extends Clerk[Entity, Name] with EntityFactory {
 
     case AddAttribute(_, name, multiplicity, mandatory) =>
       val entity = state
-      val nextEntity = entity.attribute(name, multiplicity, mandatory)
+      val nextEntity = entity.withAttribute(name, multiplicity, mandatory)
       persist(AttributeAdded(nextEntity)(sender()))(updateState)
 
   } orElse super.receiveCommand

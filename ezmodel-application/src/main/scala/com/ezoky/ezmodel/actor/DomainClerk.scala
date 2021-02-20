@@ -4,18 +4,14 @@ import akka.actor.{ActorLogging, ActorRef, ActorRefFactory, Props}
 import akka.event.LoggingReceive
 import Clerk._
 import Office._
-import com.ezoky.ezmodel.core.Atoms.Name
-import com.ezoky.ezmodel.core.Domains.Domain
 import com.ezoky.ezmodel.actor.Clerk.{Command, Event}
-import com.ezoky.ezmodel.core.Atoms.Name
-import com.ezoky.ezmodel.core.Domains.Domain
+import com.ezoky.ezmodel.core.Models._
 
 /**
- * @author gweinbach
- */
+  * @author gweinbach
+  */
 object DomainClerk {
 
-  import com.ezoky.ezmodel.core.UseCases.{Actor, Goal}
 
   type DomainCommand = Command[Name]
   type DomainEvent = Event[Domain]
@@ -43,7 +39,7 @@ trait DomainFactory extends Factory[Domain, Name] {
 
   override def createCommand = CreateDomain(_)
 
-  override def createAction = Domain(_)
+  override def createAction: Name => Domain = n => Domain(n)
 
   override def createdEvent = DomainCreated(_)(_)
 }
@@ -71,7 +67,7 @@ class DomainClerk(name: Name) extends Clerk[Domain, Name] with DomainFactory wit
   def waitForEntityCreation(replyTo: ActorRef) = LoggingReceive {
 
     case EntityClerk.EntityCreated(entity) =>
-      val next = state.entity(entity)
+      val next = state.withEntity(entity)
       persist(EntityAdded(next)(replyTo))(updateState)
       context.unbecome()
       unstashAll()
@@ -82,7 +78,7 @@ class DomainClerk(name: Name) extends Clerk[Domain, Name] with DomainFactory wit
   def waitForUseCaseCreation(replyTo: ActorRef) = LoggingReceive {
 
     case UseCaseClerk.UseCaseCreated(useCase) =>
-      val next = state.useCase(useCase)
+      val next = state.withUseCase(useCase)
       persist(UseCaseAdded(next)(replyTo))(updateState)
       context.unbecome()
       unstashAll()
