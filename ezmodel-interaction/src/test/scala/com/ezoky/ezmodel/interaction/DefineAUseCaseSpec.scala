@@ -15,11 +15,13 @@ class DefineAUseCaseSpec
 
   import Modelling._
 
-  "the Interpreter" when {
+  "the Session" when {
     "the Modeller defines a Use Case" should {
-      "add it to the current model" in {
+      "define it as the current Use Case" in {
 
-        val iSay =
+        val initialModellingState = ModellingState.Empty
+
+        val whatISay =
           Say {
             asAn ("Accountant") iWantTo ("invoice" a "Month") provided ("Production" is "Done") resultingIn ("Current Month" is "Invoiced")
           }
@@ -34,7 +36,8 @@ class DefineAUseCaseSpec
             )
           )
 
-        assert(CurrentModel contains definedUseCase)
+        val modellingState = ModellingSession(initialModellingState).process(whatISay).state
+        assert(modellingState.currentUseCase === definedUseCase)
       }
     }
   }

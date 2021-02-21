@@ -1,4 +1,4 @@
-package com.ezoky.ezmodel.interaction
+package com.ezoky.ezmodel.interaction.interpreter
 
 import shapeless._
 
@@ -24,7 +24,6 @@ private[interaction] trait Saying {
     def apply[T1, T2, T3, T4](s1: T1, s2: T2, s3: T3, s4: T4): Say[T1 :: T2 :: T3 :: T4 :: HNil] =
       Say[T1 :: T2 :: T3 :: T4 :: HNil](s1 :: s2 :: s3 :: s4 :: HNil)
   }
-
 }
 
 /**
