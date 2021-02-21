@@ -29,11 +29,14 @@ class ParsingSpec
 
       And("some parsing directives")
 
-      implicit def someParser(s: someModellingStatement.type): Statement = Statement("statement 1")
+      implicit val someParser: Parser[someModellingStatement.type , String] =
+        Parser.define(_ => Statement("statement 1"))
 
-      implicit def anParser(s: aModellingStatement.type): Statement = Statement("statement 2")
+      implicit val aParser: Parser[aModellingStatement.type , String] =
+        Parser.define(_ => Statement("statement 2"))
 
-      implicit def anotherParser(s: anotherModellingStatement): Statement = Statement(("statement 3", s.arg))
+      implicit val anotherParser: Parser[anotherModellingStatement , (String, String)] =
+        Parser.define(s => Statement(("statement 3", s.arg)))
 
 
       When("the modeller declares a statement")
@@ -60,7 +63,7 @@ class ParsingSpec
 
 
       Then("the parser understands them")
-
+      
       val parsed2 = Parser(statements2)
       assert(parsed2.stated === "statement 2" :: ("statement 3", "with an argument") :: HNil)
     }

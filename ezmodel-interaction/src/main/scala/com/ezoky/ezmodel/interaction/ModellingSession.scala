@@ -10,10 +10,13 @@ case class ModellingSession(state: ModellingState) {
 
   def process[W, T](whatISay: Say[W])
                    (implicit
-                    parser: W => Statement {type StatementType = T},
+                    parser: Parser[W, T],
                     interpreter: Interpreter[ModellingState, T]): ModellingSession = {
-//    val statement: Statement.Aux[T] = Parser(whatISay)
-//    Interpreter(state, statement)
-    this
+    ModellingSession(
+      Interpreter(
+        state,
+        Parser(whatISay)
+      )
+    )
   }
 }

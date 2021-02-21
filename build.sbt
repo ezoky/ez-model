@@ -35,6 +35,7 @@ addCompilerPlugin(Dependencies.`better-monadic-for`)
 // Define the root project, and make it compile all child projects
 lazy val `ezmodel` = project.in(file(".")).aggregate(
   `ezmodel-core`,
+  `ezmodel-interaction`,
   `ezmodel-application`,
   `ezmodel-storage`
 )
