@@ -1,7 +1,7 @@
 
 import com.ezoky.ezmodel.core.Models._
 
-val Say = com.ezoky.ezmodel.core.dsl.DSL
+val Say = com.ezoky.ezmodel.interaction.dsl.DSL
 import Say._
 
 

@@ -8,3 +8,4 @@ import com.ezoky.ezmodel.interaction.interpreter.{Interpreting, Parsing, Process
   */
 object Modelling
   extends Processing
+  with ModellingInterpreter

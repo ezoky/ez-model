@@ -106,7 +106,8 @@ case class ModellingState(models: Models,
   override def addEntity(entity: Entity): ModellingState = ???
 
   override def setCurrentUseCase(useCase: UseCase): ModellingState =
-    addUseCase(useCase).copy(currentUseCase = Some(useCase))
+//    addUseCase(useCase).copy(currentUseCase = Some(useCase))
+    copy(currentUseCase = Some(useCase))
 
   override def setCurrentEntity(entity: Entity): ModellingState =
     addEntity(entity).copy(currentEntity = Some(entity))

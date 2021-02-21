@@ -15,17 +15,20 @@ class DefineAUseCaseSpec
 
   import Modelling._
 
-  "the Session" when {
+  "the Processor" when {
     "the Modeller defines a Use Case" should {
       "define it as the current Use Case" in {
 
+        Given("a modelling state")
         val initialModellingState = ModellingState.Empty
 
+        When("the Modeller describes a use case with th DSL")
         val whatISay =
           Say {
             asAn ("Accountant") iWantTo ("invoice" a "Month") provided ("Production" is "Done") resultingIn ("Current Month" is "Invoiced")
           }
 
+        Then("the modelling state changes accordingly")
         val definedUseCase =
           UseCase(
             Actor(Name("Accountant")),
@@ -36,8 +39,8 @@ class DefineAUseCaseSpec
             )
           )
 
-//        val modellingState = ModellingSession(initialModellingState).process(whatISay).state
-//        assert(modellingState.currentUseCase === definedUseCase)
+        val modellingState = Processor(initialModellingState).process(whatISay).state
+        assert(modellingState.currentUseCase === Some(definedUseCase))
       }
     }
   }
