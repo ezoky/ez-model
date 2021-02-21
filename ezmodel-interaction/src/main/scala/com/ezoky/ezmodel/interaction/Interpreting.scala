@@ -48,7 +48,7 @@ private[interaction] trait Parsing
 
   object Statement {
 
-    type Aux[S] = Statement { type StatementType = S }
+    type Aux[S] = Statement {type StatementType = S}
 
     lazy val Empty: Statement.Aux[HNil] =
       Statement(HNil)
@@ -78,7 +78,9 @@ private[interaction] trait Parsing
 
 }
 
-// And finally interpreted in terms of state change
+/**
+  * ..and finally interpreted in terms of state change
+  */
 private[interaction] trait Interpreting
   extends Parsing {
 
@@ -97,9 +99,9 @@ private[interaction] trait Interpreting
   implicit def hNilInterpreter[S]: Interpreter[S, HNil] =
     Interpreter.noop
 
-  implicit def programInterpreter[S, H, T <: HList](implicit
-                                                    interpreterH: Interpreter[S, H],
-                                                    interpreterT: Interpreter[S, T]): Interpreter[S, H :: T] =
+  implicit def hListInterpreter[S, H, T <: HList](implicit
+                                                  interpreterH: Interpreter[S, H],
+                                                  interpreterT: Interpreter[S, T]): Interpreter[S, H :: T] =
     new Interpreter[S, H :: T] {
       override def interpret(state: S,
                              statement: H :: T): S =
