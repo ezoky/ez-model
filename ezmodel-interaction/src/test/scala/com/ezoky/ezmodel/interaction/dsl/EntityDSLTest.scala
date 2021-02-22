@@ -16,7 +16,7 @@ class EntityDSLTest extends AnyFunSuite {
       Entity(
         Name("Offre"),
         attributes = Map(
-          Name("Nom") -> Attribute(Name("Nom"), single, false)
+          Name("nom") -> Attribute(Name("nom"), single, false)
         ),
         aggregated = Map(
           Name("Gamme") ->
@@ -31,7 +31,7 @@ class EntityDSLTest extends AnyFunSuite {
                     Entity(
                       Name("Sous-Gamme"),
                       aggregated = Map(
-                        Name("Gamme") ->
+                        Name("prestations vendues") ->
                         Aggregate(
                           Name("prestations vendues"),
                           Entity(
@@ -44,7 +44,7 @@ class EntityDSLTest extends AnyFunSuite {
         )
       )
 
-    val offre = Entity("Offre") aggregates many (Entity("Gamme") aggregates many (Entity("Sous-Gamme") aggregates many (Entity("Prestation")) as "prestations vendues")) withAttribute "nom"
+    val offre = theEntity("Offre") aggregates many (Entity("Gamme") aggregates many (Entity("Sous-Gamme") aggregates many (Entity("Prestation")) as "prestations vendues")) withAttribute "nom"
 
     assert(offre === expectedEntity)
   }
