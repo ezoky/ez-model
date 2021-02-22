@@ -11,4 +11,11 @@ trait DomainDSL {
 
   def inDomain(domainName: String): Domain =
     Domain(Name(domainName))
+
+  implicit class DomainHelper(domain: Domain) {
+
+    def asA(name: Name): Actor = Actor(name)
+
+    def asAn(name: Name): Actor = asA(name)
+  }
 }

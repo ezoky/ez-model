@@ -94,12 +94,14 @@ case class ModellingState(models: Models,
   override def updateModel(model: Model): ModellingState = ???
 
   override def setCurrentModel(model: Model): ModellingState =
-    addModel(model).copy(currentModel = Some(model))
+//    addModel(model).copy(currentModel = Some(model))
+    copy(currentModel = Some(model))
 
   override def addDomain(domain: Domain): ModellingState = ???
 
   override def setCurrentDomain(domain: Domain): ModellingState =
-    addDomain(domain).copy(currentDomain = Some(domain))
+//    addDomain(domain).copy(currentDomain = Some(domain))
+    copy(currentDomain = Some(domain))
 
   override def addUseCase(useCase: UseCase): ModellingState = ???
 

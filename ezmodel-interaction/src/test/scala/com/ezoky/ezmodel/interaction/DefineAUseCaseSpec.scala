@@ -17,7 +17,7 @@ class DefineAUseCaseSpec
 
   "the Processor" when {
     "the Modeller defines a Use Case" should {
-      "define it as the current Use Case" in {
+      "sets it as the current Use Case" in {
 
         Given("a modelling state")
         val initialModellingState = ModellingState.Empty

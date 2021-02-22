@@ -17,7 +17,7 @@ class DefineAnEntitySpec
 
   "the Processor" when {
     "the Modeller defines an Entity" should {
-      "define it as the current Entity" in {
+      "sets it as the current Entity" in {
 
         Given("a modelling state")
         val initialModellingState = ModellingState.Empty
