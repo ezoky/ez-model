@@ -110,7 +110,8 @@ case class ModellingState(models: Models,
     copy(currentUseCase = Some(useCase))
 
   override def setCurrentEntity(entity: Entity): ModellingState =
-    addEntity(entity).copy(currentEntity = Some(entity))
+//    addEntity(entity).copy(currentEntity = Some(entity))
+    copy(currentEntity = Some(entity))
 
   override def addAttribute(attribute: Attribute): ModellingState = ???
 

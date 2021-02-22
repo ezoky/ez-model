@@ -24,6 +24,7 @@ private[core] trait Atoms {
     */
   case class Qualifier(qualifier: String)
 
+
   /**
     * Examples:
     * {{{
@@ -55,6 +56,7 @@ private[core] trait Atoms {
     case object few extends Determinant("few")
 
   }
+
   case class NameGroup(determinant: Determinant,
                        name: Name)
 

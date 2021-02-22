@@ -21,21 +21,18 @@ class EntityDSLTest extends AnyFunSuite {
         aggregated = Map(
           Name("Gamme") ->
             Aggregate(
-              root = Entity(Name("Offre")),
               Name("Gamme"),
               Entity(
                 Name("Gamme") ,
                 aggregated = Map(
                   Name("Sous-Gamme") ->
                   Aggregate(
-                    root = Entity(Name("Gamme")),
                     Name("Sous-Gamme"),
                     Entity(
                       Name("Sous-Gamme"),
                       aggregated = Map(
                         Name("Gamme") ->
                         Aggregate(
-                          root = Entity(Name("Sous-Gamme")),
                           Name("prestations vendues"),
                           Entity(
                             Name("Prestation")

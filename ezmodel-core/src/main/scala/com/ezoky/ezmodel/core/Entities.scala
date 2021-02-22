@@ -1,5 +1,7 @@
 package com.ezoky.ezmodel.core
 
+import scala.collection.SortedSet
+
 private[core] trait Entities
   extends Atoms {
 
@@ -9,7 +11,22 @@ private[core] trait Entities
 
   object InitialStateName extends StateName(Qualifier("<initial>"))
 
+  case class EntityState(entity: Entity,
+                         state: StateName)
 
+  object EntityState {
+
+    def initial(entity: Entity): EntityState =
+      EntityState(entity, InitialStateName)
+
+    def unknown(entity: Entity): EntityState =
+      EntityState(entity, UnknownStateName)
+  }
+
+  /**
+    * TODO: need to add transitions
+    * TODO: states Map should not be indexed by StateName as it can change.
+    */
   case class StateMachine(entity: Entity,
                           states: Map[StateName, EntityState] = Map.empty) {
 
@@ -17,36 +34,68 @@ private[core] trait Entities
       copy(states = states + (entityState.state -> entityState))
   }
 
-  case class EntityState(entity: Entity,
-                         state: StateName) {
-    override def toString: String =
-      s"${entity} is ${state}"
-  }
-
-  class InitialEntityState(entity: Entity)
-    extends EntityState(entity, InitialStateName)
 
 
   // Multiplicity
-  abstract case class Multiplicity(multiplicity: String)
+  sealed abstract class Multiplicity(multiplicity: String)
 
-  object single extends Multiplicity("single")
+  case object single extends Multiplicity("single")
 
-  object multiple extends Multiplicity("multiple")
+  case object multiple extends Multiplicity("multiple")
 
-  class Exactly(value: Int) extends Multiplicity(s"$value")
+  case class exactly private(value: Int) extends Multiplicity(s"$value") {
+    assume(value >= 0)
+  }
 
-  class Range(min: Int, max: Int) extends Multiplicity(s"$min-$max") {
+  object exactly {
+    def apply(value: Int): exactly = {
+      val positiveValue = math.max(0, value)
+      new exactly(positiveValue)
+    }
+  }
+
+  case class among private(values: SortedSet[Int]) extends Multiplicity(s"$values") {
+    values.map(value => assume(value >= 0))
+  }
+
+  object among {
+    def apply(values: Int*): among = {
+      val positiveValues = SortedSet.from(values.map(math.max(0, _)))
+      new among(positiveValues)
+    }
+  }
+
+  case class range private(min: Int,
+                           max: Int) extends Multiplicity(s"$min-$max") {
     assume(min >= 0 && min <= max)
+  }
+
+  object range {
+    def apply(min: Int,
+              max: Int): range = {
+      val positiveMin = math.max(min, 0)
+      val positiveMax = math.max(max, 0)
+      val actualMin = math.min(positiveMin, positiveMax)
+      val actualMax = math.max(positiveMin, positiveMax)
+      new range(actualMin, actualMax)
+    }
   }
 
 
   // Entity
-  case class Attribute(name: Name, multiplicity: Multiplicity, mandatory: Boolean)
+  case class Attribute(name: Name,
+                       multiplicity: Multiplicity,
+                       mandatory: Boolean)
 
-  case class Reference(name: Name, referenced: Entity, multiplicity: Multiplicity, mandatory: Boolean)
+  case class Reference(name: Name,
+                       referenced: Entity,
+                       multiplicity: Multiplicity,
+                       mandatory: Boolean)
 
-  case class Aggregate(root: Entity, name: Name, leaf: Entity, multiplicity: Multiplicity, mandatory: Boolean)
+  case class Aggregate(name: Name,
+                       leaf: Entity,
+                       multiplicity: Multiplicity,
+                       mandatory: Boolean)
 
   case class Entity(name: Name,
                     attributes: Map[Name, Attribute] = Map.empty[Name, Attribute],
@@ -65,7 +114,7 @@ private[core] trait Entities
                       multiplicity: Multiplicity = single,
                       mandatory: Boolean = false): Entity =
       copy(
-        aggregated = aggregated + (aggregateName -> Aggregate(this, aggregateName, leaf, multiplicity, mandatory))
+        aggregated = aggregated + (aggregateName -> Aggregate(aggregateName, leaf, multiplicity, mandatory))
       )
 
     def withReference(referenceName: Name,
@@ -75,18 +124,5 @@ private[core] trait Entities
       copy(
         referenced = referenced + (referenceName -> Reference(referenceName, referencedEntity, multiplicity, mandatory))
       )
-
-    override def toString =
-      s"${getClass.getSimpleName}($name)"
-
-    override def equals(other: Any): Boolean =
-      other match {
-        case that: Entity => that.name == this.name
-        case _ => false
-      }
-
-    override def hashCode: Int =
-      41 * name.hashCode
   }
-
 }

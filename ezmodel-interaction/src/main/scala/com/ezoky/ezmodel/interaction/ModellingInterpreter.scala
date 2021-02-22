@@ -8,6 +8,10 @@ import com.ezoky.ezmodel.interaction.interpreter.{Interpreting, Parsing}
   * @since 0.2.0
   */
 trait ModellingInterpreter
+  extends UseCaseSyntax
+    with EntitySyntax
+
+trait UseCaseSyntax
   extends Parsing
     with Interpreting {
 
@@ -23,4 +27,22 @@ trait ModellingInterpreter
   // Interpreters
   implicit val defineUseCaseInterpreter: Interpreter[ModellingState, DefineAUseCase] =
     Interpreter.define(state => command => state.setCurrentUseCase(command.useCase))
+}
+
+trait EntitySyntax
+  extends Parsing
+    with Interpreting {
+
+  // Syntax
+  case class DefineAnEntity(entity: Entity)
+
+
+  // Parsers
+  implicit val entityParser: Parser[Entity, DefineAnEntity] =
+    Parser.define(entity => Statement(DefineAnEntity(entity)))
+
+
+  // Interpreters
+  implicit val defineEntityInterpreter: Interpreter[ModellingState, DefineAnEntity] =
+    Interpreter.define(state => command => state.setCurrentEntity(command.entity))
 }

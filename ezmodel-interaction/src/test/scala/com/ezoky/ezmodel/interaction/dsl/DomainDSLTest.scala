@@ -5,7 +5,7 @@ import org.scalatest.funsuite.AnyFunSuite
 /**
   * @author gweinbach
   */
-class DomainTest extends AnyFunSuite {
+class DomainDSLTest extends AnyFunSuite {
 
   import com.ezoky.ezmodel.core.Models._
 

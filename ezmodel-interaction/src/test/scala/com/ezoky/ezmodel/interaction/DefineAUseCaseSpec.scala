@@ -22,7 +22,7 @@ class DefineAUseCaseSpec
         Given("a modelling state")
         val initialModellingState = ModellingState.Empty
 
-        When("the Modeller describes a use case with th DSL")
+        When("the Modeller describes a Use Case with the DSL")
         val whatISay =
           Say {
             asAn ("Accountant") iWantTo ("invoice" a "Month") provided ("Production" is "Done") resultingIn ("Current Month" is "Invoiced")
