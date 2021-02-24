@@ -6,9 +6,9 @@ import com.ezoky.ezmodel.core.Models._
   * @author gweinbach on 19/02/2021
   * @since 0.2.0
   */
-trait ModelDSL {
+trait ModelDSL
+  extends NaturalIdDSL {
 
   def inModel(modelName: String): Model =
     Model(Name(modelName))
-
 }

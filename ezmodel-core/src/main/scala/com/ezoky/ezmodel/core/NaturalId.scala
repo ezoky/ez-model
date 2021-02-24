@@ -29,7 +29,7 @@ object NaturalId {
 
   type Aux[T, I] = NaturalId[T] { type IdType = I }
 
-  private def define[T, I](naturalId: T => I): NaturalId[T] =
+  def define[I, T](naturalId: T => I): NaturalId[T] =
     new NaturalId[T] {
 
       override type IdType = I
@@ -38,17 +38,17 @@ object NaturalId {
         naturalId(t)
     }
 
-  type Dictionary[T, I <: NaturalId[T]] = Map[I#IdType, T]
+  type NaturalMap[I <: NaturalId[T], T] = Map[I#IdType, T]
 
-  object Dictionary {
+  object NaturalMap {
 
-    def empty[T, I <: NaturalId[T]]: Dictionary[T, I] =
+    def empty[I <: NaturalId[T], T]: NaturalMap[I, T] =
       Map.empty[I#IdType, T]
 
-    def apply[T, I <: NaturalId[T]](points: T*)
+    def apply[I <: NaturalId[T], T](points: T*)
                                    (implicit
-                                    id: I): Dictionary[T, I] =
-      points.foldLeft(empty[T, I])((map, point) => map + (id(point) -> point))
+                                    id: I): NaturalMap[I, T] =
+      points.foldLeft(empty[I, T])((map, point) => map + (id(point) -> point))
   }
 
   /**

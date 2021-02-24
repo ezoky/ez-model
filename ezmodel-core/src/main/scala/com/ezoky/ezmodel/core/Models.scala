@@ -8,21 +8,13 @@ private[core] trait Models
   extends Domains {
 
   case class Model(name: Name,
-                   domains: Set[Domain] = Set.empty[Domain]) {
+                   domains: DomainMap = DomainMap.empty)
+                  (implicit
+                   domainId: DomainId) {
 
-    def addDomain(domain: Domain): Model =
-      copy(domains = domains + domain)
+    def withDomain(domain: Domain): Model =
+      copy(domains = domains + (domainId(domain) -> domain))
   }
-
-//  case class Model[DomainId](name: Name,
-//                             domains: Map[DomainId, Domain] =
-//                             Map.empty[DomainId, Domain])
-//                            (implicit
-//                             domainId: NaturalId.Aux[Domain, DomainId]) {
-//
-//    def addDomain(domain: Domain): Model[DomainId] =
-//      copy(domains = domains + (domainId(domain), domain))
-//  }
 
 }
 

@@ -1,5 +1,7 @@
 package com.ezoky.ezmodel.core
 
+import com.ezoky.ezmodel.core.NaturalId.NaturalMap
+
 private[core] trait Domains
   extends Atoms
     with UseCases
@@ -19,9 +21,21 @@ private[core] trait Domains
   }
 
   object Domain {
-
     def apply(): Domain =
       Domain(DefaultName)
+  }
+
+  type DomainId = NaturalId[Domain]
+  type DomainMap = NaturalMap[DomainId, Domain]
+
+  object DomainMap {
+    def empty: DomainMap =
+      NaturalMap.empty[DomainId, Domain]
+
+    def apply(domains: Domain*)
+             (implicit
+              id: DomainId): DomainMap =
+      NaturalMap(domains: _*)
   }
 
 }

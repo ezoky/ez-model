@@ -1,6 +1,6 @@
 package com.ezoky.ezmodel.core
 
-import com.ezoky.ezmodel.core.NaturalId.Dictionary
+import com.ezoky.ezmodel.core.NaturalId.NaturalMap
 import org.scalatest.funsuite.AnyFunSuite
 
 /**
@@ -16,43 +16,32 @@ class NaturalIdTest
 
     {
       // On the plane
-      implicit object PlanePos extends NaturalId[Point] {
-        override type IdType = (Int, Int)
+      implicit val PlanePos: NaturalId[Point] =
+        NaturalId.define(t => (t.x, t.y))
 
-        override def apply(t: Point): (Int, Int) = (t.x, t.y)
-      }
-
-      val points = Dictionary(Point(1, 2), Point(2, 3), Point(1, 4), Point(2, 4), Point(1, 2))
+      val points = NaturalMap(Point(1, 2), Point(2, 3), Point(1, 4), Point(2, 4), Point(1, 2))
 
       assert(points.size === 4)
     }
 
     {
       // On the abscissa
-      implicit object AbscissaPos extends NaturalId[Point] {
-        override type IdType = Int
+      implicit val AbscissaPos: NaturalId[Point] =
+        NaturalId.define(_.x)
 
-        override def apply(t: Point): Int = t.x
-      }
-
-      val points = Dictionary(Point(1, 2), Point(2, 3), Point(1, 4), Point(2, 4), Point(1, 2))
+      val points = NaturalMap(Point(1, 2), Point(2, 3), Point(1, 4), Point(2, 4), Point(1, 2))
 
       assert(points.size === 2)
-
     }
 
     {
       // On the ordinate
-      implicit object OrdinatePos extends NaturalId[Point] {
-        override type IdType = Int
+      implicit val OrdinatePos: NaturalId[Point] =
+        NaturalId.define(_.y)
 
-        override def apply(t: Point): Int = t.y
-      }
-
-      val points = Dictionary(Point(1, 2), Point(2, 3), Point(1, 4), Point(2, 4), Point(1, 2))
+      val points = NaturalMap(Point(1, 2), Point(2, 3), Point(1, 4), Point(2, 4), Point(1, 2))
 
       assert(points.size === 3)
-
     }
   }
 
