@@ -14,6 +14,16 @@ private[core] trait Models
       copy(domains = domains + domain)
   }
 
+//  case class Model[DomainId](name: Name,
+//                             domains: Map[DomainId, Domain] =
+//                             Map.empty[DomainId, Domain])
+//                            (implicit
+//                             domainId: NaturalId.Aux[Domain, DomainId]) {
+//
+//    def addDomain(domain: Domain): Model[DomainId] =
+//      copy(domains = domains + (domainId(domain), domain))
+//  }
+
 }
 
 object Models extends Models
