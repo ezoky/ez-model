@@ -30,7 +30,7 @@ class DefineAnEntitySpec
 
         Then("the modelling state changes accordingly")
         val definedEntity = {
-          Entity(
+          Entity(       
             Name("Invoice"),
             attributes = Map(Name("number") -> Attribute(Name("number"), single, mandatory = false)),
             aggregated = Map(Name("lines") -> Aggregate(Name("lines"), Entity("Invoice Line"), multiple, mandatory = true)),

@@ -44,7 +44,7 @@ class EntityDSLTest extends AnyFunSuite {
         )
       )
 
-    val offre = theEntity("Offre") aggregates many (Entity("Gamme") aggregates many (Entity("Sous-Gamme") aggregates many (Entity("Prestation")) as "prestations vendues")) withAttribute "nom"
+    val offre: Entity = theEntity("Offre") aggregates many (Entity("Gamme") aggregates many (Entity("Sous-Gamme") aggregates many (Entity("Prestation")) as "prestations vendues")) has one ("nom")
 
     assert(offre === expectedEntity)
   }

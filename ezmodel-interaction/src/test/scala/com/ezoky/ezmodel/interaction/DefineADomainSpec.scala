@@ -25,13 +25,21 @@ class DefineADomainSpec
         When("the Modeller describes a Domain with the DSL")
         val whatISay =
           Say {
-            inDomain("Invoicing")
+            inDomain("Invoicing") asAn "Accountant" iWantTo ("invoice" a "Customer")
           }
 
         Then("the modelling state changes accordingly")
+        val definedUseCase =
+          UseCase(
+            Actor("Accountant"),
+            Goal(Action(Verb("invoice")), Some(ActionObject(NameGroup(Determinant.a, Name("Customer")))))
+          )
         val definedDomain =
           Domain(
-            Name("Invoicing")
+            Name("Invoicing"),
+            useCases = List(
+              definedUseCase
+            )
           )
 
         val modellingState = Processor(initialModellingState).process(whatISay).state

@@ -76,8 +76,8 @@ trait EntitySyntax
 
 
   // Parsers
-  implicit val entityParser: Parser[Entity, DefineAnEntity] =
-    Parser.define(entity => Statement(DefineAnEntity(entity)))
+  implicit def entityParser[T](implicit cvtToEntity: T => Entity): Parser[T, DefineAnEntity] =
+    Parser.define(entity => Statement(DefineAnEntity(cvtToEntity(entity))))
 
 
   // Interpreters
