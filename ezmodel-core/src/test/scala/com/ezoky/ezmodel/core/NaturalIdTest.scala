@@ -10,7 +10,7 @@ import org.scalatest.funsuite.AnyFunSuite
 class NaturalIdTest
   extends AnyFunSuite {
 
-  test("Natural Id is contextual") {
+  test("a Natural Id is contextual") {
 
     case class Point(x: Int, y: Int)
 

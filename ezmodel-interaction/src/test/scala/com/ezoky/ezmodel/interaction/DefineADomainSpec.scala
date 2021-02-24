@@ -37,7 +37,7 @@ class DefineADomainSpec
         val definedDomain =
           Domain(
             Name("Invoicing"),
-            useCases = List(
+            useCases = UseCaseMap(
               definedUseCase
             )
           )

@@ -1,5 +1,7 @@
 package com.ezoky.ezmodel.core
 
+import com.ezoky.ezmodel.core.NaturalId.NaturalMap
+
 private[core] trait UseCases
   extends Atoms
     with Entities
@@ -7,15 +9,32 @@ private[core] trait UseCases
 
   case class UseCase(actor: Actor,
                      goal: Goal,
-                     constraints: Constraints = Constraints.Empty)
+                     constraints: Constraints = Constraints.empty)
+                    (implicit
+                     entityStateId: EntityStateId)
     extends Constrained[UseCase] {
 
     def withPreCondition(state: EntityState): UseCase =
       copy(constraints = constrain(Pre, state))
 
-    def withPostCondition(state: EntityState) =
+    def withPostCondition(state: EntityState): UseCase =
       copy(constraints = constrain(Post, state))
   }
+
+
+  type UseCaseId = NaturalId[UseCase]
+  type UseCaseMap = NaturalMap[UseCaseId, UseCase]
+
+  object UseCaseMap {
+    def empty: UseCaseMap =
+      NaturalMap.empty[UseCaseId, UseCase]
+
+    def apply(useCases: UseCase*)
+             (implicit
+              id: UseCaseId): UseCaseMap =
+      NaturalMap(useCases: _*)
+  }
+
 
 
   case class Actor(name: Name)

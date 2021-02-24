@@ -10,3 +10,4 @@ object DSL
     with EntityDSL
     with DomainDSL
     with ModelDSL
+    with NaturalIdDSL

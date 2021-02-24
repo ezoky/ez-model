@@ -7,7 +7,9 @@ import org.scalatest.funsuite.AnyFunSuite
   */
 class DomainTest
   extends AnyFunSuite
-    with Domains {
+    with StandardDomain
+    with StandardUseCase
+    with StandardEntity {
 
 
   test("Domain elaboration") {

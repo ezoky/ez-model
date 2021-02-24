@@ -8,12 +8,9 @@ import org.scalatest.funsuite.AnyFunSuite
   */
 class ModelTest
   extends AnyFunSuite
-    with Models {
+    with StandardModels {
 
   test("A Model is a container for items partitioned into Domains") {
-
-    implicit val DomainNaturalId: NaturalId[Domain] =
-      NaturalId.define(_.name)
 
     val model =
       Model(Name("test project"))

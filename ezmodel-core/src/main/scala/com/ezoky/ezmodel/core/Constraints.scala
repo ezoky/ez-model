@@ -1,5 +1,7 @@
 package com.ezoky.ezmodel.core
 
+import com.ezoky.ezmodel.core.NaturalId.NaturalMap
+
 private[core] trait Constraints
   extends Entities {
 
@@ -9,18 +11,20 @@ private[core] trait Constraints
 
   object Post extends ConstraintType("post-condition")
 
-  type Constraints = Map[ConstraintType, List[EntityState]]
+  type Constraints = Map[ConstraintType, EntityStateMap]
 
   object Constraints {
     
-    val Empty: Constraints = Map.empty.withDefaultValue(List.empty)
+    val empty: Constraints = Map.empty.withDefaultValue(EntityStateMap.empty)
 
-    def apply(constrains: (ConstraintType, EntityState)*): Constraints =
-      constrains.foldLeft(Empty) {
+    def apply(constrains: (ConstraintType, EntityState)*)
+             (implicit
+             entityStateId: EntityStateId): Constraints =
+      constrains.foldLeft(empty) {
         case (accConstraints, (constraintType, state)) =>
           accConstraints.get(constraintType) match {
-            case None => accConstraints + (constraintType -> List(state))
-            case Some(states) => accConstraints + (constraintType -> (state :: states))
+            case None => accConstraints + (constraintType -> EntityStateMap(state))
+            case Some(states) => accConstraints + (constraintType -> states.add(state))
           }
       }
   }
@@ -30,10 +34,12 @@ private[core] trait Constraints
     val constraints: Constraints
 
     protected def constrain(constraintType: ConstraintType,
-                            state: EntityState): Constraints =
+                            state: EntityState)
+                           (implicit
+                            entityStateId: EntityStateId): Constraints =
       constraints.get(constraintType) match {
-        case None => constraints + (constraintType -> List(state))
-        case Some(states) => constraints + (constraintType -> (state :: states))
+        case None => constraints + (constraintType -> EntityStateMap(state))
+        case Some(states) => constraints + (constraintType -> states.add(state))
       }
   }
 }

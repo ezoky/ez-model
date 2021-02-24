@@ -6,7 +6,8 @@ import com.ezoky.ezmodel.core.Models._
   * @author gweinbach on 07/02/2021
   * @since 0.2.0
   */
-trait UseCaseDSL {
+trait UseCaseDSL
+  extends NaturalIdDSL {
 
   implicit def implicitUseCase2(useCase: (String, String)): UseCase =
     UseCase(

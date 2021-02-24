@@ -45,43 +45,19 @@ object NaturalId {
     def empty[I <: NaturalId[T], T]: NaturalMap[I, T] =
       Map.empty[I#IdType, T]
 
-    def apply[I <: NaturalId[T], T](points: T*)
+    def apply[I <: NaturalId[T], T](ts: T*)
                                    (implicit
                                     id: I): NaturalMap[I, T] =
-      points.foldLeft(empty[I, T])((map, point) => map + (id(point) -> point))
+      ts.foldLeft(empty[I, T])((map, t) => map + (id(t) -> t))
   }
 
-  /**
-    * Can be used for standard usages
-    */
-  trait StandardTypeClasses {
+  implicit class NaturalMapHelper[I <: NaturalId[T], T](naturalMap: NaturalMap[I, T])
+                                                       (implicit
+                                                        id: I) {
+    def add(t: T): NaturalMap[I, T] =
+      naturalMap + (id(t) -> t)
 
-    import com.ezoky.ezmodel.core.Models._
-
-    implicit val DomainNaturalId: NaturalId[Domain] =
-      define(_.name)
-
-    implicit val ModelNaturalId: NaturalId[Model] =
-      define(_.name)
-
-    implicit val EntityNaturalId: NaturalId[Entity] =
-      define(_.name)
-
-    implicit val ActorNaturalId: NaturalId[Actor] =
-      define(_.name)
-
-    implicit val GoalNaturalId: NaturalId[Goal] =
-      define { goal =>
-        (goal.action.verb, goal.actionObject.map { actionObject =>
-          (actionObject.nameGroup.determinant, actionObject.nameGroup.name)
-        })
-      }
-
-    implicit def UseCaseNaturalId(implicit
-                                  actorId: NaturalId[Actor],
-                                  goalId: NaturalId[Goal]): NaturalId[UseCase] =
-      define { useCase =>
-        (actorId.apply(useCase.actor), goalId.apply(useCase.goal))
-      }
+    def remove(t: T): NaturalMap[I, T] =
+      naturalMap - id(t)
   }
 }

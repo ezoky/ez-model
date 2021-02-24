@@ -8,22 +8,29 @@ private[core] trait Domains
     with Entities {
 
   case class Domain(name: Name,
-                    useCases: List[UseCase] = List.empty,
-                    entities: List[Entity] = List.empty) {
+                    useCases: UseCaseMap = UseCaseMap.empty,
+                    entities: EntityMap = EntityMap.empty)
+                   (implicit
+                    useCaseId: UseCaseId,
+                    entityId: EntityId) {
 
-    def withUseCase(uc: UseCase): Domain = {
-      copy(useCases = uc :: useCases)
+    def withUseCase(useCase: UseCase): Domain = {
+      copy(useCases = useCases.add(useCase))
     }
 
-    def withEntity(ent: Entity): Domain = {
-      copy(entities = ent :: entities)
+    def withEntity(entity: Entity): Domain = {
+      copy(entities = entities.add(entity))
     }
   }
 
   object Domain {
-    def apply(): Domain =
+    def apply()
+             (implicit
+              useCaseId: UseCaseId,
+              entityId: EntityId): Domain =
       Domain(DefaultName)
   }
+
 
   type DomainId = NaturalId[Domain]
   type DomainMap = NaturalMap[DomainId, Domain]
