@@ -1,11 +1,11 @@
 package com.ezoky.ezmodel.core
 
-import com.ezoky.ezmodel.core.NaturalId.NaturalMap
 
 private[core] trait Domains
   extends Atoms
     with UseCases
-    with Entities {
+    with Entities
+    with NaturalIds{
 
   case class Domain(name: Name,
                     useCases: UseCaseMap = UseCaseMap.empty,

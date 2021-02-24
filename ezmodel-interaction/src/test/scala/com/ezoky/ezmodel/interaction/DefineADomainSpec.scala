@@ -43,7 +43,9 @@ class DefineADomainSpec
           )
 
         val modellingState = Processor(initialModellingState).process(whatISay).state
+        assert(modellingState.currentModel.isEmpty)
         assert(modellingState.currentDomain === Some(definedDomain))
+        assert(modellingState.currentUseCase === Some(definedUseCase))
       }
     }
   }

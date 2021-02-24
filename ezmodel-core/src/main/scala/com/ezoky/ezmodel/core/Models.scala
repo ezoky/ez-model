@@ -5,7 +5,8 @@ package com.ezoky.ezmodel.core
   * @since 0.2.0
   */
 private[core] trait Models
-  extends Domains {
+  extends Domains
+    with NaturalIds {
 
   case class Model(name: Name,
                    domains: DomainMap = DomainMap.empty)
@@ -14,6 +15,20 @@ private[core] trait Models
 
     def withDomain(domain: Domain): Model =
       copy(domains = domains + (domainId(domain) -> domain))
+  }
+
+
+  type ModelId = NaturalId[Model]
+  type ModelMap = NaturalMap[ModelId, Model]
+
+  object ModelMap {
+    def empty: ModelMap =
+      NaturalMap.empty[ModelId, Model]
+
+    def apply(models: Model*)
+             (implicit
+              id: ModelId): ModelMap =
+      NaturalMap(models: _*)
   }
 
 }

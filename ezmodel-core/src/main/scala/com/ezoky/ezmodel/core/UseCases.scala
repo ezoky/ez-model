@@ -1,11 +1,11 @@
 package com.ezoky.ezmodel.core
 
-import com.ezoky.ezmodel.core.NaturalId.NaturalMap
 
 private[core] trait UseCases
   extends Atoms
     with Entities
-    with Constraints {
+    with Constraints
+    with NaturalIds {
 
   case class UseCase(actor: Actor,
                      goal: Goal,
@@ -34,7 +34,6 @@ private[core] trait UseCases
               id: UseCaseId): UseCaseMap =
       NaturalMap(useCases: _*)
   }
-
 
 
   case class Actor(name: Name)

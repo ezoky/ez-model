@@ -1,9 +1,8 @@
 package com.ezoky.ezmodel.core
 
-import com.ezoky.ezmodel.core.NaturalId.NaturalMap
-
 private[core] trait Constraints
-  extends Entities {
+  extends Entities
+    with NaturalIds {
 
   abstract case class ConstraintType(constraintType: String)
 
@@ -22,10 +21,7 @@ private[core] trait Constraints
              entityStateId: EntityStateId): Constraints =
       constrains.foldLeft(empty) {
         case (accConstraints, (constraintType, state)) =>
-          accConstraints.get(constraintType) match {
-            case None => accConstraints + (constraintType -> EntityStateMap(state))
-            case Some(states) => accConstraints + (constraintType -> states.add(state))
-          }
+          accConstraints + (constraintType -> accConstraints(constraintType).add(state))
       }
   }
 
@@ -37,9 +33,6 @@ private[core] trait Constraints
                             state: EntityState)
                            (implicit
                             entityStateId: EntityStateId): Constraints =
-      constraints.get(constraintType) match {
-        case None => constraints + (constraintType -> EntityStateMap(state))
-        case Some(states) => constraints + (constraintType -> states.add(state))
-      }
+      constraints + (constraintType -> constraints(constraintType).add(state))
   }
 }

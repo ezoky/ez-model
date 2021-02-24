@@ -1,7 +1,7 @@
 package com.ezoky.ezmodel.interaction
 
 import com.ezoky.ezmodel.core.Models._
-import com.ezoky.ezmodel.interaction.Models._
+import com.ezoky.ezmodel.interaction.dsl.DSL._
 
 /**
   * @author gweinbach on 21/02/2021
@@ -9,29 +9,18 @@ import com.ezoky.ezmodel.interaction.Models._
   */
 trait RootState {
 
-  val models: Models
+  val models: ModelMap
 
   def addModel(model: Model): RootState
 
   def updateModel(model: Model): RootState
 }
 
-object Models {
-
-  type Models = Map[Name, Model]
-
-  val Empty: Models = Map.empty
-
-  implicit class ModelsHelper(models: Models) {
-    def add(model: Model): Models =
-      models + (model.name -> model)
-  }
-
-}
-
 trait ModelState {
 
   val currentModel: Option[Model]
+
+  def resetCurrentModel: RootState
 
   def setCurrentModel(model: Model): ModelState
 
@@ -44,6 +33,8 @@ trait ModelState {
 trait DomainState {
 
   val currentDomain: Option[Domain]
+
+  def resetCurrentDomain: RootState
 
   def setCurrentDomain(domain: Domain): DomainState
 
@@ -60,6 +51,8 @@ trait UseCaseState {
 
   val currentUseCase: Option[UseCase]
 
+  def resetCurrentUseCase: RootState
+
   def setCurrentUseCase(useCase: UseCase): UseCaseState
 }
 
@@ -67,6 +60,8 @@ trait UseCaseState {
 trait EntityState {
 
   val currentEntity: Option[Entity]
+
+  def resetCurrentEntity: RootState
 
   def setCurrentEntity(entity: Entity): EntityState
 
@@ -77,7 +72,7 @@ trait EntityState {
   def addReference(reference: Reference): EntityState
 }
 
-case class ModellingState(models: Models,
+case class ModellingState(models: ModelMap,
                           currentModel: Option[Model],
                           currentDomain: Option[Domain],
                           currentUseCase: Option[UseCase],
@@ -93,23 +88,45 @@ case class ModellingState(models: Models,
 
   override def updateModel(model: Model): ModellingState = ???
 
+  override def resetCurrentModel: ModellingState =
+    copy(currentModel = None)
+
   override def setCurrentModel(model: Model): ModellingState =
-//    addModel(model).copy(currentModel = Some(model))
-    copy(currentModel = Some(model))
+    addModel(model).copy(currentModel = Some(model))
 
-  override def addDomain(domain: Domain): ModellingState = ???
+  override def addDomain(domain: Domain): ModellingState =
+    currentModel.fold(this)(model => setCurrentModel(model.withDomain(domain)))
 
-  override def setCurrentDomain(domain: Domain): ModellingState =
-//    withDomain(domain).copy(currentDomain = Some(domain))
-    copy(currentDomain = Some(domain))
+  override def resetCurrentDomain: ModellingState =
+    copy(currentDomain = None)
+
+  override def setCurrentDomain(domain: Domain): ModellingState = {
+    val withDomain = addDomain(domain).copy(currentDomain = Some(domain))
+    val withUseCase =
+      domain.useCases.headOption.fold(withDomain.resetCurrentUseCase) {
+        case (_, useCase) => withDomain.setCurrentUseCase(useCase)
+      }
+    val withEntity = {
+      domain.entities.headOption.fold(withUseCase.resetCurrentEntity) {
+        case (_, entity) => withUseCase.setCurrentEntity(entity)
+      }
+    }
+    withEntity
+  }
 
   override def addUseCase(useCase: UseCase): ModellingState = ???
 
   override def addEntity(entity: Entity): ModellingState = ???
 
+  override def resetCurrentUseCase: ModellingState =
+    copy(currentUseCase = None)
+
   override def setCurrentUseCase(useCase: UseCase): ModellingState =
 //    addUseCase(useCase).copy(currentUseCase = Some(useCase))
     copy(currentUseCase = Some(useCase))
+
+  override def resetCurrentEntity: ModellingState =
+    copy(currentEntity = None)
 
   override def setCurrentEntity(entity: Entity): ModellingState =
 //    addEntity(entity).copy(currentEntity = Some(entity))
@@ -123,16 +140,16 @@ case class ModellingState(models: Models,
 
   override def updateDomain(domain: Domain): ModelState = ???
 
-  override def updateUseCase(useCase: UseCase): DomainState = ???
+  override def updateUseCase(useCase: UseCase): ModellingState = ???
 
-  override def updateEntity(entity: Entity): DomainState = ???
+  override def updateEntity(entity: Entity): ModellingState = ???
 }
 
 object ModellingState {
 
   val Empty: ModellingState =
     ModellingState(
-      models = Models.Empty,
+      models = ModelMap.empty,
       currentModel = None,
       currentDomain = None,
       currentUseCase = None,

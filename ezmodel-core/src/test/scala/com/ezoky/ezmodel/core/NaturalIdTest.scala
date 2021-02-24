@@ -1,6 +1,5 @@
 package com.ezoky.ezmodel.core
 
-import com.ezoky.ezmodel.core.NaturalId.NaturalMap
 import org.scalatest.funsuite.AnyFunSuite
 
 /**
@@ -8,7 +7,8 @@ import org.scalatest.funsuite.AnyFunSuite
   * @since 0.2.0
   */
 class NaturalIdTest
-  extends AnyFunSuite {
+  extends AnyFunSuite
+  with NaturalIds {
 
   test("a Natural Id is contextual") {
 

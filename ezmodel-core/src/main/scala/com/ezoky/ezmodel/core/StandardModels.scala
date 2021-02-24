@@ -1,16 +1,17 @@
 package com.ezoky.ezmodel.core
 
-import com.ezoky.ezmodel.core.NaturalId.define
-
 /**
-  * Can be used for standard usages
+  * Can be used for standard usages or for testing
   *
   * @author gweinbach on 24/02/2021
   * @since 0.2.0
   */
 trait StandardModels
   extends Models
-    with StandardModel
+    with StandardTypeClasses
+
+trait StandardTypeClasses
+  extends StandardModel
     with StandardDomain
     with StandardUseCase
     with StandardEntity
@@ -19,34 +20,34 @@ trait StandardModels
 trait StandardModel
   extends Models {
   implicit val ModelNaturalId: NaturalId[Model] =
-    define(_.name)
+    NaturalId.define(_.name)
 }
 
 trait StandardDomain
   extends Domains {
   implicit val DomainNaturalId: NaturalId[Domain] =
-    define(_.name)
+    NaturalId.define(_.name)
 }
 
 trait StandardEntity
   extends Entities {
 
   implicit val EntityNaturalId: NaturalId[Entity] =
-    define(_.name)
+    NaturalId.define(_.name)
 
   implicit def EntityStateNaturalId(implicit
                                     entityId: NaturalId[Entity]): NaturalId[EntityState] =
-    define(entityState => (entityId(entityState.entity), entityState.state.qualifier))
+    NaturalId.define(entityState => (entityId(entityState.entity), entityState.state.qualifier))
 }
 
 trait StandardUseCase
   extends UseCases {
 
   implicit val ActorNaturalId: NaturalId[Actor] =
-    define(_.name)
+    NaturalId.define(_.name)
 
   implicit val GoalNaturalId: NaturalId[Goal] =
-    define { goal =>
+    NaturalId.define { goal =>
       (goal.action.verb, goal.actionObject.map { actionObject =>
         (actionObject.nameGroup.determinant, actionObject.nameGroup.name)
       })
@@ -55,7 +56,7 @@ trait StandardUseCase
   implicit def UseCaseNaturalId(implicit
                                 actorId: NaturalId[Actor],
                                 goalId: NaturalId[Goal]): NaturalId[UseCase] =
-    define { useCase =>
+    NaturalId.define { useCase =>
       (actorId.apply(useCase.actor), goalId.apply(useCase.goal))
     }
 }

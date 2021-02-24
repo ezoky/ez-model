@@ -1,11 +1,10 @@
 package com.ezoky.ezmodel.core
 
-import com.ezoky.ezmodel.core.NaturalId.NaturalMap
-
 import scala.collection.SortedSet
 
 private[core] trait Entities
-  extends Atoms {
+  extends Atoms
+    with NaturalIds{
 
   case class Entity(name: Name,
                     attributes: Map[Name, Attribute] = Map.empty[Name, Attribute],
