@@ -42,6 +42,9 @@ trait EntityDSL {
 
   trait EntityActions {
 
+    /**
+      * The entity on which the actions will apply
+      */
     def currentEntity: Entity
 
     def has(fluentAttribute: FluentMultiplicity[Name]): AttributeReference =
@@ -57,7 +60,8 @@ trait EntityDSL {
         currentEntity,
         fluentTarget.target,
         fluentTarget.multiplicity,
-        fluentTarget.mandatory
+        fluentTarget.mandatory,
+        fluentTarget.name
       )
 
     def aggregates(fluentAggregate: FluentMultiplicity[Entity]): AggregateReference =
@@ -65,7 +69,8 @@ trait EntityDSL {
         currentEntity,
         fluentAggregate.target,
         fluentAggregate.multiplicity,
-        fluentAggregate.mandatory
+        fluentAggregate.mandatory,
+        fluentAggregate.name
       )
   }
 
@@ -73,9 +78,9 @@ trait EntityDSL {
     val target: T
     val multiplicity: Multiplicity
     val mandatory: Boolean
-    val name: Option[String] = None
+    val name: Option[Name] = None
 
-    def as(newName: String): FluentMultiplicity[T] =
+    def as(newName: Name): FluentMultiplicity[T] =
       FluentMultiplicity[T](
         target,
         multiplicity,
@@ -91,8 +96,14 @@ trait EntityDSL {
     val multiplicity: Multiplicity
     val mandatory: Boolean
 
+    /**
+      * Renames current referencz
+      */
     def as(newName: Name): T
 
+    /**
+      * Creates an Entity modified with current reference
+      */
     def toEntity: Entity
 
     final override def currentEntity: Entity =
@@ -104,12 +115,12 @@ trait EntityDSL {
     def apply[T](t: T,
                  targetMultiplicity: Multiplicity,
                  targetMandatory: Boolean,
-                 targetName: String): FluentMultiplicity[T] =
+                 targetName: Name): FluentMultiplicity[T] =
       new FluentMultiplicity[T] {
         override val target: T = t
         override val multiplicity: Models.Multiplicity = targetMultiplicity
         override val mandatory: Boolean = targetMandatory
-        override val name: Option[String] = Some(targetName)
+        override val name: Option[Name] = Some(targetName)
       }
   }
 
