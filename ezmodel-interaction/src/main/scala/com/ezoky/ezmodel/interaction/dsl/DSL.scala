@@ -11,3 +11,4 @@ object DSL
     with DomainDSL
     with ModelDSL
     with NaturalIdDSL
+    with MergerDSL

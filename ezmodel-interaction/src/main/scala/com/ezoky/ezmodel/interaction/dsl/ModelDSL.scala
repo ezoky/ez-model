@@ -7,7 +7,8 @@ import com.ezoky.ezmodel.core.Models._
   * @since 0.2.0
   */
 trait ModelDSL
-  extends NaturalIdDSL {
+  extends NaturalIdDSL
+    with MergerDSL {
 
   def inModel(modelName: String): Model =
     Model(Name(modelName))

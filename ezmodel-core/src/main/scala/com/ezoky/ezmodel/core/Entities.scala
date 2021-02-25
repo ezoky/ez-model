@@ -4,18 +4,22 @@ import scala.collection.SortedSet
 
 private[core] trait Entities
   extends Atoms
-    with NaturalIds{
+    with NaturalIds {
 
   case class Entity(name: Name,
-                    attributes: Map[Name, Attribute] = Map.empty[Name, Attribute],
-                    aggregated: Map[Name, Aggregate] = Map.empty[Name, Aggregate],
-                    referenced: Map[Name, Reference] = Map.empty[Name, Reference]) {
+                    attributes: AttributeMap = AttributeMap.empty,
+                    aggregated: AggregateMap = AggregateMap.empty,
+                    referenced: ReferenceMap = ReferenceMap.empty)
+                   (implicit
+                    attributeId: AttributeId,
+                    aggregateId: AggregateId,
+                    referenceId: ReferenceId) {
 
     def withAttribute(attributeName: Name,
                       multiplicity: Multiplicity = single,
                       mandatory: Boolean = false): Entity =
       copy(
-        attributes = attributes + (attributeName -> Attribute(attributeName, multiplicity, mandatory))
+        attributes = attributes.add(Attribute(attributeName, multiplicity, mandatory))
       )
 
     def withAggregate(aggregateName: Name,
@@ -23,7 +27,7 @@ private[core] trait Entities
                       multiplicity: Multiplicity = single,
                       mandatory: Boolean = false): Entity =
       copy(
-        aggregated = aggregated + (aggregateName -> Aggregate(aggregateName, leaf, multiplicity, mandatory))
+        aggregated = aggregated.add(Aggregate(aggregateName, leaf, multiplicity, mandatory))
       )
 
     def withReference(referenceName: Name,
@@ -31,22 +35,14 @@ private[core] trait Entities
                       multiplicity: Multiplicity = single,
                       mandatory: Boolean = false): Entity =
       copy(
-        referenced = referenced + (referenceName -> Reference(referenceName, referencedEntity, multiplicity, mandatory))
+        referenced = referenced.add(Reference(referenceName, referencedEntity, multiplicity, mandatory))
       )
   }
 
   type EntityId = NaturalId[Entity]
   type EntityMap = NaturalMap[EntityId, Entity]
 
-  object EntityMap {
-    def empty: EntityMap =
-      NaturalMap.empty[EntityId, Entity]
-
-    def apply(entities: Entity*)
-             (implicit
-              id: EntityId): EntityMap =
-      NaturalMap(entities: _*)
-  }
+  object EntityMap extends NaturalMapCompanion[EntityId, Entity]
 
 
   case class StateName(qualifier: Qualifier)
@@ -70,38 +66,44 @@ private[core] trait Entities
   type EntityStateId = NaturalId[EntityState]
   type EntityStateMap = NaturalMap[EntityStateId, EntityState]
 
-  object EntityStateMap {
-    def empty: EntityStateMap =
-      NaturalMap.empty[EntityStateId, EntityState]
+  object EntityStateMap extends NaturalMapCompanion[EntityStateId, EntityState]
 
-    def apply(entityStates: EntityState*)
-             (implicit
-              id: EntityStateId): EntityStateMap =
-      NaturalMap(entityStates: _*)
-  }
 
   /**
     * TODO: need to add transitions
     * TODO: states Map should not be indexed by StateName as it can change.
     */
   case class StateMachine(entity: Entity,
-                          states: Map[StateName, EntityState] = Map.empty) {
+                          states: EntityStateMap = EntityStateMap.empty)
+                         (implicit
+                          entityStateId: EntityStateId) {
 
     def state(entityState: EntityState) =
-      copy(states = states + (entityState.state -> entityState))
+      copy(states = states.add(entityState))
   }
 
 
 
   // Multiplicity
-  sealed abstract class Multiplicity(multiplicity: String)
+  sealed abstract class Multiplicity(multiplicity: String) {
+    val min: Int
+    val max: Int
+  }
 
-  case object single extends Multiplicity("single")
+  case object single extends Multiplicity("single") {
+    override val min: Int = 0
+    override val max: Int = 1
+  }
 
-  case object multiple extends Multiplicity("multiple")
+  case object multiple extends Multiplicity("multiple") {
+    override val min: Int = 0
+    override val max: Int = Int.MaxValue
+  }
 
   case class exactly private(value: Int) extends Multiplicity(s"$value") {
     assume(value >= 0)
+    override val min: Int = value
+    override val max: Int = value
   }
 
   object exactly {
@@ -113,6 +115,8 @@ private[core] trait Entities
 
   case class among private(values: SortedSet[Int]) extends Multiplicity(s"$values") {
     values.map(value => assume(value >= 0))
+    override val min: Int = values.min
+    override val max: Int = values.max
   }
 
   object among {
@@ -138,17 +142,38 @@ private[core] trait Entities
     }
   }
 
+  implicit val MultiplicityOrdering: Ordering[Multiplicity] =
+    Ordering.by(m => (m.max - m.min).abs)
+
   case class Attribute(name: Name,
                        multiplicity: Multiplicity,
                        mandatory: Boolean)
+
+  type AttributeId = NaturalId[Attribute]
+  type AttributeMap = NaturalMap[AttributeId, Attribute]
+
+  object AttributeMap extends NaturalMapCompanion[AttributeId, Attribute]
+
 
   case class Reference(name: Name,
                        referenced: Entity,
                        multiplicity: Multiplicity,
                        mandatory: Boolean)
 
+  type ReferenceId = NaturalId[Reference]
+  type ReferenceMap = NaturalMap[ReferenceId, Reference]
+
+  object ReferenceMap extends NaturalMapCompanion[ReferenceId, Reference]
+
+
   case class Aggregate(name: Name,
                        leaf: Entity,
                        multiplicity: Multiplicity,
                        mandatory: Boolean)
+
+  type AggregateId = NaturalId[Aggregate]
+  type AggregateMap = NaturalMap[AggregateId, Aggregate]
+
+  object AggregateMap extends NaturalMapCompanion[AggregateId, Aggregate]
+
 }

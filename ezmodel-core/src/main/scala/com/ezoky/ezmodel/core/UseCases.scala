@@ -25,15 +25,7 @@ private[core] trait UseCases
   type UseCaseId = NaturalId[UseCase]
   type UseCaseMap = NaturalMap[UseCaseId, UseCase]
 
-  object UseCaseMap {
-    def empty: UseCaseMap =
-      NaturalMap.empty[UseCaseId, UseCase]
-
-    def apply(useCases: UseCase*)
-             (implicit
-              id: UseCaseId): UseCaseMap =
-      NaturalMap(useCases: _*)
-  }
+  object UseCaseMap extends NaturalMapCompanion[UseCaseId, UseCase]
 
 
   case class Actor(name: Name)

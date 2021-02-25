@@ -15,23 +15,20 @@ class EntityDSLTest extends AnyFunSuite {
     val expectedEntity =
       Entity(
         Name("Offre"),
-        attributes = Map(
-          Name("nom") -> Attribute(Name("nom"), single, false)
+        attributes = AttributeMap(
+          Attribute(Name("nom"), single, false)
         ),
-        aggregated = Map(
-          Name("Gamme") ->
+        aggregated = AggregateMap(
             Aggregate(
               Name("Gamme"),
               Entity(
                 Name("Gamme") ,
-                aggregated = Map(
-                  Name("Sous-Gamme") ->
+                aggregated = AggregateMap(
                   Aggregate(
                     Name("Sous-Gamme"),
                     Entity(
                       Name("Sous-Gamme"),
-                      aggregated = Map(
-                        Name("prestations vendues") ->
+                      aggregated = AggregateMap(
                         Aggregate(
                           Name("prestations vendues"),
                           Entity(

@@ -12,22 +12,36 @@ private[core] trait Domains
                     entities: EntityMap = EntityMap.empty)
                    (implicit
                     useCaseId: UseCaseId,
-                    entityId: EntityId) {
+                    entityId: EntityId,
+                    entityMerger: Merger[Entity],
+                    useCaseMerger: Merger[UseCase]) {
 
-    def withUseCase(useCase: UseCase): Domain = {
+    def ownsUseCase(useCase: UseCase): Boolean =
+      useCases.owns(useCase)
+
+    def withUseCase(useCase: UseCase): Domain =
       copy(useCases = useCases.add(useCase))
-    }
 
-    def withEntity(entity: Entity): Domain = {
+    def mergeUseCase(useCase: UseCase): Domain =
+      copy(useCases = useCases.merge(useCase))
+
+    def ownsEntity(entity: Entity): Boolean =
+      entities.owns(entity)
+
+    def withEntity(entity: Entity): Domain =
       copy(entities = entities.add(entity))
-    }
+
+    def mergeEntity(entity: Entity): Domain =
+      copy(entities = entities.merge(entity))
   }
 
   object Domain {
     def apply()
              (implicit
               useCaseId: UseCaseId,
-              entityId: EntityId): Domain =
+              entityId: EntityId,
+              entityMerger: Merger[Entity],
+              useCaseMerger: Merger[UseCase]): Domain =
       Domain(DefaultName)
   }
 
@@ -35,14 +49,6 @@ private[core] trait Domains
   type DomainId = NaturalId[Domain]
   type DomainMap = NaturalMap[DomainId, Domain]
 
-  object DomainMap {
-    def empty: DomainMap =
-      NaturalMap.empty[DomainId, Domain]
-
-    def apply(domains: Domain*)
-             (implicit
-              id: DomainId): DomainMap =
-      NaturalMap(domains: _*)
-  }
+  object DomainMap extends NaturalMapCompanion[DomainId, Domain]
 
 }

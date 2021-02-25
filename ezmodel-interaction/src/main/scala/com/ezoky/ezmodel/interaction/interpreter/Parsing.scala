@@ -36,10 +36,7 @@ private[interaction] trait Parsing
   case object Parser {
 
     def define[T, S](parsing: T => Statement[S]): Parser[T, S] =
-      new Parser[T, S] {
-        override def parse(something: T): Statement[S] =
-          parsing(something)
-      }
+      (something: T) => parsing(something)
 
     def apply[T, S](said: Say[T])(implicit parser: Parser[T, S]): Statement[S] =
       parser(said)

@@ -4,7 +4,8 @@ package com.ezoky.ezmodel.core
   * @author gweinbach on 20/02/2021
   * @since 0.2.0
   */
-trait NaturalIds {
+trait NaturalIds
+  extends Mergers {
 
   /**
     * Type class.
@@ -44,7 +45,27 @@ trait NaturalIds {
       }
   }
 
+  class NaturalIdentifiedHelper[T: NaturalId](t: T) {
+
+    def naturalId: NaturalId[T]#IdType =
+      implicitly[NaturalId[T]].apply(t)
+
+    def hasSameNaturalId(other: T): Boolean =
+      naturalId == implicitly[NaturalId[T]].apply(other)
+  }
+
   type NaturalMap[I <: NaturalId[T], T] = Map[I#IdType, T]
+
+  trait NaturalMapCompanion[I <: NaturalId[T], T] {
+
+      def empty: NaturalMap[I, T] =
+        NaturalMap.empty[I, T]
+
+      def apply(ts: T*)
+               (implicit
+                id: I): NaturalMap[I, T] =
+        NaturalMap(ts: _*)
+  }
 
   object NaturalMap {
 
@@ -65,6 +86,23 @@ trait NaturalIds {
 
     def remove(t: T): NaturalMap[I, T] =
       naturalMap - id(t)
-  }
 
+    def owns(t: T): Boolean =
+      naturalMap.contains(id(t))
+
+    def some: Option[T] =
+      naturalMap.headOption.map(_._2)
+
+    def getWithSameId(t: T): Option[T] =
+      naturalMap.get(id(t))
+
+    def merge(t: T)(implicit merger: Merger[T]): NaturalMap[I, T] =
+      add(getWithSameId(t).fold(t)(existing => existing.mergeWith(t)))
+
+    def mergeMap(otherMap: NaturalMap[I, T])(implicit merger: Merger[T]): NaturalMap[I, T] =
+      otherMap.foldLeft(naturalMap) {
+        case (map, (_, t)) =>
+           map.merge(t)
+      }
+  }
 }

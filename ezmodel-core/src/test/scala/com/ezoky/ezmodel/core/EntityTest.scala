@@ -4,7 +4,7 @@ import org.scalatest.funsuite.AnyFunSuite
 
 class EntityTest
   extends AnyFunSuite
-    with Entities {
+    with StandardEntity {
 
   test("Range multiplicity is between a positive min and a max greater than min") {
     val range0_0 = range(0, 0)

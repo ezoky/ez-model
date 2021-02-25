@@ -8,12 +8,19 @@ import com.ezoky.ezmodel.core.Models._
   * @since 0.2.0
   */
 trait DomainDSL
-  extends NaturalIdDSL {
+  extends NaturalIdDSL
+  with MergerDSL {
+
+  implicit def stringToDomain(domainName: String): Domain =
+    Domain(Name(domainName))
 
   def inDomain(domainName: String): Domain =
     Domain(Name(domainName))
 
   implicit class DomainHelper(domain: Domain) {
+
+    def theEntity(name: String): Domain =
+      domain.withEntity(Entity(Name(name)))
 
     def asA(actorName: Name): FluentUseCase =
       FluentUseCase(domain, Actor(actorName))

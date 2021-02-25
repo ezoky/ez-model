@@ -19,9 +19,15 @@ trait UseCaseDSL
     UseCase(
       Actor(Name(useCase._1)),
       useCase._2
-//      Goal(Action(Verb(useCase._2)),
-//        Some(ActionObject(NameGroup(Determinant.the, Name(useCase._3)))))
     )
+
+  // Actor
+  implicit def stringActor(name: String): Actor =
+    Actor(Name(name))
+
+  def asA(name: Name): Actor = Actor(name)
+
+  def asAn(name: Name): Actor = asA(name)
 
   implicit class ActorHelper(actor: Actor) {
 
@@ -43,14 +49,6 @@ trait UseCaseDSL
                 name: Name): UseCase =
       UseCase(actor, Goal(action, Some(ActionObject(NameGroup(determinant, name)))))
   }
-
-  // UseCases
-  implicit def stringActor(name: String): Actor =
-    Actor(Name(name))
-
-  def asA(name: Name): Actor = Actor(name)
-
-  def asAn(name: Name): Actor = asA(name)
 
   // Action
   implicit def stringToAction(verb: String): Action =
@@ -92,6 +90,11 @@ trait UseCaseDSL
     def few(name: Name): Goal = Goal(Action(Verb(verb)), Some(ActionObject(NameGroup(Determinant.few, name))))
   }
 
+  // Use Case
+
+  def theUseCase(actor: Actor, goal: Goal): UseCase =
+    UseCase(actor, goal)
+
   implicit class UseCaseHelper(useCase: UseCase) {
 
     def provided(preCondition: EntityState): UseCase =
@@ -99,5 +102,8 @@ trait UseCaseDSL
 
     def resultingIn(postCondition: EntityState): UseCase =
       useCase.withPostCondition(postCondition)
+
+    def resultsIn(postCondition: EntityState): UseCase =
+      resultingIn(postCondition)
   }
 }

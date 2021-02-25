@@ -16,7 +16,7 @@ class DefineAUseCaseSpec
   import Modelling._
 
   "the Processor" when {
-    "the Modeller defines a Use Case" should {
+    "the Modeller defines a new Use Case" should {
       "sets it as the current Use Case" in {
 
         Given("a modelling state")
@@ -40,7 +40,54 @@ class DefineAUseCaseSpec
           )
 
         val modellingState = Processor(initialModellingState).process(whatISay).state
+        assert(modellingState.models.isEmpty)
+        assert(modellingState.currentModel.isEmpty)
+        assert(modellingState.currentDomain.isEmpty)
         assert(modellingState.currentUseCase === Some(definedUseCase))
+        assert(modellingState.currentEntity.isEmpty)
+
+
+        When("the Modeller defines a Domain that already contains another UseCase")
+        val iDefineADomain =
+          Say {
+            inDomain("Invoicing") asAn("Accountant") iWantTo("close" an "Accounting Month")
+          }
+
+        Then("current UseCase is kept as current and added to the Domain which is set to 'current'")
+        val secondUseCase =
+          UseCase("Accountant", Goal("close", Some(ActionObject(NameGroup(Determinant.an, "Accounting Month")))))
+        val definedDomain =
+          Domain("Invoicing")
+            .withUseCase(secondUseCase)
+            .withUseCase(definedUseCase)
+
+        val modellingStateWithDomain = Processor(modellingState).process(iDefineADomain).state
+        assert(modellingStateWithDomain.models.isEmpty)
+        assert(modellingStateWithDomain.currentModel.isEmpty)
+        assert(modellingStateWithDomain.currentDomain === Some(definedDomain))
+        assert(modellingStateWithDomain.currentUseCase === Some(definedUseCase))
+        assert(modellingStateWithDomain.currentEntity.isEmpty)
+
+
+        When("the Modeller works on an already existing useCase")
+        val iRedefineAnExistingUseCase =
+          Say {
+            theUseCase ("Accountant", "invoice" a "Month") resultsIn("Next Month" is "started")
+          }
+
+        Then("new definition is merged with existing")
+        val mergedUseCase =
+          definedUseCase.withPostCondition("Next Month" is "started")
+        val domainWithMergedUseCase =
+          definedDomain.withUseCase(mergedUseCase)
+
+        val modellingStateWithMergedUseCase =
+          Processor(modellingStateWithDomain).process(iRedefineAnExistingUseCase).state
+        assert(modellingStateWithMergedUseCase.models.isEmpty)
+        assert(modellingStateWithMergedUseCase.currentModel.isEmpty)
+        assert(modellingStateWithMergedUseCase.currentDomain === Some(domainWithMergedUseCase))
+        assert(modellingStateWithMergedUseCase.currentUseCase === Some(mergedUseCase))
+        assert(modellingStateWithMergedUseCase.currentEntity.isEmpty)
       }
     }
   }

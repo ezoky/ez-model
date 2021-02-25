@@ -1,5 +1,6 @@
 package com.ezoky.ezmodel.interaction
 
+import com.ezoky.ezmodel.core.Models
 import com.ezoky.ezmodel.core.Models._
 import com.ezoky.ezmodel.interaction.dsl.DSL._
 
@@ -11,9 +12,9 @@ trait RootState {
 
   val models: ModelMap
 
-  def addModel(model: Model): RootState
+  def ownsModel(model: Model): Boolean
 
-  def updateModel(model: Model): RootState
+  def addModel(model: Model): RootState
 }
 
 trait ModelState {
@@ -24,9 +25,7 @@ trait ModelState {
 
   def setCurrentModel(model: Model): ModelState
 
-  def addDomain(domain: Domain): ModelState
-
-  def updateDomain(domain: Domain): ModelState
+  def mergeOrAddDomain(domain: Domain): (ModelState, Domain)
 }
 
 
@@ -38,13 +37,9 @@ trait DomainState {
 
   def setCurrentDomain(domain: Domain): DomainState
 
-  def addUseCase(useCase: UseCase): DomainState
+  def mergeOrAddUseCase(useCase: UseCase): (DomainState, UseCase)
 
-  def updateUseCase(useCase: UseCase): DomainState
-
-  def addEntity(entity: Entity): DomainState
-
-  def updateEntity(entity: Entity): DomainState
+  def mergeOrAddEntity(entity: Entity): (DomainState, Entity)
 }
 
 trait UseCaseState {
@@ -83,66 +78,115 @@ case class ModellingState(models: ModelMap,
     with UseCaseState
     with EntityState {
 
+  override def ownsModel(model: Model): Boolean =
+    models.owns(model)
+
   override def addModel(model: Model): ModellingState =
     copy(models = models.add(model))
-
-  override def updateModel(model: Model): ModellingState = ???
 
   override def resetCurrentModel: ModellingState =
     copy(currentModel = None)
 
-  override def setCurrentModel(model: Model): ModellingState =
-    addModel(model).copy(currentModel = Some(model))
+  override def setCurrentModel(model: Model): ModellingState = {
+    if (currentModel == Some(model)) {
+      this
+    }
+    else {
+      val modelWithDomain = currentDomain.fold(model)(domain => model.mergeDomain(domain))
+      addModel(modelWithDomain).copy(currentModel = Some(modelWithDomain))
+    }
+  }
 
-  override def addDomain(domain: Domain): ModellingState =
-    currentModel.fold(this)(model => setCurrentModel(model.withDomain(domain)))
+  override def mergeOrAddDomain(domain: Domain): (ModellingState, Domain) =
+    currentModel.fold((this, domain)) {
+      model =>
+        val mergedModel = model.mergeDomain(domain)
+        val mergedDomain = mergedModel.domains.getWithSameId(domain)
+        (setCurrentModel(mergedModel), mergedDomain.getOrElse(domain)) // the orElse case is a bug
+    }
 
   override def resetCurrentDomain: ModellingState =
     copy(currentDomain = None)
 
   override def setCurrentDomain(domain: Domain): ModellingState = {
-    val withDomain = addDomain(domain).copy(currentDomain = Some(domain))
-    val withUseCase =
-      domain.useCases.headOption.fold(withDomain.resetCurrentUseCase) {
-        case (_, useCase) => withDomain.setCurrentUseCase(useCase)
-      }
-    val withEntity = {
-      domain.entities.headOption.fold(withUseCase.resetCurrentEntity) {
-        case (_, entity) => withUseCase.setCurrentEntity(entity)
-      }
+    if (currentDomain == Some(domain)) {
+      this
     }
-    withEntity
+    else {
+      // if there is no current Domain, potentially existing UseCase and Entity are merged to Domain being set as current
+      val (augmentedDomain, useCaseToSelect: Option[Models.UseCase], entityToSelect: Option[Models.Entity]) =
+        if (currentDomain.isDefined) {
+           (domain, None, None)
+        }
+        else {
+          val domainWithUseCase = currentUseCase.fold(domain)(domain.mergeUseCase(_))
+          val domainWithEntity = currentEntity.fold(domainWithUseCase)(domainWithUseCase.mergeEntity(_))
+          (domainWithEntity, currentUseCase, currentEntity)
+        }
+
+      val (stateWithMergedDomain, mergedDomain) = mergeOrAddDomain(augmentedDomain)
+      val stateWithSelectedDomain = stateWithMergedDomain.copy(currentDomain = Some(mergedDomain))
+      val stateWithSelectedUseCase =
+        useCaseToSelect.orElse(augmentedDomain.useCases.some).fold(stateWithSelectedDomain.resetCurrentUseCase) {
+          useCase => stateWithSelectedDomain.setCurrentUseCase(useCase)
+        }
+      val stateWithSelectedEntity = {
+        entityToSelect.orElse(augmentedDomain.entities.some).fold(stateWithSelectedUseCase.resetCurrentEntity) {
+          entity => stateWithSelectedUseCase.setCurrentEntity(entity)
+        }
+      }
+      stateWithSelectedEntity
+    }
   }
 
-  override def addUseCase(useCase: UseCase): ModellingState = ???
+  override def mergeOrAddUseCase(useCase: UseCase): (ModellingState, UseCase) =
+    currentDomain.fold((this, useCase)) {
+      domain =>
+        val mergedDomain = domain.mergeUseCase(useCase)
+        val mergedUseCase = mergedDomain.useCases.getWithSameId(useCase)
+        (setCurrentDomain(mergedDomain), mergedUseCase.getOrElse(useCase)) // the orElse case is a bug
+    }
 
-  override def addEntity(entity: Entity): ModellingState = ???
+
+  override def mergeOrAddEntity(entity: Entity): (ModellingState, Entity) =
+    currentDomain.fold((this, entity)) {
+      domain =>
+        val mergedDomain = domain.mergeEntity(entity)
+        val mergedEntity = mergedDomain.entities.getWithSameId(entity)
+        (setCurrentDomain(mergedDomain), mergedEntity.getOrElse(entity)) // the orElse case is a bug
+    }
 
   override def resetCurrentUseCase: ModellingState =
     copy(currentUseCase = None)
 
-  override def setCurrentUseCase(useCase: UseCase): ModellingState =
-//    addUseCase(useCase).copy(currentUseCase = Some(useCase))
-    copy(currentUseCase = Some(useCase))
+  override def setCurrentUseCase(useCase: UseCase): ModellingState = {
+    if (currentUseCase == Some(useCase)) {
+      this
+    }
+    else {
+      val (stateWithMergedUseCase, mergedUseCase) = mergeOrAddUseCase(useCase)
+      stateWithMergedUseCase.copy(currentUseCase = Some(mergedUseCase))
+    }
+  }
 
   override def resetCurrentEntity: ModellingState =
     copy(currentEntity = None)
 
-  override def setCurrentEntity(entity: Entity): ModellingState =
-//    addEntity(entity).copy(currentEntity = Some(entity))
-    copy(currentEntity = Some(entity))
+  override def setCurrentEntity(entity: Entity): ModellingState = {
+    if (currentEntity == Some(entity)) {
+      this
+    }
+    else {
+      val (stateWithMergedEntity, mergedEntity) = mergeOrAddEntity(entity)
+      stateWithMergedEntity.copy(currentEntity = Some(mergedEntity))
+    }
+  }
 
   override def addAttribute(attribute: Attribute): ModellingState = ???
 
   override def addAggregate(aggregate: Aggregate): ModellingState = ???
 
   override def addReference(reference: Reference): ModellingState = ???
-
-  override def updateDomain(domain: Domain): ModelState = ???
-
-  override def updateUseCase(useCase: UseCase): ModellingState = ???
-
-  override def updateEntity(entity: Entity): ModellingState = ???
 }
 
 object ModellingState {

@@ -24,24 +24,88 @@ trait StandardModel
 }
 
 trait StandardDomain
-  extends Domains {
+  extends Domains
+    with StandardEntity
+    with StandardUseCase {
+
   implicit val DomainNaturalId: NaturalId[Domain] =
     NaturalId.define(_.name)
+
+  implicit val DomainMerger: Merger[Domain] =
+    Merger.define( (domain1, domain2) =>
+      domain1.copy(
+        name = domain2.name,
+        useCases = domain1.useCases.mergeMap(domain2.useCases),
+        entities = domain1.entities.mergeMap(domain2.entities)
+      )
+    )
 }
 
 trait StandardEntity
   extends Entities {
 
+  implicit val AttributeNaturalId: NaturalId[Attribute] =
+    NaturalId.define(_.name)
+
+  implicit val AttributeMerger: Merger[Attribute] =
+    Merger.define((t1, t2) =>
+      t1.copy(
+        name = t2.name,
+        multiplicity = Ordering[Multiplicity].max(t1.multiplicity, t2.multiplicity),
+        mandatory = t1.mandatory || t2.mandatory
+      )
+    )
+
+  implicit val AggregateNaturalId: NaturalId[Aggregate] =
+    NaturalId.define(_.name)
+
+  implicit val AggregateMerger: Merger[Aggregate] =
+    Merger.define((t1, t2) =>
+      t1.copy(
+        name = t2.name,
+        leaf = t2.leaf,
+        multiplicity = Ordering[Multiplicity].max(t1.multiplicity, t2.multiplicity),
+        mandatory = t1.mandatory || t2.mandatory
+      )
+    )
+
+  implicit val ReferenceNaturalId: NaturalId[Reference] =
+    NaturalId.define(_.name)
+
+  implicit val ReferenceMerger: Merger[Reference] =
+    Merger.define((t1, t2) =>
+      t1.copy(
+        name = t2.name,
+        referenced = t2.referenced,
+        multiplicity = Ordering[Multiplicity].max(t1.multiplicity, t2.multiplicity),
+        mandatory = t1.mandatory || t2.mandatory
+      )
+    )
+
   implicit val EntityNaturalId: NaturalId[Entity] =
     NaturalId.define(_.name)
+
+  implicit val EntityMerger: Merger[Entity] =
+    Merger.define { (t1, t2) =>
+      t1.copy(
+        name = t2.name,
+        attributes = t1.attributes.mergeMap(t2.attributes),
+        aggregated = t1.aggregated.mergeMap(t2.aggregated),
+        referenced = t1.referenced.mergeMap(t2.referenced)
+      )
+    }
 
   implicit def EntityStateNaturalId(implicit
                                     entityId: NaturalId[Entity]): NaturalId[EntityState] =
     NaturalId.define(entityState => (entityId(entityState.entity), entityState.state.qualifier))
+
+  implicit val EntityStateMerger: Merger[EntityState] =
+    Merger.define { (t1, t2) => t2 }
 }
 
 trait StandardUseCase
-  extends UseCases {
+  extends UseCases
+  with StandardEntity {
 
   implicit val ActorNaturalId: NaturalId[Actor] =
     NaturalId.define(_.name)
@@ -59,4 +123,18 @@ trait StandardUseCase
     NaturalId.define { useCase =>
       (actorId.apply(useCase.actor), goalId.apply(useCase.goal))
     }
+
+  implicit val UseCaseMerger: Merger[UseCase] =
+    Merger.define((t1, t2) =>
+      t1.copy(
+        actor = t2.actor,
+        goal = t2.goal,
+        constraints = t2.constraints.foldLeft(t1.constraints) {
+          case (map, (constraintType, entityStateMap)) =>
+            map + (constraintType -> map.get(constraintType).fold(entityStateMap)(existingEntityStateMap =>
+              existingEntityStateMap.mergeMap(entityStateMap)
+            ))
+        }
+      )
+    )
 }

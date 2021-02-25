@@ -7,7 +7,8 @@ import com.ezoky.ezmodel.core.Models._
   * @author gweinbach on 04/02/2021
   * @since 0.2.0
   */
-trait EntityDSL {
+trait EntityDSL
+  extends NaturalIdDSL {
 
   // Entity State
   implicit def stringState(qualifier: String): StateName =

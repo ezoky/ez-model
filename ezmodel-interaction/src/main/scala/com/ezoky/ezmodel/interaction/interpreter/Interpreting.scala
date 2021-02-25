@@ -43,11 +43,7 @@ private[interaction] trait Interpreting
       }
 
     def define[S, T](interpretation: S => T => S): Interpreter[S, T] =
-      new Interpreter[S, T] {
-        override def interpret(state: S,
-                               statement: T): S =
-          interpretation(state)(statement)
-      }
+      (state: S, statement: T) => interpretation(state)(statement)
 
     def apply[S, T](state: S,
                     statement: Statement[T])
