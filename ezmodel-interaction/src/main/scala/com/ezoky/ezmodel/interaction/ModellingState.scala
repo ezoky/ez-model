@@ -14,7 +14,7 @@ trait RootState {
 
   def ownsModel(model: Model): Boolean
 
-  def addModel(model: Model): RootState
+  def mergeOrAddModel(model: Model): (RootState, Model)
 }
 
 trait ModelState {
@@ -81,8 +81,11 @@ case class ModellingState(models: ModelMap,
   override def ownsModel(model: Model): Boolean =
     models.owns(model)
 
-  override def addModel(model: Model): ModellingState =
-    copy(models = models.add(model))
+  override def mergeOrAddModel(model: Model): (ModellingState, Model) = {
+    val mergedState = copy(models = models.merge(model))
+    val mergedModel = models.getWithSameId(model)
+    (mergedState, mergedModel.getOrElse(model)) // the orElse case is a bug
+  }
 
   override def resetCurrentModel: ModellingState =
     copy(currentModel = None)
@@ -92,8 +95,23 @@ case class ModellingState(models: ModelMap,
       this
     }
     else {
-      val modelWithDomain = currentDomain.fold(model)(domain => model.mergeDomain(domain))
-      addModel(modelWithDomain).copy(currentModel = Some(modelWithDomain))
+      val (augmentedModel, domainToSelect: Option[Domain]) =
+        if (currentModel.isDefined) {
+          (model, None)
+        }
+        else {
+          val modelWithDomain = currentDomain.fold(model)(model.mergeDomain(_))
+          (modelWithDomain, currentDomain)
+        }
+
+      val (stateWithMergedModel, mergedModel) = mergeOrAddModel(augmentedModel)
+
+      val stateWithSelectedModel = stateWithMergedModel.copy(currentModel = Some(mergedModel))
+      val stateWithSelectedDomain =
+        domainToSelect.orElse(augmentedModel.domains.some).fold(stateWithSelectedModel.resetCurrentDomain) {
+          domain => stateWithSelectedModel.setCurrentDomain(domain)
+        }
+      stateWithSelectedDomain
     }
   }
 

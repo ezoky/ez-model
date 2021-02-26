@@ -52,6 +52,14 @@ trait NaturalIdDSL {
 trait MergerDSL
   extends NaturalIdDSL {
 
+  implicit val ModelDSLMerger: Merger[Model] =
+    Merger.define((model1, model2) =>
+      model1.copy(
+        name = model2.name,
+        domains = model1.domains.mergeMap(model2.domains)
+      )
+    )
+
   implicit val DomainDSLMerger: Merger[Domain] =
     Merger.define( (domain1, domain2) =>
       domain1.copy(
@@ -62,11 +70,11 @@ trait MergerDSL
     )
 
   implicit val UseCaseDSLMerger: Merger[UseCase] =
-    Merger.define((t1, t2) =>
-      t1.copy(
-        actor = t2.actor,
-        goal = t2.goal,
-        constraints = t2.constraints.foldLeft(t1.constraints) {
+    Merger.define((useCase1, useCase2) =>
+      useCase1.copy(
+        actor = useCase2.actor,
+        goal = useCase2.goal,
+        constraints = useCase2.constraints.foldLeft(useCase1.constraints) {
           case (map, (constraintType, entityStateMap)) =>
             map + (constraintType -> map.get(constraintType).fold(entityStateMap)(existingEntityStateMap =>
               existingEntityStateMap.mergeMap(entityStateMap)
@@ -76,14 +84,14 @@ trait MergerDSL
     )
 
   implicit val EntityDSLMerger: Merger[Entity] =
-    Merger.define { (t1, t2) =>
-      t1.copy(
-        name = t2.name,
-        attributes = t1.attributes.mergeMap(t2.attributes),
-        aggregated = t1.aggregated.mergeMap(t2.aggregated),
-        referenced = t1.referenced.mergeMap(t2.referenced)
+    Merger.define((entity1, entity2) =>
+      entity1.copy(
+        name = entity2.name,
+        attributes = entity1.attributes.mergeMap(entity2.attributes),
+        aggregated = entity1.aggregated.mergeMap(entity2.aggregated),
+        referenced = entity1.referenced.mergeMap(entity2.referenced)
       )
-    }
+    )
 
   implicit val EntityStateDSLMerger: Merger[EntityState] =
     Merger.define { (t1, t2) => t2 }

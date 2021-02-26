@@ -18,9 +18,18 @@ trait StandardTypeClasses
 
 
 trait StandardModel
-  extends Models {
+  extends Models
+    with StandardDomain {
   implicit val ModelNaturalId: NaturalId[Model] =
     NaturalId.define(_.name)
+
+  implicit val ModelMerger: Merger[Model] =
+    Merger.define((model1, model2) =>
+      model1.copy(
+        name = model2.name,
+        domains = model1.domains.mergeMap(model2.domains)
+      )
+    )
 }
 
 trait StandardDomain
