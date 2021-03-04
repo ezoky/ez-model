@@ -29,8 +29,7 @@ scalacOptions in ThisBuild ++= Seq(
 
 autoCompilerPlugins := true
 
-addCompilerPlugin(Dependencies.`kind-projector`)
-addCompilerPlugin(Dependencies.`better-monadic-for`)
+addCompilerPlugin(CompilerPlugin.`better-monadic-for`)
 
 
 // Define the root project, and make it compile all child projects

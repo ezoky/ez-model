@@ -1,4 +1,5 @@
 
+import Dependencies.Versions
 import Dependencies.Versions.Google
 import sbt._
 
@@ -8,7 +9,7 @@ object Dependencies {
 
     val scala211 = "2.11.12"
     val scala212 = "2.12.12"
-    val scala213 = "2.13.3"
+    val scala213 = "2.13.5"
     val scala3 = "3.0.0-RC1"
 
     val scala = scala213
@@ -60,17 +61,12 @@ object Dependencies {
 
       val MockitoScala = "1.16.0"
     }
-
   }
 
   // Scala libraries
   def `scala-reflect`(scalaVersionValue: String): ModuleID = "org.scala-lang" % "scala-reflect" % scalaVersionValue
   val `scala-compiler` = "org.scala-lang" % "scala-compiler" % Versions.scala
   val `scala-parser-combinator` = "org.scala-lang.modules" %% "scala-parser-combinators" % Versions.ScalaParserCombinator
-
-  // Compiler plugin
-  val `better-monadic-for` = "com.olegpy" %% "better-monadic-for" % "0.3.1"
-  val `kind-projector` = "org.typelevel" %% "kind-projector" % "0.11.0" cross CrossVersion.full
 
   // Joda
   val `joda-time` = "joda-time" % "joda-time" % Versions.JodaTime
@@ -207,4 +203,17 @@ object Dependencies {
   )
 
   val scalaReflectModule = settingKey[ModuleID]("scala-reflect module depending on current scala version")
+}
+
+// Compiler plugins
+object CompilerPlugin {
+
+  object Versions {
+    val `better-monadic-for` = "0.3.1"
+    val `kind-projector` = "0.11.3"
+  }
+
+  val `better-monadic-for` = "com.olegpy" %% "better-monadic-for" % Versions.`better-monadic-for`
+  val `kind-projector` =
+    "org.typelevel" %% "kind-projector" % Versions.`kind-projector` cross CrossVersion.full
 }
