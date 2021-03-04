@@ -14,7 +14,7 @@ object EzModellerConsole
     start
   }
   catch {
-    case e =>
+    case e: Throwable =>
       Console.err.println(s"Failed to start console: ${e}")
       e.printStackTrace(Console.err)
       sys.exit(1)

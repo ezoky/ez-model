@@ -61,13 +61,13 @@ trait NaturalIds
 
   trait NaturalMapCompanion[I <: NaturalId[T], T] {
 
-      def empty: NaturalMap[I, T] =
-        NaturalMap.empty[I, T]
+    def empty: NaturalMap[I, T] =
+      NaturalMap.empty[I, T]
 
-      def apply(ts: T*)
-               (implicit
-                id: I): NaturalMap[I, T] =
-        NaturalMap(ts: _*)
+    def apply(ts: T*)
+             (implicit
+              id: I): NaturalMap[I, T] =
+      NaturalMap(ts: _*)
   }
 
   object NaturalMap {

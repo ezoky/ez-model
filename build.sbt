@@ -38,6 +38,7 @@ lazy val `ezmodel` =
   project.in(file("."))
     .aggregate(
       `ez-commons`,
+      `ez-console`,
       `ezmodel-core`,
       `ezmodel-interaction`,
       `ezmodel-console`
@@ -53,6 +54,16 @@ lazy val `ez-commons` =
   project.in(file("ez-commons"))
     .settings(
       Common.defaultSettings ++ Seq(
+        libraryDependencies += Dependencies.`ez-logging`
+      ): _*
+    )
+    .disablePlugins(sbtassembly.AssemblyPlugin)
+
+lazy val `ez-console` =
+  project.in(file("ez-console"))
+    .settings(
+      Common.defaultSettings ++ Seq(
+        libraryDependencies += Dependencies.`scala-compiler`,
         libraryDependencies += Dependencies.`ez-logging`
       ): _*
     )
@@ -81,10 +92,12 @@ lazy val `ezmodel-interaction` =
 
 lazy val `ezmodel-console` =
   project.in(file("ezmodel-console"))
-    .dependsOn(`ezmodel-interaction`)
+    .dependsOn(
+      `ezmodel-interaction`,
+      `ez-console`
+    )
     .settings(
       Common.defaultSettings ++ Seq(
-        libraryDependencies += Dependencies.`scala-compiler`,
         mainClass in assembly := Some("com.ezoky.ezmodel.console.EzModellerConsole"),
         //        assembledMappings in assembly += {
         //          sbtassembly.MappingSet(None, Vector(
