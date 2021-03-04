@@ -1,5 +1,7 @@
 package com.ezoky.ezmodel.core
 
+import com.ezoky.commons.NaturalIds
+
 import scala.collection.SortedSet
 
 private[core] trait Entities

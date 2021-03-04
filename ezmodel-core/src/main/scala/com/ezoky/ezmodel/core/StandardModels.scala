@@ -27,7 +27,7 @@ trait StandardModel
     Merger.define((model1, model2) =>
       model1.copy(
         name = model2.name,
-        domains = model1.domains.mergeMap(model2.domains)
+        domains = model1.domains.mergeWith(model2.domains)
       )
     )
 }
@@ -44,8 +44,8 @@ trait StandardDomain
     Merger.define( (domain1, domain2) =>
       domain1.copy(
         name = domain2.name,
-        useCases = domain1.useCases.mergeMap(domain2.useCases),
-        entities = domain1.entities.mergeMap(domain2.entities)
+        useCases = domain1.useCases.mergeWith(domain2.useCases),
+        entities = domain1.entities.mergeWith(domain2.entities)
       )
     )
 }
@@ -98,9 +98,9 @@ trait StandardEntity
     Merger.define { (t1, t2) =>
       t1.copy(
         name = t2.name,
-        attributes = t1.attributes.mergeMap(t2.attributes),
-        aggregated = t1.aggregated.mergeMap(t2.aggregated),
-        referenced = t1.referenced.mergeMap(t2.referenced)
+        attributes = t1.attributes.mergeWith(t2.attributes),
+        aggregated = t1.aggregated.mergeWith(t2.aggregated),
+        referenced = t1.referenced.mergeWith(t2.referenced)
       )
     }
 
@@ -141,7 +141,7 @@ trait StandardUseCase
         constraints = t2.constraints.foldLeft(t1.constraints) {
           case (map, (constraintType, entityStateMap)) =>
             map + (constraintType -> map.get(constraintType).fold(entityStateMap)(existingEntityStateMap =>
-              existingEntityStateMap.mergeMap(entityStateMap)
+              existingEntityStateMap.mergeWith(entityStateMap)
             ))
         }
       )

@@ -56,7 +56,7 @@ trait MergerDSL
     Merger.define((model1, model2) =>
       model1.copy(
         name = model2.name,
-        domains = model1.domains.mergeMap(model2.domains)
+        domains = model1.domains.mergeWith(model2.domains)
       )
     )
 
@@ -64,8 +64,8 @@ trait MergerDSL
     Merger.define( (domain1, domain2) =>
       domain1.copy(
         name = domain2.name,
-        useCases = domain1.useCases.mergeMap(domain2.useCases),
-        entities = domain1.entities.mergeMap(domain2.entities)
+        useCases = domain1.useCases.mergeWith(domain2.useCases),
+        entities = domain1.entities.mergeWith(domain2.entities)
       )
     )
 
@@ -77,7 +77,7 @@ trait MergerDSL
         constraints = useCase2.constraints.foldLeft(useCase1.constraints) {
           case (map, (constraintType, entityStateMap)) =>
             map + (constraintType -> map.get(constraintType).fold(entityStateMap)(existingEntityStateMap =>
-              existingEntityStateMap.mergeMap(entityStateMap)
+              existingEntityStateMap.mergeWith(entityStateMap)
             ))
         }
       )
@@ -87,9 +87,9 @@ trait MergerDSL
     Merger.define((entity1, entity2) =>
       entity1.copy(
         name = entity2.name,
-        attributes = entity1.attributes.mergeMap(entity2.attributes),
-        aggregated = entity1.aggregated.mergeMap(entity2.aggregated),
-        referenced = entity1.referenced.mergeMap(entity2.referenced)
+        attributes = entity1.attributes.mergeWith(entity2.attributes),
+        aggregated = entity1.aggregated.mergeWith(entity2.aggregated),
+        referenced = entity1.referenced.mergeWith(entity2.referenced)
       )
     )
 

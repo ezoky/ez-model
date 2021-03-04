@@ -1,5 +1,7 @@
 package com.ezoky.ezmodel.core
 
+import com.ezoky.commons.NaturalIds
+
 private[core] trait Constraints
   extends Entities
     with NaturalIds {

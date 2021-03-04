@@ -1,4 +1,4 @@
-package com.ezoky.ezmodel.core
+package com.ezoky.commons
 
 import org.scalatest.funsuite.AnyFunSuite
 

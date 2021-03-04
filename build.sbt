@@ -37,6 +37,7 @@ addCompilerPlugin(Dependencies.`better-monadic-for`)
 lazy val `ezmodel` =
   project.in(file("."))
     .aggregate(
+      `ez-commons`,
       `ezmodel-core`,
       `ezmodel-interaction`,
       `ezmodel-console`
@@ -48,8 +49,18 @@ libraryDependencies += Dependencies.Test.`junit-interface`
 
 // Define individual projects, the directories they reside in, and other projects they depend on
 
+lazy val `ez-commons` =
+  project.in(file("ez-commons"))
+    .settings(
+      Common.defaultSettings ++ Seq(
+        libraryDependencies += Dependencies.`ez-logging`
+      ): _*
+    )
+    .disablePlugins(sbtassembly.AssemblyPlugin)
+
 lazy val `ezmodel-core` =
   project.in(file("ezmodel-core"))
+    .dependsOn(`ez-commons`)
     .settings(
       Common.defaultSettings ++ Seq(
         libraryDependencies ++= Dependencies.`cats-minimal`,

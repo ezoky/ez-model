@@ -1,4 +1,4 @@
-package com.ezoky.ezmodel.core
+package com.ezoky.commons
 
 /**
   * @author gweinbach on 20/02/2021
@@ -43,15 +43,18 @@ trait NaturalIds
         override def apply(t: T): I =
           naturalId(t)
       }
+
+    def apply[T: NaturalId]: NaturalId[T] =
+      implicitly[NaturalId[T]]
   }
 
   class NaturalIdentifiedHelper[T: NaturalId](t: T) {
 
     def naturalId: NaturalId[T]#IdType =
-      implicitly[NaturalId[T]].apply(t)
+      NaturalId[T].apply(t)
 
     def hasSameNaturalId(other: T): Boolean =
-      naturalId == implicitly[NaturalId[T]].apply(other)
+      naturalId == NaturalId[T].apply(other)
   }
 
   type NaturalMap[I <: NaturalId[T], T] = Map[I#IdType, T]
@@ -98,11 +101,14 @@ trait NaturalIds
 
     def merge(t: T)(implicit merger: Merger[T]): NaturalMap[I, T] =
       add(getWithSameId(t).fold(t)(existing => existing.mergeWith(t)))
-
-    def mergeMap(otherMap: NaturalMap[I, T])(implicit merger: Merger[T]): NaturalMap[I, T] =
-      otherMap.foldLeft(naturalMap) {
-        case (map, (_, t)) =>
-           map.merge(t)
-      }
   }
+
+  implicit def NaturalMapMerger[I <: NaturalId[T], T: Merger](implicit
+                                                              id: I): Merger[NaturalMap[I, T]] =
+    Merger.define((naturalMap1, naturalMap2) =>
+      naturalMap2.foldLeft(naturalMap1) {
+        case (map, (_, t)) =>
+          map.merge(t)
+      }
+    )
 }

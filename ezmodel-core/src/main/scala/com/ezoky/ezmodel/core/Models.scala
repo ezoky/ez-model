@@ -1,5 +1,6 @@
 package com.ezoky.ezmodel.core
 
+import com.ezoky.commons.NaturalIds
 import com.ezoky.ezmodel
 import com.ezoky.ezmodel.core
 
