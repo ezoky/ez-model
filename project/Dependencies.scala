@@ -9,7 +9,7 @@ object Dependencies {
     val scala211 = "2.11.12"
     val scala212 = "2.12.12"
     val scala213 = "2.13.3"
-    val scala3 = "3.0.0-M1"
+    val scala3 = "3.0.0-RC1"
 
     val scala = scala213
     val dotty = scala3
@@ -39,7 +39,7 @@ object Dependencies {
       val GoogleSheets = "v4-rev568-1.25.0"
     }
 
-    val Ammonite = "1.6.6"
+    val Ammonite = "2.3.8"
     val Config = "1.3.4"
     val PdiJWT = "4.0.0"
     val Auth0 = "0.8.3"
@@ -65,6 +65,7 @@ object Dependencies {
 
   // Scala libraries
   def `scala-reflect`(scalaVersionValue: String): ModuleID = "org.scala-lang" % "scala-reflect" % scalaVersionValue
+  val `scala-compiler` = "org.scala-lang" % "scala-compiler" % Versions.scala
   val `scala-parser-combinator` = "org.scala-lang.modules" %% "scala-parser-combinators" % Versions.ScalaParserCombinator
 
   // Compiler plugin

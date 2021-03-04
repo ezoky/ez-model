@@ -1,4 +1,5 @@
 
+
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
 name := "ezmodel"
@@ -33,10 +34,14 @@ addCompilerPlugin(Dependencies.`better-monadic-for`)
 
 
 // Define the root project, and make it compile all child projects
-lazy val `ezmodel` = project.in(file(".")).aggregate(
-  `ezmodel-core`,
-  `ezmodel-interaction`
-)
+lazy val `ezmodel` =
+  project.in(file("."))
+    .aggregate(
+      `ezmodel-core`,
+      `ezmodel-interaction`,
+      `ezmodel-console`
+    )
+    .disablePlugins(sbtassembly.AssemblyPlugin)
 
 // This enables dependencies on junit.jar to run coverage tests from intelliJ
 libraryDependencies += Dependencies.Test.`junit-interface`
@@ -48,9 +53,10 @@ lazy val `ezmodel-core` =
     .settings(
       Common.defaultSettings ++ Seq(
         libraryDependencies ++= Dependencies.`cats-minimal`,
-        libraryDependencies += Dependencies.`ez-logging`,
+        libraryDependencies += Dependencies.`ez-logging`
       ): _*
     )
+    .disablePlugins(sbtassembly.AssemblyPlugin)
 
 lazy val `ezmodel-interaction` =
   project.in(file("ezmodel-interaction"))
@@ -58,6 +64,31 @@ lazy val `ezmodel-interaction` =
     .settings(
       Common.defaultSettings ++ Seq(
         libraryDependencies += Dependencies.shapeless
+      ): _*
+    )
+    .disablePlugins(sbtassembly.AssemblyPlugin)
+
+lazy val `ezmodel-console` =
+  project.in(file("ezmodel-console"))
+    .dependsOn(`ezmodel-interaction`)
+    .settings(
+      Common.defaultSettings ++ Seq(
+        libraryDependencies += Dependencies.`scala-compiler`,
+        mainClass in assembly := Some("com.ezoky.ezmodel.console.EzModellerConsole"),
+        //        assembledMappings in assembly += {
+        //          sbtassembly.MappingSet(None, Vector(
+        //            ((baseDirectory.value / "conf" / "dev" / "logback.xml") -> "logback.xml"),
+        //            ((baseDirectory.value / "conf" / "dev" / "application.conf") -> "application.conf")
+        //          ))
+        //        },
+        //        assemblyMergeStrategy in assembly := {
+        //          // Merge config files
+        //          case PathList(ps@_*) if ps.last endsWith ".conf" => MergeStrategy.concat
+        //          case o =>
+        //            val oldStrategy = (assemblyMergeStrategy in assembly).value
+        //            oldStrategy(o)
+        //        },
+        assemblyJarName in assembly := "ezmodel-console.jar"
       ): _*
     )
 

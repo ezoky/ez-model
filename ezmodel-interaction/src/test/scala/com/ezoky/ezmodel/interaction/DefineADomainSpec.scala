@@ -123,7 +123,7 @@ class DefineADomainSpec
         val mergedDomain =
           modifiedDomain2.withUseCase(otherUseCase)
         val modelWithMergedDomain =
-          definedModel.withDomain(mergedDomain)
+          definedModel.mergeDomain(mergedDomain)
 
         val modellingStateWithMergedDomain =
           Processor(modellingStateWithAModel).process(iRedefineAnExistingDomain).state

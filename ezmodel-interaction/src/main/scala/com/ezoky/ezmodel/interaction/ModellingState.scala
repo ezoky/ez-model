@@ -83,7 +83,7 @@ case class ModellingState(models: ModelMap,
 
   override def mergeOrAddModel(model: Model): (ModellingState, Model) = {
     val mergedState = copy(models = models.merge(model))
-    val mergedModel = models.getWithSameId(model)
+    val mergedModel = mergedState.models.getWithSameId(model)
     (mergedState, mergedModel.getOrElse(model)) // the orElse case is a bug
   }
 
