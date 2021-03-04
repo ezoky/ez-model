@@ -14,14 +14,6 @@ trait NaturalIds
     * This Id should be unique in the context of the aggregate it is related to since this Id might be used to used as
     * a unique key in Maps.
     *
-    * Some common type classes (see [[com.ezoky.ezmodel.core.StandardTypeClasses]]) are provided for default
-    * usage.
-    * Import them in the context of use:
-    * {{{
-    * object MyTypeClasses extends com.ezoky.ezmodel.core.NaturalId.StandardTypeClasses
-    * import MyTypeClasses._
-    * }}}
-    *
     * @tparam T
     */
   trait NaturalId[T] {

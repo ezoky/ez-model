@@ -52,7 +52,7 @@ class DefineADomainSpec
         When("the Modeller describes an Entity")
         val iDescribeAnEntity =
           Say {
-            theEntity("Invoice") has one ("number")
+            theEntity("Invoice") has one("number")
           }
 
         Then("the Entity is set as the current one and added to the current Domain")
@@ -73,7 +73,7 @@ class DefineADomainSpec
         When("the Modeller describes an other Entity")
         val iDescribeAnotherEntity =
           Say {
-            theEntity("Invoiced Customer") has one ("last invoicing date")
+            theEntity("Invoiced Customer") has one("last invoicing date")
           }
 
         Then("the Entity is set as the current one and added to the current Domain")
@@ -93,7 +93,7 @@ class DefineADomainSpec
         When("the Modeller describes a Model containing another exiting Domain")
         val iDescribeAModel =
           Say {
-            inModel("Finance Model") withDomain("Cash Management")
+            inModel("Finance Model") withDomain ("Cash Management")
           }
 
         Then("current Domain is added to the Model and it becomes current Model")
@@ -109,8 +109,8 @@ class DefineADomainSpec
         assert(modellingStateWithAModel.currentDomain === Some(modifiedDomain2))
         assert(modellingStateWithAModel.currentUseCase === Some(definedUseCase))
         assert(modellingStateWithAModel.currentEntity === Some(definedEntity2))
-        
-        
+
+
         When("the Modeller works on an already existing Domain")
         val iRedefineAnExistingDomain =
           Say {
@@ -119,7 +119,7 @@ class DefineADomainSpec
 
         Then("new definition is merged with existing")
         val otherUseCase =
-          UseCase(Actor("Accountant"), Goal("invoice", Some(Determinant.a, "Month")))
+          UseCase(Actor("Accountant"), Goal("invoice", Some(a("Month"))))
         val mergedDomain =
           modifiedDomain2.withUseCase(otherUseCase)
         val modelWithMergedDomain =

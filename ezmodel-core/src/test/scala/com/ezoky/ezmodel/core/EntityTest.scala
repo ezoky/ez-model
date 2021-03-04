@@ -8,25 +8,32 @@ class EntityTest
 
   test("Range multiplicity is between a positive min and a max greater than min") {
     val range0_0 = range(0, 0)
-    assert((range0_0.min, range0_0.max) === (0, 0))
+    val minMax0_0 = (0, 0)
+    assert((range0_0.min, range0_0.max) === minMax0_0)
 
     val range1_1 = range(0, 0)
-    assert((range1_1.min, range1_1.max) === (0, 0))
+    val minMax1_1 = (0, 0)
+    assert((range1_1.min, range1_1.max) === minMax1_1)
 
     val range1_3 = range(1, 3)
-    assert((range1_3.min, range1_3.max) === (1, 3))
+    val minMax1_3 = (1, 3)
+    assert((range1_3.min, range1_3.max) === minMax1_3)
 
     val range3_1 = range(3, 1)
-    assert((range3_1.min, range3_1.max) === (1, 3))
+    val minMax3_1 = (1, 3)
+    assert((range3_1.min, range3_1.max) === minMax3_1)
 
     val range_1_3 = range(-1, 3)
-    assert((range_1_3.min, range_1_3.max) === (0, 3))
+    val minMax_1_3 = (0, 3)
+    assert((range_1_3.min, range_1_3.max) === minMax_1_3)
 
     val range1__3 = range(1, -3)
-    assert((range1__3.min, range1__3.max) === (0, 1))
+    val minMax1__3 = (0, 1)
+    assert((range1__3.min, range1__3.max) === minMax1__3)
 
     val range_1__3 = range(-1, -3)
-    assert((range_1__3.min, range_1__3.max) === (0, 0))
+    val minMax_1__3 = (0, 0)
+    assert((range_1__3.min, range_1__3.max) === minMax_1__3)
   }
   
   test("Entity elaboration") {

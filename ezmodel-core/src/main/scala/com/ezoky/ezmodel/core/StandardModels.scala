@@ -1,7 +1,15 @@
 package com.ezoky.ezmodel.core
 
 /**
-  * Can be used for standard usages or for testing
+  * Some common type classes (see [[com.ezoky.ezmodel.core.StandardTypeClasses]]) are provided for default
+  * usage.
+  * Import them in the context of use:
+  * {{{
+  * object MyTypeClasses extends com.ezoky.ezmodel.core.NaturalId.StandardTypeClasses
+  * import MyTypeClasses._
+  * }}}
+  *
+  * Can be used for standard usages or for testing.
   *
   * @author gweinbach on 24/02/2021
   * @since 0.2.0

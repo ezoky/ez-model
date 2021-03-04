@@ -1,12 +1,11 @@
 package com.ezoky.ezmodel.ddd
 
-import State.State
-import cats._
 import cats.implicits._
+import com.ezoky.ezmodel.ddd.State.State
 
 /**
- * @author gweinbach
- */
+  * @author gweinbach
+  */
 object Entity {
 
   type Entity[+S, +I] = Either[InvalidEntity[S, I], StatefulEntity[S, I]]
@@ -27,8 +26,8 @@ sealed abstract class AbstractEntity[+S, +I](val state: State[S])(identify: => I
   lazy val isStateFinal: Either[InvalidState[S], Boolean] = state.map(_.isFinal)
 
   /**
-   * Strange behaviour as it will return a left invalid state when invelid (and a right "false" if valid)
-   */
+    * Strange behaviour as it will return a left invalid state when invelid (and a right "false" if valid)
+    */
   lazy val isStateInvalid: Either[InvalidState[S], Boolean] = state.map(_.isLeft)
 
 
@@ -64,8 +63,12 @@ sealed abstract class AbstractEntity[+S, +I](val state: State[S])(identify: => I
 }
 
 
-case class StatefulEntity[+S, +I](override val state: State[S])(identify: Identify[S, I]) extends AbstractEntity[S, I](state)(identify)
+abstract class ErrorCause(reason: String)
 
-case class InvalidEntity[+S, +I](val cause: ErrorCause, override val state: State[S])(identify: Identify[S, I]) extends AbstractEntity[S, I](state)(identify)
+case class StatefulEntity[+S, +I](override val state: State[S])(identify: Identify[S, I]) extends AbstractEntity[S, I](
+  state)(identify)
+
+case class InvalidEntity[+S, +I](val cause: ErrorCause, override val state: State[S])
+                                (identify: Identify[S, I]) extends AbstractEntity[S, I](state)(identify)
 
 case object IdentityHasMutated extends ErrorCause("Identity has mutated")

@@ -34,6 +34,4 @@ package object ddd {
    */
   implicit def entityProjection[S, I](entity: Entity[S, I]): AbstractEntity[S, I] = entity.fold[AbstractEntity[S, I]](l => l, r => r)
 
-
-  abstract class ErrorCause(reason: String)
 }
