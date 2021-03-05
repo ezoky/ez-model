@@ -21,9 +21,6 @@ lazy val distVersion = sys.props.getOrElse("distVersion", "0.2.0-SNAPSHOT")
 ThisBuild / version := distVersion
 
 ThisBuild / scalaVersion := Dependencies.Versions.scala
-lazy val supportedScalaVersions = List(
-  Dependencies.Versions.scala213
-)
 
 ThisBuild / scalacOptions ++= Seq(
   "-Yrangepos", // use range positions for syntax trees

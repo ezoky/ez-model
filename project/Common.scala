@@ -5,6 +5,12 @@ import sbt._
 
 object Common {
 
+  lazy val supportedScalaVersions = List(
+//    Dependencies.Versions.scala211,
+//    Dependencies.Versions.scala212,
+    Dependencies.Versions.scala213
+  )
+
   val warnOnUnusedImportsOption = settingKey[String]("'Warn on unused imports' scala compiler option")
 
   def computeWarnOnUnusedImportsVersion(scalaVersionValue: String) =
@@ -19,6 +25,8 @@ object Common {
 
   val defaultSettings = Seq(
     SbtGit.showCurrentGitBranch,
+
+    crossScalaVersions := supportedScalaVersions,
     conflictManager := ConflictManager.strict,
     libraryDependencies ++= Dependencies.Test.Minimal,
     dependencyOverrides ++= Dependencies.Overrides,

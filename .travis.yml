@@ -1,39 +1,40 @@
 dist: bionic
 language: scala
 scala:
-  - 2.13.5
+- 2.13.5
 env:
   jobs:
-    - JDK=openjdk8
+  - JDK=openjdk8
   global:
-    - GPG_TTY=$(tty)
-    - secure: nrVd89000WtxAVkfBeKSNODCVxglYQJXe+3GbWbzj6Pdikiohhx3AKzxIidS5CYPiyGbwCGeImqLL6q5IU8YsbcHX26ei77SfazNuIUZANluGYVZq/d4LJYorwPN/aHr7fEJ8q522nrlglIM3F6usnEBUxjrPGHkLXy7g5mzj0by5gzEWPEg0jFbdfsqYcMC1ZXe8PZNKsT4oD4+A+6/+vEXNG/u/2pr0ZSOfgMlKlm7rP/PQQHU1jEIKR0hfdENh/K+AdxqnEYK79okCIDzVJzZNToAo7Y4wilE94RcBN4/GnkgMRZ+ZnBCiIMOK4FnHK2jDYFeI9rKol4wAIFiLoz/UzeEa7k9k7RpJwvnQYHs70XAvq3ZkXX0xP9c98MK4ln5H9Llxzp4k/RTLFlQEqCnZXJyZ4TwZBqlJCBtO0t2QqrnoyxoV7JHwX8jL1B3C0jMM+EwLz3cOFLgYBzKKbmHh0gi9hoy3WV1N8VJTozXhE7namu/aPXkgvUYLQCD9p2+ZhnJJSJTa0ppf4PHflMJZ4CUAbyGYIC3r3F2Wl676MwZ8uLVT45plG7FqglOFbh8xpni1U5WVMxX10yl0D4O3NGNV4vT2ogjNUjvkkcMh5gIy1cr8VSAmcE9KU7lxzAWVZo+DwMGFtJL9Npzv1X/PhDmoiwooNAcCuhSDO0=
-    - secure: MOzUOIgX+RJiSWDTzXMjmmotliJOUl9l1mwHf25FKary1EOvoIuD3zHYiBZ4OdoVkCtsSb8GTAUkpp21pxXdah9loINwtF/NUY68JfuYaZTERCRnBf5G4bQ3Iw2/NLZGa3BjxAHoTbN4RP2uZdvdGUM/VVA9y0vipx1QgRs5w/wJRUAM+64Jf6yA5HgxWuZTngQTx25RQQhxjBr3VR6xl5bm1uznCj9HNtbt9hxGQeTiOMERYWQ8/2y8d+9QtKVhu+9hpICyQgvKmxDLTneilKMnsPcwNrBZBsGBY+5wtZFdtRmxNbhT3iKpFua54CWpSaYXFhMfUt0n8CIJd6R4zBpolAXfSA7al4AUVNtH8qul1NR7icito6I1NG9xh3dXSuboepcgKohBz4RY5mYWUYhth15PovJKMt8af27lnTjhqM5Es/yG1M6U0Kmb6AZ2gode8as08luTL1SqGUynuAL/lOAIzqGRKlEpwook1QWSw76ZCvAZ/ErDqBi4GsCzu/1rUqph1V6ZPsSY5UblRSennupQmUp5HAMrHaczSOV7TBuhv4kKvJrn46Cwm2tv469yysw4HAUeMmp7EyhyFz77wPI2b4FaSrkwkNJ40EvHetsovzh+Z5d9IPX5sg+5JbJmvXNlnHZugmfFEQA3SuqB9hVKnPIHHAHxgbFRA64=
-    - secure: JxnAgyF33Vi8ZvrF3KU/th9j5SnJ+z10ICPywNnxdnTmprVnLy3fdZ82YW5Bt9iqqWE5fP3hphBL9uEn6uNvsNwaEsaer/Lrlupf17YOJ8Lriq6M4zYhI00Fbc77fQU0vRtcY5ppyI7GkKtnBa/zCOfHpcRSmHF1p0bBW/UCUMfJstDK8n7Edlqy7W7yVa2xtoDt0+Z+osV89EJ0GX4IdLpn5GfcDSN83ATCRosVjZyBHkq3r21+bfRvn6k1htFEiu5uW2Km4ex2nd+2MN3DkSA3LtJ+vU6tw5kV1yKQ2gSi8hSg6OgtguoQxSSigyJHb+4wIRxTxtWM1Fl1hrFL6dL/OBzrb76BIEXUlXgvfpBvdvHDb/6E63siGbmrCYMMMoTx9XoThVmZCw6LX7ASA7l4ImfHo0b9d6GGSFI9u8WM2ApNNQz3fd8XEC1AHzuzYbJZmfmL1+/tfrXfXzmlC7OpcL7b1WNBuVB/wRnRFossjL6Bw0kgPcsN2fz6ICc/eQYD1FBtYXZ0R26+cB4laimz4NXMfAsYJOa1karsNA3lVaRuWDmVfvGnLH78Jy8yLkFZHvNt9NF70cm3T7n9alPzxBjBgCbvvDKu9ZiuCImG2gFBePQsOeb2Eqi2a3bUBorZ47VUw3P+ezP8wF1K6JNrPd8ArqmMBxeOXhynD/A=
-    - secure: DXJB4ga1F9lRAQPcbQXCy1I02DQW91LZOB57zyyyQNpZ6Ly25KKePm+mQ/CB6JyPNNgEXJakFkqfsTf5c8W//qRkaaM03fVKckoZ2pApaIZojz4w41Dw3K3B9vJ7nxsZmGQaMZuteN2+dKU07fLZbLLUQVPHtVa4M6bvdJ1cmuR8VRVKgK0S2nu2y2CVzrm/Mb49bQWdCYjJUthoF/cZflZAuicI7/90qW8mBhFFdO1b1n+QVWD4UBZzuldZ0xW8Z9RTZCaqlbbZ/LmdHYwqFvaf3jUD7/TNJ8aFjKnePg+bctvEsQyWYmaJR3a6b5LWjFDfUNCZo/KqJzCbdw+y7cH9ksy1El4TO4QobSbbB5MpLOE/OVbM4rdJcTfqDsjN98+PRkGVui924yxPCvvSuH8NXeSchHGwRW2ox0k5px+q3kqGIudoveN6a9O1ZP7VFXasaPbwvdh/mFIUezL5grS0aggdKabkl6bAQzRUhuyHOCJnIRv9Zv/k7QJeCFVBBy6XcFPSYTa5+CTQR8Lz/rPpYLNhPBxZvFPNL7pRzLXXvXn32PV/LIQEwbKYOnL9IOEkC21Z39X140QCEeMDxbXVR0zmX6Mwd+oFe9ofr6fGOXxeKDKXqNzynqlAo52e9G+rSdITjjAsRfrI2I4U9PKggufIRt+Hl3he81sXlQA=
+  - GPG_TTY=$(tty)
+  - secure: auXFjDs/6Ks2hcE6+aPfybJz8kgRue8OeLvD3BXQ+5J78RGtksohw4pfXq3a/mR1xcGccLhTJBiFzRhb32+2lJXHMyFanCubaQC9hB/khzZn6iqZh+orhR5taK77M1fwxYElhImMIN3PYwM8jq1dEdRk3x8a/a70FQou1ceLFILJTJ5DVDpIuQZNGAg53KZWizCH/qqSbGyu0cSvOXz1KWUR96o7t7Sv7JXr0lmixLeQMXXgEW9MQpE5iOfCaS8ECojrvZaUt7Lhrpj/7caFMA/bioVGjPJOQF9EgZV8ScdVXjEGN335j4LyMdYylACyvBKF8YVxINd+wxEBQEg//KQWJt3PTdKNZ5NeyzEimqI5ssfnqh+uOG45N22T/Bkixn9WDzexfkBgGMrQTd0nc4rbWnqzznKkVkIW/YoMj6YE11XMHfy4xRvtABIVwWVZVohCqyY30C0G7gyoxbbO3WqJYEFLkr5yNlzn/EFRAdgKcHQ7vDPJVDaoD5H3qqiLdAkF0UtG3NHj1X1q2ldGbuutMED4JcJt5c1UsLWb2RNIFDqodv1B26MxL8t3PdnXvcynqCQinAwjKpEH+Z/FPJMumi9Knt6dCQjUfvbzfA8R4GQ3AEZXwIWqTxMe/IxgTuWt3GXHq51rkkjoR7Iz+aBPxzp8Q4oknIR6TzQnpEI=
+  - secure: n/nPuPARb4P80rJGTeD7/pblbEZfA1zeO3TtA/2oBAvxLzrEsyhIpg9yw9zEo9speIipum4UVhKI3S45o76JetZo+nyA/POXrrCcWnIL5Gay4Ifs9f8z4fB+tj+IoCg4ZPqSyLpKIbnIUa8H8OKV3oj1WUWvDiD5X9a8pvUvLvAsY3U2MnufPKfZ13OMSrvtxYuPVMLZ+6vwBzyM6IXjD82iP9SgroohT1t3DpdSTM5j6+b+2qYCzu6NrpcK9BAeR3uEfRzkYXxrWyLLWB4XlgqRns/BYwHvGTUyq9D+aXYKdCDdcHXBjQ8AhS8LL2wYpCh4yaHiQwQKBfwRC1516GwAmt4Nc5weFHLX1mlRU0AIHXkDiQ2HRiUuJpRHI8blkDDTEFv33ASVWas3LZwg9wS51PwIb/WbjpJ057uQj35soTsZGZKmQAhlC+mwBgKWEO0D9tp/8Bv//BbBo+WpwH7YlsTSAuJrCW3g+afhvkl9x30QvxnFIcptl4uvJNXip3q1mpn1xmKMvB9e8HGPkctjZGWkvP2VUU6l/5IohvnZxU2reshq7WUs2an+YWVZhxjuKQWYvBBNE5m+NvIeAudAiDgm0UDtD3ChhYlvD8Jfak3ltNSTrArY+Lis9Z9VG1Fgz3jceeJCN+FIiBs6lh2xw+GN7xzmSLBz7LyJapw=
+  - secure: pG7u7wmecjRHz9e+oP0crWL4FJBNQEsPBs7q7vVSecF/+PFQVIJrmRMPQnyxYNTBcgCQ5kDl/OaS6zzWxKGXDFTiOOZQBXuRC5AFMV59xMuB0QVqcyZxDtK8ilftdrVOKnvBihcWjWV1ecpE93SVQpD7uaEim8bD9Vxv8yTJ2w4Qunt2wcR9U1AsojOhLgvYrtyQ09Fk6z93BYK5Zgm0+kzCoMniyo+IPqEKb3cmT8kD4zuxwyTHWAvMjpBGYL8OcqV/mKg8wmF3wWZNmQTmYnJUImycFBlyh5f103Ppiuh6USPckZzUlOD8sdkHEo54y+hf/6FKnHSbHaFvibJU3F6j1ETLUX60zefH9k16qkbXulvT+iMGbWn/uRV5Fk1qUfbnIklgBbOwSv6jjHpWWI3H80SEPQqXaL+tpmGtNw/tJqlhXL5qh/JeR3WzCv0MhN+ezmiJxbb37EUZVxWsskuMdQsk39W7Ls7G8gfKtyNSDUijdZsx8O+Cjx0D3vjzBG5XkgPYjqcKJIYE6q6CbskH9obxrlE1TGiu3fvRQOd7sPlCpB9GKHME83GTb2MyXwEfVAeJ3r3BdU71e7LTTYbASx4eIF3nsaQ+P4y5Exn+/zsubYVkwO6c7m9F5fG33KQt/nppb2QqtxKqvWCQrxazA7IIdkh6blQDcjnKWpU=
+  - secure: KOqQTFDyQIDTnMc8A2HkESDYxUQGLxOp1USGmelT9pMbWhrcpAhsvAfMBYTOrg8m88ZgZkjsc4nFGx1VhIUBOR/jMBRcZTzu8NqHKFOkDt7eGaUbPulsIYt5cgIn3035kPs8nFDx5QtsKQT3BKekfCTUDZIFP81hgvR5osAinuRskxloF/v51PIN6CY3yqjYxHUkMK6FJXLRoug5A79XRR3FZzwzpWjCDMD4t5lrj8Dd/QbBHfi2FGX7UhHgIqbdYvjD/XbxQS8jErmUv/hsAEapogjwZi16rOC+QBZTfWvChSkYqAHuLmLR5ZgVAiZAMOftMkUgxt/j3svEdZJjdMwTZFRhJnlcMdpmXp7p3ukQt6QqKxwUGWANqk/a+7wUAsEZf2N1eVRc32FI/d9YQjD3oAonKgtKzHLvrkffhBx+GtEVLxkC12a3r3LbSK0kRKCmgLWuWxzE6VAXjNqMP9gOURzmFz8b1Hfgc+XNERVLlQeNXH50y78EPbusMf9h863t+9pjLF1iYUnmMsdKagyKsGLsAHiVsCOXpDvdzXQvZEYXaMn8FeFUj470ImopamnlJKvVH33qhwXh88hqlMRhOfl51tTgmD3CcaEok4cSoCXKXZQUu9FOYV46Iyu5NDFjEPoLH6loFB06UvGrNUedak0Bm+4rtDZsM+lynt0=
 before_install:
-  - openssl aes-256-cbc -K $encrypted_404964577bd1_key -iv $encrypted_404964577bd1_iv -in all.gpg.enc -out all.gpg -d
-  - gpg --batch --passphrase "${PGP_PASSPHRASE}" --import all.gpg
+- openssl aes-256-cbc -K $encrypted_404964577bd1_key -iv $encrypted_404964577bd1_iv
+  -in all.gpg.enc -out all.gpg -d
+- gpg --batch --passphrase "${PGP_PASSPHRASE}" --import all.gpg
 stages:
-  - test
-  - name: publish
-    if: (branch = master) AND (tag IS blank)
-  - name: release
-    if: (tag =~ ^[vV][0-9]+\.[0-9]+\.[0-9]+(\-RC[0-9]+)?$ )
+- test
+- name: publish
+  if: "(branch = master) AND (tag IS blank)"
+- name: release
+  if: "(tag =~ ^[vV][0-9]+\\.[0-9]+\\.[0-9]+(\\-RC[0-9]+)?$ )"
 jobs:
   include:
-    - stage: test
-      script: sbt ++$TRAVIS_SCALA_VERSION +test
-    - stage: publish
-      script: sbt ++$TRAVIS_SCALA_VERSION +publishSigned
-    - stage: release
-      script: sbt ++$TRAVIS_SCALA_VERSION -DdistVersion="${TRAVIS_TAG#[vV]}" +publishSigned
+  - stage: test
+    script: sbt ++$TRAVIS_SCALA_VERSION +test
+  - stage: publish
+    script: sbt ++$TRAVIS_SCALA_VERSION +publishSigned
+  - stage: release
+    script: sbt ++$TRAVIS_SCALA_VERSION -DdistVersion="${TRAVIS_TAG#[vV]}" +publishSigned
 cache:
   directories:
-    - "$HOME/.cache/coursier"
-    - "$HOME/.ivy2/cache"
-    - "$HOME/.sbt"
+  - "$HOME/.cache/coursier"
+  - "$HOME/.ivy2/cache"
+  - "$HOME/.sbt"
 before_cache:
-  - rm -fv $HOME/.ivy2/.sbt.ivy.lock
-  - find $HOME/.ivy2/cache -name "ivydata-*.properties" -print -delete
-  - find $HOME/.sbt        -name "*.lock"               -print -delete
+- rm -fv $HOME/.ivy2/.sbt.ivy.lock
+- find $HOME/.ivy2/cache -name "ivydata-*.properties" -print -delete
+- find $HOME/.sbt        -name "*.lock"               -print -delete
