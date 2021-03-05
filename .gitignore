@@ -2,6 +2,7 @@
 *.log
 
 # sbt specific
+.bsp/
 .cache/
 .history/
 .lib/
@@ -21,4 +22,7 @@ project/plugins/project/
 *.iml
 target
 project/project
+
+# Avoid committing GPG keys by mistake
+*.gpg
 
