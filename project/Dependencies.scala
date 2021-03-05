@@ -1,5 +1,4 @@
 
-import Dependencies.Versions
 import Dependencies.Versions.Google
 import sbt._
 

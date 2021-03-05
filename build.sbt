@@ -1,34 +1,55 @@
-
+import Dependencies.scalaReflectModule
+import sbt.Keys.libraryDependencies
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
-name := "ezmodel"
+// used to sign jars
+Global / pgpSigningKey := sys.env.get("PGP_SIGNING_KEY")
+//Global / pgpPassphrase := sys.env.get("PGP_PASSPHRASE").map(_.toCharArray)
+//Global / useGpgPinentry := true
 
-organization in ThisBuild := "com.ezoky"
+name := "ez-model"
+description := "A modelling and application building platform aimed to raise the level of abstraction of code"
 
-lazy val distVersion = sys.props.getOrElse("distVersion", "0.1.0-SNAPSHOT")
+homepage := Some(url("https://github.com/ezoky/ez-model"))
+scmInfo := Some(ScmInfo(url("https://github.com/ezoky/ez-model"), "git@github.com:ezoky/ez-model.git"))
+developers := List(Developer("gweinbach", "Grégory Weinbach", "gweinbach@ezoky.com", url("https://github.com/gweinbach")))
 
-version in ThisBuild := distVersion
 
-scalaVersion in ThisBuild := Dependencies.Versions.scala
+lazy val distVersion = sys.props.getOrElse("distVersion", "0.2.0-SNAPSHOT")
 
-scalacOptions in ThisBuild ++= Seq(
-  "-encoding", "UTF-8", // source files are in UTF-8
-  "-deprecation", // warn about use of deprecated APIs
+ThisBuild / version := distVersion
+
+ThisBuild / scalaVersion := Dependencies.Versions.scala
+lazy val supportedScalaVersions = List(
+  Dependencies.Versions.scala213
+)
+
+ThisBuild / scalacOptions ++= Seq(
   "-Yrangepos", // use range positions for syntax trees
   "-language:postfixOps", //  enables postfix operators
   "-language:implicitConversions", // enables defining implicit methods and members
   "-language:existentials", // enables writing existential types
   "-language:reflectiveCalls", // enables reflection
   "-language:higherKinds", // allow higher kinded types without `import scala.language.higherKinds`
-  "-unchecked", // warn about unchecked type parameters
-  "-feature", // warn about misused language features
-  "-Xlint",               // enable handy linter warnings
-//    "-Xfatal-warnings",     // turn compiler warnings into errors
+  "-encoding", "UTF-8", // source files are in UTF-8
+  "-deprecation", // warns about use of deprecated APIs
+  "-unchecked", // warns about unchecked type parameters
+  "-feature", // warns about misused language features
+  "-Xlint", // enables handy linter warnings
+  //  "-Xfatal-warnings", // turns compiler warnings into errors
 )
+
+// Enables SemanticDB compiler for Scalafix
+ThisBuild / semanticdbEnabled := true
+ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
+// Enables Scalafix complex rules to work with Scala 2.13
+ThisBuild / scalafixScalaBinaryVersion := CrossVersion.binaryScalaVersion(scalaVersion.value)
+
 
 autoCompilerPlugins := true
 
+//addCompilerPlugin(CompilerPlugin.`kind-projector`)
 addCompilerPlugin(CompilerPlugin.`better-monadic-for`)
 
 
@@ -42,6 +63,7 @@ lazy val `ezmodel` =
       `ezmodel-interaction`,
       `ezmodel-console`
     )
+    .settings(skip in publish := true)
     .disablePlugins(sbtassembly.AssemblyPlugin)
 
 // This enables dependencies on junit.jar to run coverage tests from intelliJ
@@ -114,7 +136,6 @@ lazy val `ezmodel-console` =
         assemblyJarName in assembly := "ezmodel-console.jar"
       ): _*
     )
-
 
 Common.defaultSettings
 
