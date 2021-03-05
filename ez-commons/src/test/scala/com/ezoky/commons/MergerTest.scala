@@ -38,8 +38,6 @@ with Mergers {
           }
         })
 
-      val middle = Point(1, 2).mergeWith(Point(2, 3))
-
       assert(Point(1, 2).mergeWith(Point(1, 2)) === Point(1, 2))
       assert(Point(1, 2).mergeWith(Point(-2, -3)) === Point(-2, -3))
     }

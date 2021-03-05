@@ -23,8 +23,8 @@ scalacOptions in ThisBuild ++= Seq(
   "-language:higherKinds", // allow higher kinded types without `import scala.language.higherKinds`
   "-unchecked", // warn about unchecked type parameters
   "-feature", // warn about misused language features
-  /*"-Xlint",               // enable handy linter warnings
-    "-Xfatal-warnings",     // turn compiler warnings into errors*/
+  "-Xlint",               // enable handy linter warnings
+//    "-Xfatal-warnings",     // turn compiler warnings into errors
 )
 
 autoCompilerPlugins := true

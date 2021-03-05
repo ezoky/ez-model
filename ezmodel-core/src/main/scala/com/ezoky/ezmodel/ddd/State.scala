@@ -21,8 +21,6 @@ object State {
 
   def emptyState[S]:InvalidState[S] = EmptyState
 
-  import scala.language.implicitConversions
-
   implicit def StateMonoid[S]: Monoid[State[S]] = new Monoid[State[S]] {
 
     override def empty: State[S] = Right(IdentityState)

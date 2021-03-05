@@ -1,8 +1,6 @@
 package com.ezoky.ezmodel.core
 
 import com.ezoky.commons.NaturalIds
-import com.ezoky.ezmodel
-import com.ezoky.ezmodel.core
 
 /**
   * @author gweinbach on 08/02/2021
@@ -33,6 +31,7 @@ private[core] trait Models
   type ModelMap = NaturalMap[ModelId, Model]
 
   object ModelMap extends NaturalMapCompanion[ModelId, Model]
+
 }
 
 object Models extends Models

@@ -1,12 +1,12 @@
 package com.ezoky.ezconsole
 
-import scala.tools.nsc.{GenericRunnerSettings, Settings}
+import scala.reflect.ClassTag
+import scala.reflect.runtime.universe.TypeTag
+import scala.tools.nsc.GenericRunnerSettings
 import scala.tools.nsc.interpreter.Results
 import scala.tools.nsc.interpreter.Results.{Error, Success}
 import scala.tools.nsc.interpreter.shell.{ILoop, ShellConfig}
 import scala.util.Properties.versionString
-import scala.reflect.ClassTag
-import scala.reflect.runtime.universe.TypeTag
 
 /**
   * @author gweinbach on 03/03/2021
@@ -75,7 +75,7 @@ class ScalaConsole[S: TypeTag : ClassTag](module: ConsoleModule[S]) {
       }
 
       private def tryInterpret(code: String,
-                               quietly: Boolean = false): Option[String] = {
+                               quietly: Boolean): Option[String] = {
         val trial: String => Results.Result =
           if (quietly) {
             code =>

@@ -15,7 +15,7 @@ class DomainDSLTest extends AnyFunSuite {
 
   test("Domain elaboration") {
 
-    val dom = Domain("Driving") withUseCase ("Driver", "change" the "Gear") withUseCase ("Driver", "brake") withEntity "Gear"
+    val dom = Domain("Driving") withUseCase (("Driver", "change" the "Gear")) withUseCase (("Driver", "brake")) withEntity "Gear"
 
     assert(dom.useCases.size === 2)
     assert(dom.entities.size === 1)

@@ -1,6 +1,6 @@
 package com.ezoky.ezmodel.interaction
 
-import com.ezoky.ezmodel.interaction.interpreter.{Interpreting, Parsing, Processing, Saying}
+import com.ezoky.ezmodel.interaction.interpreter.Processing
 
 /**
   * @author gweinbach on 20/02/2021
@@ -8,4 +8,4 @@ import com.ezoky.ezmodel.interaction.interpreter.{Interpreting, Parsing, Process
   */
 object Modelling
   extends Processing
-  with ModellingInterpreter
+    with ModellingInterpreter
