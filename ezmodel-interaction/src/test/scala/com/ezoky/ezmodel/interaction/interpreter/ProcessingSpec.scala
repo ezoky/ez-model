@@ -11,7 +11,7 @@ class ProcessingSpec
   extends AnyWordSpec
     with GivenWhenThen {
 
-  "the Processor" should {
+  "the StateProcessor" should {
     "be able to process a change of state entailed by a set of commands" in {
 
       object Processing extends Processing
@@ -51,23 +51,23 @@ class ProcessingSpec
 
 
       And("an interpreter for each statement")
-      implicit val addInterpretor: Interpreter[Calculator, Add] =
-        Interpreter.define { s => add => s.copy(result = s.result + add.i) }
+      implicit val addInterpretor: StateTransitionInterpreter[Calculator, Add] =
+        StateTransitionInterpreter.define { s => add => s.copy(result = s.result + add.i) }
 
-      implicit val subInterpretor: Interpreter[Calculator, Subtract] =
-        Interpreter.define { s => sub => s.copy(result = s.result - sub.i) }
+      implicit val subInterpretor: StateTransitionInterpreter[Calculator, Subtract] =
+        StateTransitionInterpreter.define { s => sub => s.copy(result = s.result - sub.i) }
 
-      implicit val mulInterpretor: Interpreter[Calculator, Multiply] =
-        Interpreter.define { s => mul => s.copy(result = s.result * mul.by) }
+      implicit val mulInterpretor: StateTransitionInterpreter[Calculator, Multiply] =
+        StateTransitionInterpreter.define { s => mul => s.copy(result = s.result * mul.by) }
 
 
       When("i say something")
       val whatISay = Say(iWantToAddOne, iWantToAddTwo, iWantToAddThree, iWantToSubtractOne, iWantToMultiplyBy(7))
 
 
-      Then("the processor can understand it compile int and change its state accordingly")
+      Then("the processor can understand it, compiles int and changes its state accordingly")
       val initialState = Calculator(-1)
-      val newState = Processor(initialState).process(whatISay).state
+      val newState = StateProcessor(initialState).process(whatISay).state
 
       assert(newState === Calculator((-1 + 1 + 2 + 3 - 1) * 7))
     }

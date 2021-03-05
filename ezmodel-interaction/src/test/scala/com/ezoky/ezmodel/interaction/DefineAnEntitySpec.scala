@@ -15,7 +15,7 @@ class DefineAnEntitySpec
 
   import Modelling._
 
-  "the Processor" when {
+  "the StateProcessor" when {
     "the Modeller defines a new Entity" should {
       "sets it as the current Entity" in {
 
@@ -38,7 +38,7 @@ class DefineAnEntitySpec
           )
         }
 
-        val modellingState = Processor(initialModellingState).process(whatISay).state
+        val modellingState = StateProcessor(initialModellingState).process(whatISay).state
         assert(modellingState.models.isEmpty)
         assert(modellingState.currentModel.isEmpty)
         assert(modellingState.currentDomain.isEmpty)
@@ -59,7 +59,7 @@ class DefineAnEntitySpec
             .withEntity(definedEntity2)
             .withEntity(definedEntity)
 
-        val modellingStateWithDomain = Processor(modellingState).process(iDefineADomain).state
+        val modellingStateWithDomain = StateProcessor(modellingState).process(iDefineADomain).state
         assert(modellingStateWithDomain.models.isEmpty)
         assert(modellingStateWithDomain.currentModel.isEmpty)
         assert(modellingStateWithDomain.currentDomain === Some(definedDomain))
@@ -80,7 +80,7 @@ class DefineAnEntitySpec
           definedDomain.withEntity(mergedEntity)
 
         val modellingStateWithMergedEntity =
-          Processor(modellingStateWithDomain).process(iRedefineAnExistingEntity).state
+          StateProcessor(modellingStateWithDomain).process(iRedefineAnExistingEntity).state
         assert(modellingStateWithMergedEntity.models.isEmpty)
         assert(modellingStateWithMergedEntity.currentModel.isEmpty)
         assert(modellingStateWithMergedEntity.currentDomain === Some(domainWithMergedEntity))

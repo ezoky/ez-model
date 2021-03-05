@@ -1,4 +1,3 @@
-import Dependencies.scalaReflectModule
 import sbt.Keys.libraryDependencies
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
@@ -13,7 +12,10 @@ description := "A modelling and application building platform aimed to raise the
 
 homepage := Some(url("https://github.com/ezoky/ez-model"))
 scmInfo := Some(ScmInfo(url("https://github.com/ezoky/ez-model"), "git@github.com:ezoky/ez-model.git"))
-developers := List(Developer("gweinbach", "Grégory Weinbach", "gweinbach@ezoky.com", url("https://github.com/gweinbach")))
+developers := List(Developer("gweinbach",
+  "Grégory Weinbach",
+  "gweinbach@ezoky.com",
+  url("https://github.com/gweinbach")))
 
 
 lazy val distVersion = sys.props.getOrElse("distVersion", "0.2.0-SNAPSHOT")
@@ -35,6 +37,7 @@ ThisBuild / scalacOptions ++= Seq(
   "-feature", // warns about misused language features
   "-Xlint", // enables handy linter warnings
   //  "-Xfatal-warnings", // turns compiler warnings into errors
+  //  "-Xlog-implicits", // adds extra info on implicits usage
 )
 
 // Enables SemanticDB compiler for Scalafix

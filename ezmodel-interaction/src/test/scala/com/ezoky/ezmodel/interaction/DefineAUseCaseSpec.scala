@@ -15,7 +15,7 @@ class DefineAUseCaseSpec
 
   import Modelling._
 
-  "the Processor" when {
+  "the StateProcessor" when {
     "the Modeller defines a new Use Case" should {
       "sets it as the current Use Case" in {
 
@@ -39,7 +39,7 @@ class DefineAUseCaseSpec
             )
           )
 
-        val modellingState = Processor(initialModellingState).process(whatISay).state
+        val modellingState = StateProcessor(initialModellingState).process(whatISay).state
         assert(modellingState.models.isEmpty)
         assert(modellingState.currentModel.isEmpty)
         assert(modellingState.currentDomain.isEmpty)
@@ -61,7 +61,7 @@ class DefineAUseCaseSpec
             .withUseCase(secondUseCase)
             .withUseCase(definedUseCase)
 
-        val modellingStateWithDomain = Processor(modellingState).process(iDefineADomain).state
+        val modellingStateWithDomain = StateProcessor(modellingState).process(iDefineADomain).state
         assert(modellingStateWithDomain.models.isEmpty)
         assert(modellingStateWithDomain.currentModel.isEmpty)
         assert(modellingStateWithDomain.currentDomain === Some(definedDomain))
@@ -82,7 +82,7 @@ class DefineAUseCaseSpec
           definedDomain.withUseCase(mergedUseCase)
 
         val modellingStateWithMergedUseCase =
-          Processor(modellingStateWithDomain).process(iRedefineAnExistingUseCase).state
+          StateProcessor(modellingStateWithDomain).process(iRedefineAnExistingUseCase).state
         assert(modellingStateWithMergedUseCase.models.isEmpty)
         assert(modellingStateWithMergedUseCase.currentModel.isEmpty)
         assert(modellingStateWithMergedUseCase.currentDomain === Some(domainWithMergedUseCase))

@@ -15,7 +15,7 @@ class DefineADomainSpec
 
   import Modelling._
 
-  "the Processor" when {
+  "the StateProcessor" when {
     "the Modeller defines a new Domain" should {
       "sets it as the current Domain" in {
 
@@ -42,7 +42,7 @@ class DefineADomainSpec
             )
           )
 
-        val modellingState = Processor(initialModellingState).process(whatISay).state
+        val modellingState = StateProcessor(initialModellingState).process(whatISay).state
         assert(modellingState.models.isEmpty)
         assert(modellingState.currentModel.isEmpty)
         assert(modellingState.currentDomain === Some(definedDomain))
@@ -62,7 +62,7 @@ class DefineADomainSpec
         val modifiedDomain =
           definedDomain.withEntity(definedEntity)
 
-        val modellingStateWithEntity = Processor(modellingState).process(iDescribeAnEntity).state
+        val modellingStateWithEntity = StateProcessor(modellingState).process(iDescribeAnEntity).state
         assert(modellingStateWithEntity.models.isEmpty)
         assert(modellingStateWithEntity.currentModel.isEmpty)
         assert(modellingStateWithEntity.currentDomain === Some(modifiedDomain))
@@ -83,7 +83,7 @@ class DefineADomainSpec
         val modifiedDomain2 =
           modifiedDomain.withEntity(definedEntity2)
 
-        val modellingStateWithAnotherEntity = Processor(modellingStateWithEntity).process(iDescribeAnotherEntity).state
+        val modellingStateWithAnotherEntity = StateProcessor(modellingStateWithEntity).process(iDescribeAnotherEntity).state
         assert(modellingStateWithAnotherEntity.models.isEmpty)
         assert(modellingStateWithAnotherEntity.currentModel.isEmpty)
         assert(modellingStateWithAnotherEntity.currentDomain === Some(modifiedDomain2))
@@ -103,7 +103,7 @@ class DefineADomainSpec
             .withDomain(existingDomain)
             .withDomain(modifiedDomain2)
 
-        val modellingStateWithAModel = Processor(modellingStateWithAnotherEntity).process(iDescribeAModel).state
+        val modellingStateWithAModel = StateProcessor(modellingStateWithAnotherEntity).process(iDescribeAModel).state
         assert(modellingStateWithAModel.ownsModel(definedModel))
         assert(modellingStateWithAModel.currentModel === Some(definedModel))
         assert(modellingStateWithAModel.currentDomain === Some(modifiedDomain2))
@@ -126,7 +126,7 @@ class DefineADomainSpec
           definedModel.mergeDomain(mergedDomain)
 
         val modellingStateWithMergedDomain =
-          Processor(modellingStateWithAModel).process(iRedefineAnExistingDomain).state
+          StateProcessor(modellingStateWithAModel).process(iRedefineAnExistingDomain).state
         assert(modellingStateWithMergedDomain.models.owns(modelWithMergedDomain))
         assert(modellingStateWithMergedDomain.currentModel === Some(modelWithMergedDomain))
         assert(modellingStateWithMergedDomain.currentDomain === Some(mergedDomain))

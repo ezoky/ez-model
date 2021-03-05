@@ -3,60 +3,70 @@ package com.ezoky.ezmodel.interaction.interpreter
 import shapeless._
 
 /**
-  * @author gweinbach on 20/02/2021
-  * @since 0.2.0
-  */
-/**
   * ..and then interpreted in terms of state change
   */
 private[interaction] trait Interpreting
   extends Parsing {
 
-  trait Interpreter[S, T] {
+  /**
+    * @tparam StateType     is the incoming State type
+    * @tparam StatementType is the statement (command) type
+    * @tparam OutputType    is the output type of the interpreter
+    */
+  trait Interpreter[-StateType, -StatementType, +OutputType] {
 
-    def interpret(state: S,
-                  statement: T): S
+    def interpret(state: StateType,
+                  statement: StatementType): OutputType
 
-    def apply(state: S,
-              statement: Statement[T]): S =
+    def apply(state: StateType,
+              statement: Statement[StatementType]): OutputType =
       interpret(state, statement.stated)
   }
 
-  implicit def hNilInterpreter[S]: Interpreter[S, HNil] =
-    Interpreter.noop
-
-  implicit def hListInterpreter[S, H, T <: HList](implicit
-                                                  interpreterH: Interpreter[S, H],
-                                                  interpreterT: Interpreter[S, T]): Interpreter[S, H :: T] =
-    new Interpreter[S, H :: T] {
-      override def interpret(state: S,
-                             statement: H :: T): S =
-        interpreterT.interpret(interpreterH.interpret(state, statement.head), statement.tail)
-    }
-
   object Interpreter {
 
-    def noop[S, T]: Interpreter[S, T] =
-      new Interpreter[S, T] {
-        override def interpret(state: S,
-                               statement: T): S = state
-      }
+    def define[StateType, StatementType, OutputType](interpretation: StateType => StatementType => OutputType): Interpreter[StateType, StatementType, OutputType] =
+      (state: StateType, statement: StatementType) => interpretation(state)(statement)
 
-    def define[S, T](interpretation: S => T => S): Interpreter[S, T] =
-      (state: S, statement: T) => interpretation(state)(statement)
-
-    def apply[S, T](state: S,
-                    statement: Statement[T])
-                   (implicit
-                    interpreter: Interpreter[S, T]): S =
+    def apply[StateType, StatementType, OutputType](state: StateType,
+                                                    statement: Statement[StatementType])
+                                                   (implicit
+                                                    interpreter: Interpreter[StateType, StatementType, OutputType]): OutputType =
       interpreter(state, statement)
   }
 
-
-  def interpret[S, T](state: S,
-                      statement: Statement[T])
-                     (implicit
-                      interpreter: Interpreter[S, T]): S =
+  def interpret[StateType, StatementType, OutputType](state: StateType,
+                                                      statement: Statement[StatementType])
+                                                     (implicit
+                                                      interpreter: Interpreter[StateType, StatementType, OutputType]): OutputType =
     Interpreter(state, statement)
 
+
+  /**
+    * This is a simple interpreter that operates as a state transition: result of the interpretation
+    * is a state update.
+    *
+    * @tparam StateType     is the incoming and outgoing State type
+    * @tparam StatementType is the statement (command) type
+    */
+  type StateTransitionInterpreter[StateType, StatementType] = Interpreter[StateType, StatementType, StateType]
+
+  object StateTransitionInterpreter {
+
+    def identity[StateType, StatementType]: StateTransitionInterpreter[StateType, StatementType] =
+      define(state => _ => state)
+
+    def define[StateType, StatementType](interpretation: StateType => StatementType => StateType): StateTransitionInterpreter[StateType, StatementType] =
+      Interpreter.define[StateType, StatementType, StateType](interpretation)
+  }
+
+  implicit def hNilStateTransitionInterpreter[StateType]: StateTransitionInterpreter[StateType, HNil] =
+    StateTransitionInterpreter.identity
+
+  implicit def hListStateTransitionInterpreter[StateType, H, StatementType <: HList](implicit
+                                                                                     interpreterH: StateTransitionInterpreter[StateType, H],
+                                                                                     interpreterT: StateTransitionInterpreter[StateType, StatementType]): StateTransitionInterpreter[StateType, H :: StatementType] =
+    StateTransitionInterpreter.define(state => statement =>
+      interpreterT.interpret(interpreterH.interpret(state, statement.head), statement.tail)
+    )
 }

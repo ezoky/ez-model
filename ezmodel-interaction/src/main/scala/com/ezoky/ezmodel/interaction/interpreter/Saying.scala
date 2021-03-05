@@ -12,7 +12,7 @@ import shapeless.{::, HNil}
   */
 private[interaction] trait Saying {
 
-  case class Say[T](something: T)
+  case class Say[+T](something: T)
 
   object Say {
 
