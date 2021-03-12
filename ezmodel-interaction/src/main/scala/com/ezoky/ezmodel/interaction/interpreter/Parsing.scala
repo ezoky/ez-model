@@ -12,7 +12,7 @@ import shapeless.{::, HList, HNil}
 private[interaction] trait Parsing
   extends Saying {
 
-  case class Statement[S](stated: S) {
+  case class Statement[+S](stated: S) {
 
     def combine[H <: HList](other: Statement[H]): Statement[S :: H] =
       Statement(stated :: other.stated)
@@ -25,7 +25,7 @@ private[interaction] trait Parsing
   }
 
 
-  trait Parser[T, S] {
+  trait Parser[-T, +S] {
 
     def parse(something: T): Statement[S]
 

@@ -29,11 +29,11 @@ class InterpretingSpec
 
       And("some interpreters directives")
 
-      implicit val addOneInterpretor: Interpreter[State, AddOne.type] =
-        Interpreter.define { s => _ => s.copy(total = s.total + 1) }
+      implicit val addOneInterpretor: StateTransitionInterpreter[State, AddOne.type] =
+        StateTransitionInterpreter.define { s => _ => s.copy(total = s.total + 1) }
 
-      implicit val subOneInterpretor: Interpreter[State, SubOne.type] =
-        Interpreter.define { s => _ => s.copy(total = s.total - 1) }
+      implicit val subOneInterpretor: StateTransitionInterpreter[State, SubOne.type] =
+        StateTransitionInterpreter.define { s => _ => s.copy(total = s.total - 1) }
 
       And("a defined initial state ")
 

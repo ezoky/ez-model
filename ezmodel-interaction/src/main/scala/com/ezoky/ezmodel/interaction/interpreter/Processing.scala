@@ -7,17 +7,29 @@ package com.ezoky.ezmodel.interaction.interpreter
 private[interaction] trait Processing
   extends Interpreting {
 
-  case class Processor[S](state: S) {
+  trait Processor[S, U, F[_]] {
+
+    val state: S
 
     def process[W, T](whatISay: Say[W])
                      (implicit
                       parser: Parser[W, T],
-                      interpreter: Interpreter[S, T]): Processor[S] =
-      Processor(
+                      interpreter: Interpreter[S, T, U]): F[U]
+  }
+
+  case class StateProcessor[S](state: S)
+    extends Processor[S, S, StateProcessor] {
+
+    def process[W, T](whatISay: Say[W])
+                     (implicit
+                      parser: Parser[W, T],
+                      interpreter: Interpreter[S, T, S]): StateProcessor[S] =
+      StateProcessor(
         Interpreter(
           state,
           Parser(whatISay)
         )
       )
   }
+
 }
