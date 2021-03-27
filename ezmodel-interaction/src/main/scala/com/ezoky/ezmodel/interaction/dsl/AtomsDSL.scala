@@ -8,13 +8,16 @@ import com.ezoky.ezmodel.core.Models._
   */
 trait AtomsDSL {
 
-  implicit def stringToName(name: String): Name =
+  implicit def convertStringToName(name: String): Name =
     Name(name)
 
-  implicit def stringToVerb(verb: String): Verb =
+  implicit def convertStringToVerb(verb: String): Verb =
     Verb(verb)
 
-  implicit def stringToQualifier(qualifier: String): Qualifier =
+  implicit def convertStringToDeterminant(determinant: String): Determinant =
+    Determinant(determinant)
+
+  implicit def convertStringToQualifier(qualifier: String): Qualifier =
     Qualifier(qualifier)
 
 

@@ -8,6 +8,7 @@ import com.ezoky.commons.NaturalIds
   */
 private[core] trait Models
   extends Domains
+    with interactions.Models
     with NaturalIds {
 
   case class Model(name: Name,

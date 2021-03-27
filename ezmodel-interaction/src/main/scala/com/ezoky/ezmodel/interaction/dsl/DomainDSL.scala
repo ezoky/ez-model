@@ -9,7 +9,7 @@ import com.ezoky.ezmodel.core.Models._
   */
 trait DomainDSL
   extends NaturalIdDSL
-  with MergerDSL {
+    with MergerDSL {
 
   implicit def stringToDomain(domainName: String): Domain =
     Domain(Name(domainName))
@@ -30,24 +30,64 @@ trait DomainDSL
     case class FluentUseCase(domain: Domain,
                              actor: Actor) {
 
-      def iWantTo(goal: Goal): Domain =
-        domain.withUseCase(UseCase(actor, goal))
+      def inOrderTo(goal: Goal): UseCaseInDomainHelper =
+        UseCaseInDomainHelper(domain, UseCase(actor, goal))
 
       // non transitive Action
-      def iWantTo(action: Action): Domain =
-        domain.withUseCase(UseCase(actor, Goal(action, None)))
+      def inOrderTo(action: Action): UseCaseInDomainHelper =
+        UseCaseInDomainHelper(domain, UseCase(actor, Goal(action, None)))
 
       // transitive Action
-      def iWantTo(action: Action,
-                  actionObject: ActionObject): Domain =
-        domain.withUseCase(UseCase(actor, Goal(action, Some(actionObject))))
+      def inOrderTo(action: Action,
+                    actionObject: ActionObject): UseCaseInDomainHelper =
+        UseCaseInDomainHelper(domain, UseCase(actor, Goal(action, Some(actionObject))))
 
       // transitive Action made simple
-      def iWantTo(action: Action,
-                  determinant: Determinant,
-                  name: Name): Domain =
-        domain.withUseCase(UseCase(actor, Goal(action, Some(ActionObject(NameGroup(determinant, name))))))
+      def inOrderTo(action: Action,
+                    determinant: Determinant,
+                    name: Name): UseCaseInDomainHelper =
+        UseCaseInDomainHelper(domain, UseCase(actor, Goal(action, Some(ActionObject(NameGroup(determinant, name))))))
     }
 
   }
+
+  case class UseCaseInDomainHelper(domain: Domain,
+                                   useCase: UseCase) {
+    def toDomain: Domain =
+      domain.withUseCase(useCase)
+
+    def iWantTo(interaction: Interaction): UseCaseInDomainHelper =
+      UseCaseInDomainHelper(
+        domain,
+        useCase.withInteraction(interaction)
+      )
+
+    // non transitive Action
+    def iWantTo(action: Action): UseCaseInDomainHelper =
+      UseCaseInDomainHelper(
+        domain,
+        useCase.withInteraction(Interaction(action, None))
+      )
+
+    // transitive Action
+    def iWantTo(action: Action,
+                actionObject: ActionObject): UseCaseInDomainHelper =
+      UseCaseInDomainHelper(
+        domain,
+        useCase.withInteraction(Interaction(action, Some(actionObject)))
+      )
+
+    // transitive Action made simple
+    def iWantTo(action: Action,
+                determinant: Determinant,
+                name: Name): UseCaseInDomainHelper =
+      UseCaseInDomainHelper(
+        domain,
+        useCase.withInteraction(Interaction(action, Some(ActionObject(NameGroup(determinant, name)))))
+      )
+  }
+
+  implicit def useCaseHelperToDomain(useCaseHelper: UseCaseInDomainHelper): Domain =
+    useCaseHelper.toDomain
+
 }

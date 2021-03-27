@@ -40,6 +40,8 @@ trait DomainState {
   def mergeOrAddUseCase(useCase: UseCase): (DomainState, UseCase)
 
   def mergeOrAddEntity(entity: Entity): (DomainState, Entity)
+
+  def mergeOrAddInteractionDescriptor(interactionDescriptor: AnyInteractionDescriptor): (DomainState, AnyInteractionDescriptor)
 }
 
 trait UseCaseState {
@@ -49,6 +51,8 @@ trait UseCaseState {
   def resetCurrentUseCase: RootState
 
   def setCurrentUseCase(useCase: UseCase): UseCaseState
+
+  def mergeOrAddInteraction(interaction: Interaction): (UseCaseState, Interaction)
 }
 
 
@@ -67,17 +71,41 @@ trait EntityState {
   def addReference(reference: Reference): EntityState
 }
 
+trait InteractionState {
+
+  val currentInteraction: Option[Interaction]
+
+  def resetCurrentInteraction: InteractionState
+
+  def setCurrentInteraction(interaction: Interaction): InteractionState
+}
+
+trait InteractionDescriptorState {
+
+  val currentInteractionDescriptor: Option[AnyInteractionDescriptor]
+
+  def resetCurrentInteractionDescriptor: InteractionDescriptorState
+
+  def setCurrentInteractionDescriptor(interactionDescriptor: AnyInteractionDescriptor): InteractionDescriptorState
+
+}
+
 case class ModellingState(models: ModelMap,
                           currentModel: Option[Model],
                           currentDomain: Option[Domain],
                           currentUseCase: Option[UseCase],
-                          currentEntity: Option[Entity])
+                          currentInteraction: Option[Interaction],
+                          currentEntity: Option[Entity],
+                          currentInteractionDescriptor: Option[AnyInteractionDescriptor])
   extends RootState
     with ModelState
     with DomainState
     with UseCaseState
-    with EntityState {
+    with InteractionState
+    with EntityState
+    with InteractionDescriptorState {
 
+  // RootState
   override def ownsModel(model: Model): Boolean =
     models.owns(model)
 
@@ -97,18 +125,18 @@ case class ModellingState(models: ModelMap,
     else {
       val (augmentedModel, domainToSelect: Option[Domain]) =
         if (currentModel.isDefined) {
-          (model, None)
+          (model, model.domains.some)
         }
         else {
           val modelWithDomain = currentDomain.fold(model)(model.mergeDomain(_))
-          (modelWithDomain, currentDomain)
+          (modelWithDomain, model.domains.some.orElse(currentDomain))
         }
 
       val (stateWithMergedModel, mergedModel) = mergeOrAddModel(augmentedModel)
 
       val stateWithSelectedModel = stateWithMergedModel.copy(currentModel = Some(mergedModel))
       val stateWithSelectedDomain =
-        domainToSelect.orElse(augmentedModel.domains.some).fold(stateWithSelectedModel.resetCurrentDomain) {
+        domainToSelect.orElse(mergedModel.domains.some).fold(stateWithSelectedModel.resetCurrentDomain) {
           domain => stateWithSelectedModel.setCurrentDomain(domain)
         }
       stateWithSelectedDomain
@@ -123,6 +151,9 @@ case class ModellingState(models: ModelMap,
         (setCurrentModel(mergedModel), mergedDomain.getOrElse(domain)) // the orElse case is a bug
     }
 
+
+  // DomainState
+
   override def resetCurrentDomain: ModellingState =
     copy(currentDomain = None)
 
@@ -134,22 +165,22 @@ case class ModellingState(models: ModelMap,
       // if there is no current Domain, potentially existing UseCase and Entity are merged to Domain being set as current
       val (augmentedDomain, useCaseToSelect: Option[Models.UseCase], entityToSelect: Option[Models.Entity]) =
         if (currentDomain.isDefined) {
-           (domain, None, None)
+          (domain, domain.useCases.some, domain.entities.some)
         }
         else {
           val domainWithUseCase = currentUseCase.fold(domain)(domain.mergeUseCase(_))
           val domainWithEntity = currentEntity.fold(domainWithUseCase)(domainWithUseCase.mergeEntity(_))
-          (domainWithEntity, currentUseCase, currentEntity)
+          (domainWithEntity, domain.useCases.some.orElse(currentUseCase), domain.entities.some.orElse(currentEntity))
         }
 
       val (stateWithMergedDomain, mergedDomain) = mergeOrAddDomain(augmentedDomain)
       val stateWithSelectedDomain = stateWithMergedDomain.copy(currentDomain = Some(mergedDomain))
       val stateWithSelectedUseCase =
-        useCaseToSelect.orElse(augmentedDomain.useCases.some).fold(stateWithSelectedDomain.resetCurrentUseCase) {
+        useCaseToSelect.orElse(mergedDomain.useCases.some).fold(stateWithSelectedDomain.resetCurrentUseCase) {
           useCase => stateWithSelectedDomain.setCurrentUseCase(useCase)
         }
       val stateWithSelectedEntity = {
-        entityToSelect.orElse(augmentedDomain.entities.some).fold(stateWithSelectedUseCase.resetCurrentEntity) {
+        entityToSelect.orElse(mergedDomain.entities.some).fold(stateWithSelectedUseCase.resetCurrentEntity) {
           entity => stateWithSelectedUseCase.setCurrentEntity(entity)
         }
       }
@@ -174,23 +205,74 @@ case class ModellingState(models: ModelMap,
         (setCurrentDomain(mergedDomain), mergedEntity.getOrElse(entity)) // the orElse case is a bug
     }
 
+
+  override def mergeOrAddInteractionDescriptor(interactionDescriptor: AnyInteractionDescriptor): (ModellingState, AnyInteractionDescriptor) =
+    currentDomain.fold((this, interactionDescriptor)) {
+      domain =>
+        val mergedDomain = domain.mergeInteractionDescriptor(interactionDescriptor)
+        val mergedInteractionDescriptor = mergedDomain.interactionDescriptors.getWithSameId(interactionDescriptor)
+        (setCurrentDomain(mergedDomain), mergedInteractionDescriptor.getOrElse(interactionDescriptor)) // the orElse case is a bug
+    }
+    
+    
+    
+  // UseCaseState
+
   override def resetCurrentUseCase: ModellingState =
     copy(currentUseCase = None)
 
-  override def setCurrentUseCase(useCase: UseCase): ModellingState = {
+  override def setCurrentUseCase(useCase: UseCase): ModellingState = 
     if (currentUseCase == Some(useCase)) {
       this
     }
     else {
-      val (stateWithMergedUseCase, mergedUseCase) = mergeOrAddUseCase(useCase)
-      stateWithMergedUseCase.copy(currentUseCase = Some(mergedUseCase))
+      // if there is no current UseCase, potentially existing Interaction is merged to UseCase being set as current
+      val (augmentedUseCase, interactionToSelect: Option[Models.Interaction]) =
+        if (currentUseCase.isDefined) {
+          (useCase, useCase.interaction)
+        }
+        else {
+          val useCaseWithInteraction = currentInteraction.fold(useCase)(useCase.mergeInteraction(_))
+          (useCaseWithInteraction, useCase.interaction.orElse(currentInteraction))
+        }
+
+      val (stateWithMergedUseCase, mergedUseCase) = mergeOrAddUseCase(augmentedUseCase)
+      val stateWithSelectedUseCase = stateWithMergedUseCase.copy(currentUseCase = Some(mergedUseCase))
+      val stateWithSelectedInteraction =
+        interactionToSelect.orElse(mergedUseCase.interaction).fold(stateWithSelectedUseCase.resetCurrentInteraction) {
+          interaction => stateWithSelectedUseCase.setCurrentInteraction(interaction)
+        }
+      stateWithSelectedInteraction
     }
-  }
+  
+  override def mergeOrAddInteraction(interaction: Interaction): (ModellingState, Interaction) =
+    currentUseCase.fold((this, interaction)) {
+      useCase =>
+        val mergedUseCase = useCase.mergeInteraction(interaction)
+        (setCurrentUseCase(mergedUseCase), mergedUseCase.interaction.getOrElse(interaction)) // the orElse case is a bug
+    }
+    
+  // InteractionState
+
+  override def resetCurrentInteraction: ModellingState =
+    copy(currentInteraction = None)
+
+  override def setCurrentInteraction(interaction: Interaction): ModellingState =
+    if (currentInteraction == Some(interaction)) {
+      this
+    }
+    else {
+      val (stateWithMergedInteraction, mergedInteraction) = mergeOrAddInteraction(interaction)
+      stateWithMergedInteraction.copy(currentInteraction = Some(mergedInteraction))
+    }
+
+
+  // EntityState
 
   override def resetCurrentEntity: ModellingState =
     copy(currentEntity = None)
 
-  override def setCurrentEntity(entity: Entity): ModellingState = {
+  override def setCurrentEntity(entity: Entity): ModellingState = 
     if (currentEntity == Some(entity)) {
       this
     }
@@ -198,13 +280,27 @@ case class ModellingState(models: ModelMap,
       val (stateWithMergedEntity, mergedEntity) = mergeOrAddEntity(entity)
       stateWithMergedEntity.copy(currentEntity = Some(mergedEntity))
     }
-  }
 
   override def addAttribute(attribute: Attribute): ModellingState = ???
 
   override def addAggregate(aggregate: Aggregate): ModellingState = ???
 
   override def addReference(reference: Reference): ModellingState = ???
+
+
+  // InteractionDescription
+
+  override def resetCurrentInteractionDescriptor: ModellingState =
+    copy(currentInteractionDescriptor = None)
+
+  override def setCurrentInteractionDescriptor(interactionDescriptor: AnyInteractionDescriptor): ModellingState =
+    if (currentInteractionDescriptor == Some(interactionDescriptor)) {
+      this
+    }
+    else {
+      val (stateWithMergedInteractionDescriptor, mergedInteractionDescriptor) = mergeOrAddInteractionDescriptor(interactionDescriptor)
+      stateWithMergedInteractionDescriptor.copy(currentInteractionDescriptor = Some(mergedInteractionDescriptor))
+    }
 }
 
 object ModellingState {
@@ -215,6 +311,8 @@ object ModellingState {
       currentModel = None,
       currentDomain = None,
       currentUseCase = None,
-      currentEntity = None
+      currentInteraction = None,
+      currentEntity = None,
+      currentInteractionDescriptor = None
     )
 }

@@ -1,6 +1,7 @@
-package com.ezoky.ezmodel.core
+package com.ezoky.ezmodel.core.requirements
 
 import com.ezoky.commons.NaturalIds
+import com.ezoky.ezmodel.core.Entities
 
 private[core] trait Constraints
   extends Entities

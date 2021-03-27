@@ -25,7 +25,7 @@ class DefineADomainSpec
         When("the Modeller describes a Domain containing a Use Case with the DSL")
         val whatISay =
           Say {
-            inDomain("Invoicing") asAn "Accountant" iWantTo ("invoice" a "Customer")
+            inDomain("Invoicing") asAn "Accountant" inOrderTo ("invoice" a "Customer")
           }
 
         Then("the modelling state changes accordingly: Domain and Use Case are set as 'current'")
@@ -47,6 +47,7 @@ class DefineADomainSpec
         assert(modellingState.currentModel.isEmpty)
         assert(modellingState.currentDomain === Some(definedDomain))
         assert(modellingState.currentUseCase === Some(definedUseCase))
+        assert(modellingState.currentInteraction.isEmpty)
         assert(modellingState.currentEntity.isEmpty)
 
         When("the Modeller describes an Entity")
@@ -67,6 +68,7 @@ class DefineADomainSpec
         assert(modellingStateWithEntity.currentModel.isEmpty)
         assert(modellingStateWithEntity.currentDomain === Some(modifiedDomain))
         assert(modellingStateWithEntity.currentUseCase === Some(definedUseCase))
+        assert(modellingStateWithEntity.currentInteraction.isEmpty)
         assert(modellingStateWithEntity.currentEntity === Some(definedEntity))
 
 
@@ -88,6 +90,7 @@ class DefineADomainSpec
         assert(modellingStateWithAnotherEntity.currentModel.isEmpty)
         assert(modellingStateWithAnotherEntity.currentDomain === Some(modifiedDomain2))
         assert(modellingStateWithAnotherEntity.currentUseCase === Some(definedUseCase))
+        assert(modellingStateWithAnotherEntity.currentInteraction.isEmpty)
         assert(modellingStateWithAnotherEntity.currentEntity === Some(definedEntity2))
 
         When("the Modeller describes a Model containing another exiting Domain")
@@ -106,20 +109,23 @@ class DefineADomainSpec
         val modellingStateWithAModel = StateProcessor(modellingStateWithAnotherEntity).process(iDescribeAModel).state
         assert(modellingStateWithAModel.ownsModel(definedModel))
         assert(modellingStateWithAModel.currentModel === Some(definedModel))
-        assert(modellingStateWithAModel.currentDomain === Some(modifiedDomain2))
-        assert(modellingStateWithAModel.currentUseCase === Some(definedUseCase))
-        assert(modellingStateWithAModel.currentEntity === Some(definedEntity2))
+        assert(modellingStateWithAModel.currentDomain === Some(existingDomain))
+        assert(modellingStateWithAModel.currentUseCase.isEmpty)
+        assert(modellingStateWithAModel.currentInteraction.isEmpty)
+        assert(modellingStateWithAModel.currentEntity.isEmpty)
 
 
         When("the Modeller works on an already existing Domain")
         val iRedefineAnExistingDomain =
           Say {
-            inDomain("Invoicing") asAn "Accountant" iWantTo ("invoice" a "Month")
+            inDomain("Invoicing") asAn "Accountant" inOrderTo ("invoice" a "Month") iWantTo ("choose" the "Invoiced Customers")
           }
 
         Then("new definition is merged with existing")
+        val otherInteraction =
+          Interaction("choose", Some(the("Invoiced Customers")))
         val otherUseCase =
-          UseCase(Actor("Accountant"), Goal("invoice", Some(a("Month"))))
+          UseCase(Actor("Accountant"), Goal("invoice", Some(a("Month"))), Some(otherInteraction))
         val mergedDomain =
           modifiedDomain2.withUseCase(otherUseCase)
         val modelWithMergedDomain =
@@ -131,7 +137,8 @@ class DefineADomainSpec
         assert(modellingStateWithMergedDomain.currentModel === Some(modelWithMergedDomain))
         assert(modellingStateWithMergedDomain.currentDomain === Some(mergedDomain))
         assert(modellingStateWithMergedDomain.currentUseCase === Some(otherUseCase))
-        assert(modellingStateWithMergedDomain.currentEntity.isEmpty)
+        assert(modellingStateWithMergedDomain.currentInteraction === Some(otherInteraction))
+        assert(modellingStateWithMergedDomain.currentEntity === Some(definedEntity))
       }
     }
   }

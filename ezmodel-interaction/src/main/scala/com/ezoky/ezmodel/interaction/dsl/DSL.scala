@@ -7,8 +7,10 @@ package com.ezoky.ezmodel.interaction.dsl
 object DSL
   extends AtomsDSL
     with UseCaseDSL
+    with InteractionDSL
     with EntityDSL
     with DomainDSL
     with ModelDSL
+    with DescriptorDSL
     with NaturalIdDSL
     with MergerDSL

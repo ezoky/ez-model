@@ -11,7 +11,7 @@ dom.useCases
 dom.entities
 println(dom)
 
-val monthlyInvoicing = Say asAn "Accountant" iWantTo ("invoice" a "Month") withPreCondition ("Production" is "Done") withPostCondition ("Current Month" is "Invoiced")
+val monthlyInvoicing = Say asAn "Accountant" inOrderTo ("invoice" a "Month") withPreCondition ("Production" is "Done") withPostCondition ("Current Month" is "Invoiced")
 monthlyInvoicing.constraints
 
 Domain("Accounting") withUseCase (monthlyInvoicing)

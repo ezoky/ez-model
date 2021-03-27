@@ -25,14 +25,20 @@ class DefineAUseCaseSpec
         When("the Modeller describes a Use Case with the DSL")
         val whatISay =
           Say {
-            asAn ("Accountant") iWantTo ("invoice" a "Month") provided ("Production" is "Done") resultingIn ("Current Month" is "Invoiced")
+            asAn ("Accountant") inOrderTo ("invoice" a "Month") provided ("Production" is "Done") resultingIn ("Current Month" is "Invoiced") iWantTo ("choose" the "Invoiced Customers")
           }
 
         Then("the modelling state changes accordingly")
+        val definedInteraction =
+          Interaction(
+            Action(Verb("choose")),
+            Some(ActionObject(NameGroup(Determinant.the, Name("Invoiced Customers"))))
+          )
         val definedUseCase =
           UseCase(
             Actor(Name("Accountant")),
             Goal(Action(Verb("invoice")), Some(ActionObject(NameGroup(Determinant.a, Name("Month"))))),
+            Some(definedInteraction),
             Constraints(
               Pre -> EntityState(Entity(Name("Production")), StateName(Qualifier("Done"))),
               Post -> EntityState(Entity(Name("Current Month")), StateName(Qualifier("Invoiced")))
@@ -44,16 +50,17 @@ class DefineAUseCaseSpec
         assert(modellingState.currentModel.isEmpty)
         assert(modellingState.currentDomain.isEmpty)
         assert(modellingState.currentUseCase === Some(definedUseCase))
+        assert(modellingState.currentInteraction === Some(definedInteraction))
         assert(modellingState.currentEntity.isEmpty)
 
 
         When("the Modeller defines a Domain that already contains another UseCase")
         val iDefineADomain =
           Say {
-            inDomain("Invoicing") asAn("Accountant") iWantTo("close" an "Accounting Month")
+            inDomain("Invoicing") asAn ("Accountant") inOrderTo ("close" an "Accounting Month")
           }
 
-        Then("current UseCase is kept as current and added to the Domain which is set to 'current'")
+        Then("current UseCase is added to the Domain which is set to 'current'")
         val secondUseCase =
           UseCase("Accountant", Goal("close", Some(ActionObject(NameGroup(Determinant.an, "Accounting Month")))))
         val definedDomain =
@@ -65,7 +72,8 @@ class DefineAUseCaseSpec
         assert(modellingStateWithDomain.models.isEmpty)
         assert(modellingStateWithDomain.currentModel.isEmpty)
         assert(modellingStateWithDomain.currentDomain === Some(definedDomain))
-        assert(modellingStateWithDomain.currentUseCase === Some(definedUseCase))
+        assert(modellingStateWithDomain.currentUseCase === Some(secondUseCase))
+        assert(modellingStateWithDomain.currentInteraction.isEmpty)
         assert(modellingStateWithDomain.currentEntity.isEmpty)
 
 
@@ -87,6 +95,7 @@ class DefineAUseCaseSpec
         assert(modellingStateWithMergedUseCase.currentModel.isEmpty)
         assert(modellingStateWithMergedUseCase.currentDomain === Some(domainWithMergedUseCase))
         assert(modellingStateWithMergedUseCase.currentUseCase === Some(mergedUseCase))
+        assert(modellingStateWithMergedUseCase.currentInteraction === Some(definedInteraction))
         assert(modellingStateWithMergedUseCase.currentEntity.isEmpty)
       }
     }

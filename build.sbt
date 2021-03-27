@@ -75,7 +75,8 @@ lazy val `ez-commons` =
   project.in(file("ez-commons"))
     .settings(
       Common.defaultSettings ++ Seq(
-        libraryDependencies += Dependencies.`ez-logging`
+        libraryDependencies += Dependencies.`ez-logging`,
+        libraryDependencies += Dependencies.`cats-core`
       ): _*
     )
     .disablePlugins(sbtassembly.AssemblyPlugin)
@@ -96,7 +97,7 @@ lazy val `ezmodel-core` =
     .settings(
       Common.defaultSettings ++ Seq(
         libraryDependencies ++= Dependencies.`cats-minimal`,
-        libraryDependencies += Dependencies.`ez-logging`
+        libraryDependencies += Dependencies.`ez-logging` % sbt.Test
       ): _*
     )
     .disablePlugins(sbtassembly.AssemblyPlugin)

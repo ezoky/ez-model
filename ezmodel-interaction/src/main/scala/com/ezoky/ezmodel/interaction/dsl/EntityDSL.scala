@@ -11,21 +11,24 @@ trait EntityDSL
   extends NaturalIdDSL {
 
   // Entity State
-  implicit def stringState(qualifier: String): StateName =
+  implicit def stringToState(qualifier: String): StateName =
     StateName(Qualifier(qualifier))
 
   implicit class EntityStateHelper(entityName: String) {
 
     def is(stateName: String): EntityState =
       EntityState(Entity(Name(entityName)), StateName(Qualifier(stateName)))
+
+    def are(stateName: String): EntityState =
+      EntityState(Entity(Name(entityName)), StateName(Qualifier(stateName)))
   }
 
   // Entities
-  implicit def stringEntity(name: String): Entity =
+  implicit def stringToEntity(name: String): Entity =
     Entity(Name(name))
 
-  def theEntity(name: String): Entity =
-    Entity(Name(name))
+  def theEntity(entity: Entity): Entity =
+    entity
 
 
   implicit class EntityHelper(entity: Entity)
@@ -111,6 +114,8 @@ trait EntityDSL
       toEntity
   }
 
+  implicit def fluentReferenceToEntity[T <: FluentReference[T]](fluentReference: FluentReference[T]): Entity =
+    fluentReference.currentEntity
 
   object FluentMultiplicity {
     def apply[T](t: T,
@@ -188,9 +193,6 @@ trait EntityDSL
       copy(attributeName = newName)
   }
 
-  implicit def attributeReferenceToEntity(attributeReference: AttributeReference): Entity =
-    attributeReference.currentEntity
-
 
   // Reference Fluent DSL
   case class EntityReference(root: Entity,
@@ -213,9 +215,6 @@ trait EntityDSL
       copy(name = Some(referenceName))
   }
 
-  implicit def unnamedReferenceToEntity(unnamedReference: EntityReference): Entity =
-    unnamedReference.currentEntity
-
 
   // Aggregate Fluent DSL
   case class AggregateReference(root: Entity,
@@ -237,7 +236,4 @@ trait EntityDSL
     def as(aggregateName: Name): AggregateReference =
       copy(name = Some(aggregateName))
   }
-
-  implicit def unnamedAggregateToEntity(unnamedAggregate: AggregateReference): Entity =
-    unnamedAggregate.currentEntity
 }

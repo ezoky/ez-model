@@ -24,6 +24,13 @@ trait StateTransitionInterpreters
   implicit val defineUseCaseInterpreter: StateTransitionInterpreter[ModellingState, DefineAUseCase] =
     StateTransitionInterpreter.define(state => command => state.setCurrentUseCase(command.useCase))
 
+  implicit val defineInteractionInterpreter: StateTransitionInterpreter[ModellingState, DefineAnInteraction] =
+    StateTransitionInterpreter.define(state => command => state.setCurrentInteraction(command.interaction))
+
   implicit val defineEntityInterpreter: StateTransitionInterpreter[ModellingState, DefineAnEntity] =
     StateTransitionInterpreter.define(state => command => state.setCurrentEntity(command.entity))
+
+  implicit val describeInteractionInterpreter: StateTransitionInterpreter[ModellingState, DescribeAnInteraction] =
+    StateTransitionInterpreter.define(state => command => state.setCurrentInteractionDescriptor(command
+      .interactionDescriptor))
 }

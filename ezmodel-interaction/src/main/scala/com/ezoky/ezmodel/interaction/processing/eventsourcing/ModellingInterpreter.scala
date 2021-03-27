@@ -26,6 +26,8 @@ trait ModellingEvents {
 
   case class UseCaseDefined(useCase: UseCase)
 
+  case class InteractionDefined(interaction: Interaction)
+
   case class EntityDefined(entity: Entity)
 
 }
@@ -57,6 +59,11 @@ trait PublishedModellingEvents {
                                                 inDomain: Option[DID],
                                                 useCase: UseCase)
 
+  case class InteractionDefinedByModeller[MID, DID, UCID](inModel: Option[MID],
+                                                          inDomain: Option[DID],
+                                                          inUseCase: Option[UCID],
+                                                          interaction: Interaction)
+
   case class EntityDefinedByModeller[MID, DID](inModel: Option[MID],
                                                inDomain: Option[DID],
                                                entity: Entity)
@@ -87,7 +94,13 @@ trait EventSourcingInterpreters
       (state, event: UseCaseDefined) => state.setCurrentUseCase(event.useCase)
     )
 
-  implicit def defineEntityInterpreter: EventSourcer[ModellingState, DefineAnEntity, EntityDefined, EntityDefinedByModeller[_, _]] =
+  implicit val defineInteractionInterpreter: EventSourcer[ModellingState, DefineAnInteraction, InteractionDefined, InteractionDefinedByModeller[_, _, _]] =
+    EventSourcer.define(
+      _ => command => InteractionDefined(command.interaction),
+      (state, event: InteractionDefined) => state.setCurrentInteraction(event.interaction)
+    )
+
+  implicit val defineEntityInterpreter: EventSourcer[ModellingState, DefineAnEntity, EntityDefined, EntityDefinedByModeller[_, _]] =
     EventSourcer.define(
       _ => command => EntityDefined(command.entity),
       (state, event: EntityDefined) => state.setCurrentEntity(event.entity)
@@ -105,8 +118,8 @@ trait Publishers
       (_, event) => Some(ModelDefinedByModeller(event.model))
     )
 
-  implicit def defineDomainPublisher[MId <: ModelId](implicit
-                                                     modelId: MId): Publisher[ModellingState, DefineADomain, DomainDefinedByModeller[modelId.IdType]] =
+  implicit def defineDomainPublisher(implicit
+                                     modelId: ModelId): Publisher[ModellingState, DefineADomain, DomainDefinedByModeller[modelId.IdType]] =
     Publisher.define(
       (state, event) =>
         Some(
@@ -117,9 +130,9 @@ trait Publishers
         )
     )
 
-  implicit def defineUseCasePublisher[MId <: ModelId, DId <: DomainId](implicit
-                                                                       modelId: ModelId,
-                                                                       domainId: DomainId): Publisher[ModellingState, DefineAUseCase, UseCaseDefinedByModeller[modelId.IdType, domainId.IdType]] =
+  implicit def defineUseCasePublisher(implicit
+                                      modelId: ModelId,
+                                      domainId: DomainId): Publisher[ModellingState, DefineAUseCase, UseCaseDefinedByModeller[modelId.IdType, domainId.IdType]] =
     Publisher.define(
       (state, event) =>
         Some(
@@ -131,9 +144,25 @@ trait Publishers
         )
     )
 
-  implicit def defineEntityPublisher[MId <: ModelId, DId <: DomainId](implicit
-                                                                      modelId: ModelId,
-                                                                      domainId: DomainId): Publisher[ModellingState, DefineAnEntity, EntityDefinedByModeller[modelId.IdType, domainId.IdType]] =
+  implicit def defineInteractionPublisher(implicit
+                                          modelId: ModelId,
+                                          domainId: DomainId,
+                                          useCaseId: UseCaseId): Publisher[ModellingState, DefineAnInteraction, InteractionDefinedByModeller[modelId.IdType, domainId.IdType, useCaseId.IdType]] =
+    Publisher.define(
+      (state, event) =>
+        Some(
+          InteractionDefinedByModeller(
+            state.currentModel.map(m => modelId(m)),
+            state.currentDomain.map(d => domainId(d)),
+            state.currentUseCase.map(uc => useCaseId(uc)),
+            event.interaction
+          )
+        )
+    )
+
+  implicit def defineEntityPublisher(implicit
+                                     modelId: ModelId,
+                                     domainId: DomainId): Publisher[ModellingState, DefineAnEntity, EntityDefinedByModeller[modelId.IdType, domainId.IdType]] =
     Publisher.define(
       (state, event) =>
         Some(

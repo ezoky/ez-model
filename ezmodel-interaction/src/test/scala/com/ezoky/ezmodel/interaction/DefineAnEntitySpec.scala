@@ -64,7 +64,7 @@ class DefineAnEntitySpec
         assert(modellingStateWithDomain.currentModel.isEmpty)
         assert(modellingStateWithDomain.currentDomain === Some(definedDomain))
         assert(modellingStateWithDomain.currentUseCase.isEmpty)
-        assert(modellingStateWithDomain.currentEntity === Some(definedEntity))
+        assert(modellingStateWithDomain.currentEntity === Some(definedEntity2))
 
 
         When("the Modeller works on an already existing Entity")

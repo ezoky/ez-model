@@ -11,12 +11,12 @@ trait NaturalIds
     * Type class.
     *
     * The `NaturalId` of an item provides a way to identify (name) an item.
-    * This Id should be unique in the context of the aggregate it is related to since this Id might be used to used as
+    * This Id should be unique in the context of the aggregate it is related to since this Id might be used as
     * a unique key in Maps.
     *
     * @tparam T
     */
-  trait NaturalId[T] {
+  trait NaturalId[-T] {
 
     type IdType
 
@@ -40,13 +40,15 @@ trait NaturalIds
       implicitly[NaturalId[T]]
   }
 
-  class NaturalIdentifiedHelper[T: NaturalId](t: T) {
+  implicit class NaturalIdentifiedHelper[T: NaturalId](t: T) {
 
-    def naturalId: NaturalId[T]#IdType =
-      NaturalId[T].apply(t)
+    lazy val id: NaturalId[T] = NaturalId[T]
+
+    def naturalId: id.IdType =
+      id(t)
 
     def hasSameNaturalId(other: T): Boolean =
-      naturalId == NaturalId[T].apply(other)
+      naturalId == id(other)
   }
 
   type NaturalMap[I <: NaturalId[T], T] = Map[I#IdType, T]

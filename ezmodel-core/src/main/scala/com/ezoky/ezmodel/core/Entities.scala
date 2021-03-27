@@ -1,6 +1,7 @@
 package com.ezoky.ezmodel.core
 
 import com.ezoky.commons.NaturalIds
+import com.ezoky.ezmodel.core.requirements.Atoms
 
 import scala.collection.SortedSet
 

@@ -4,19 +4,24 @@ import com.ezoky.commons.NaturalIds
 
 
 private[core] trait Domains
-  extends Atoms
-    with UseCases
+  extends requirements.Models
+    with interactions.Models
     with Entities
-    with NaturalIds{
+    with NaturalIds {
 
   case class Domain(name: Name,
                     useCases: UseCaseMap = UseCaseMap.empty,
-                    entities: EntityMap = EntityMap.empty)
+                    entities: EntityMap = EntityMap.empty,
+                    interactionDescriptors: AnyInteractionDescriptorMap = AnyInteractionDescriptorMap.empty)
                    (implicit
                     useCaseId: UseCaseId,
                     entityId: EntityId,
+                    interactionDescriptorId: AnyInteractionDescriptorId,
                     entityMerger: Merger[Entity],
-                    useCaseMerger: Merger[UseCase]) {
+                    useCaseMerger: Merger[UseCase],
+                    interactionDescriptorMerger: Merger[AnyInteractionDescriptor]) {
+
+//    type InteractionDescriptorType =
 
     def ownsUseCase(useCase: UseCase): Boolean =
       useCases.owns(useCase)
@@ -35,6 +40,15 @@ private[core] trait Domains
 
     def mergeEntity(entity: Entity): Domain =
       copy(entities = entities.merge(entity))
+
+    def ownsInteractionDescriptor(interactionDescriptor: AnyInteractionDescriptor): Boolean =
+      interactionDescriptors.owns(interactionDescriptor)
+
+    def withInteractionDescriptor(interactionDescriptor: AnyInteractionDescriptor): Domain =
+      copy(interactionDescriptors = interactionDescriptors.add(interactionDescriptor))
+
+    def mergeInteractionDescriptor(interactionDescriptor: AnyInteractionDescriptor): Domain =
+      copy(interactionDescriptors = interactionDescriptors.merge(interactionDescriptor))
   }
 
   object Domain {
@@ -42,8 +56,10 @@ private[core] trait Domains
              (implicit
               useCaseId: UseCaseId,
               entityId: EntityId,
+              interactionDescriptorId: AnyInteractionDescriptorId,
               entityMerger: Merger[Entity],
-              useCaseMerger: Merger[UseCase]): Domain =
+              useCaseMerger: Merger[UseCase],
+              interactionDescriptorMerger: Merger[AnyInteractionDescriptor]): Domain =
       Domain(DefaultName)
   }
 

@@ -1,5 +1,9 @@
 package com.ezoky.ezmodel.core
 
+import com.ezoky.commons.NaturalIds
+import com.ezoky.ezmodel.core.interactions.Descriptors
+import com.ezoky.ezmodel.core.requirements.UseCases
+
 /**
   * Some common type classes (see [[com.ezoky.ezmodel.core.StandardTypeClasses]]) are provided for default
   * usage.
@@ -28,6 +32,7 @@ trait StandardTypeClasses
 trait StandardModel
   extends Models
     with StandardDomain {
+
   implicit val ModelNaturalId: NaturalId[Model] =
     NaturalId.define(_.name)
 
@@ -43,17 +48,19 @@ trait StandardModel
 trait StandardDomain
   extends Domains
     with StandardEntity
-    with StandardUseCase {
+    with StandardUseCase
+    with StandardDescriptors {
 
   implicit val DomainNaturalId: NaturalId[Domain] =
     NaturalId.define(_.name)
 
   implicit val DomainMerger: Merger[Domain] =
-    Merger.define( (domain1, domain2) =>
+    Merger.define((domain1, domain2) =>
       domain1.copy(
         name = domain2.name,
         useCases = domain1.useCases.mergeWith(domain2.useCases),
-        entities = domain1.entities.mergeWith(domain2.entities)
+        entities = domain1.entities.mergeWith(domain2.entities),
+        interactionDescriptors = domain1.interactionDescriptors.mergeWith(domain2.interactionDescriptors)
       )
     )
 }
@@ -122,7 +129,7 @@ trait StandardEntity
 
 trait StandardUseCase
   extends UseCases
-  with StandardEntity {
+    with StandardEntity {
 
   implicit val ActorNaturalId: NaturalId[Actor] =
     NaturalId.define(_.name)
@@ -133,6 +140,19 @@ trait StandardUseCase
         (actionObject.nameGroup.determinant, actionObject.nameGroup.name)
       })
     }
+
+  implicit val InteractionNaturalId: NaturalId[Interaction] =
+    NaturalId.define { interaction =>
+      (interaction.action.verb, interaction.actionObject.map { actionObject =>
+        (actionObject.nameGroup.determinant, actionObject.nameGroup.name)
+      })
+    }
+
+  implicit val InteractionMerger: Merger[Interaction] =
+    Merger.define((_, interaction2) =>
+      interaction2
+    )
+
 
   implicit def UseCaseNaturalId(implicit
                                 actorId: NaturalId[Actor],
@@ -146,6 +166,7 @@ trait StandardUseCase
       t1.copy(
         actor = t2.actor,
         goal = t2.goal,
+        interaction = t1.interaction.mergeWith(t2.interaction),
         constraints = t2.constraints.foldLeft(t1.constraints) {
           case (map, (constraintType, entityStateMap)) =>
             map + (constraintType -> map.get(constraintType).fold(entityStateMap)(existingEntityStateMap =>
@@ -154,4 +175,16 @@ trait StandardUseCase
         }
       )
     )
+}
+
+
+trait StandardDescriptors
+  extends Descriptors
+    with NaturalIds {
+
+  implicit val AnyInteractionDescriptorNaturalId: NaturalId[AnyInteractionDescriptor] =
+    NaturalId.define(_.name)
+
+  implicit val AnyInteractionDescriptorMerger: Merger[AnyInteractionDescriptor] =
+    Merger.define((_, descriptor2) => descriptor2)
 }

@@ -7,22 +7,31 @@ import com.ezoky.ezmodel.core.Models._
   * @since 0.2.0
   */
 trait UseCaseDSL
-  extends NaturalIdDSL {
+  extends NaturalIdDSL
+    with MergerDSL {
 
-  implicit def implicitUseCase2(useCase: (String, String)): UseCase =
+  /**
+    * One single implicit with following signature should be needed:
+    * {{{def implicitTupleToUseCase(useCase: (Actor, NameGroup)): UseCase}}}
+    * But implicit mechanism does not work well ont Tuples.
+    */
+  implicit def convertTupleToUseCase2(useCase: (String, String)): UseCase =
     UseCase(
       Actor(Name(useCase._1)),
       Goal(Action(Verb(useCase._2)))
     )
 
-  implicit def implicitUseCase3(useCase: (String, Goal)): UseCase =
+  /**
+    * required because implicit mechanism does not work well ont Tuples
+    */
+  implicit def convertTupleToUseCase3(useCase: (String, ActionGroup)): UseCase =
     UseCase(
       Actor(Name(useCase._1)),
       useCase._2
     )
 
   // Actor
-  implicit def stringActor(name: String): Actor =
+  implicit def convertStringToActor(name: String): Actor =
     Actor(Name(name))
 
   def asA(name: Name): Actor = Actor(name)
@@ -31,63 +40,73 @@ trait UseCaseDSL
 
   implicit class ActorHelper(actor: Actor) {
 
-    def iWantTo(goal: Goal): UseCase =
+    def inOrderTo(goal: Goal): UseCase =
       UseCase(actor, goal)
 
     // non transitive Action
-    def iWantTo(action: Action): UseCase =
+    def inOrderTo(action: Action): UseCase =
       UseCase(actor, Goal(action, None))
 
     // transitive Action
-    def iWantTo(action: Action,
-                actionObject: ActionObject): UseCase =
+    def inOrderTo(action: Action,
+                  actionObject: ActionObject): UseCase =
       UseCase(actor, Goal(action, Some(actionObject)))
 
     // transitive Action made simple
-    def iWantTo(action: Action,
-                determinant: Determinant,
-                name: Name): UseCase =
+    def inOrderTo(action: Action,
+                  determinant: Determinant,
+                  name: Name): UseCase =
       UseCase(actor, Goal(action, Some(ActionObject(NameGroup(determinant, name)))))
   }
 
   // Action
-  implicit def stringToAction(verb: String): Action =
+  implicit def convertStringToAction(verb: String): Action =
     Action(Verb(verb))
 
 
   // Action Object
-  implicit def nameGroupToActionObject(nameGroup: NameGroup): ActionObject =
+  implicit def convertNameGroupToActionObject(nameGroup: NameGroup): ActionObject =
     ActionObject(nameGroup)
 
-  implicit def determinantAndNameToActionObject(nameGroup: (Determinant, Name)): ActionObject =
+  implicit def convertDeterminantAndNameToActionObject(nameGroup: (Determinant, Name)): ActionObject =
     ActionObject(NameGroup(nameGroup._1, nameGroup._2))
 
-  implicit def determinantAndStringToActionObject(nameGroup: (Determinant, String)): ActionObject =
+  implicit def convertDeterminantAndStringToActionObject(nameGroup: (Determinant, String)): ActionObject =
     ActionObject(NameGroup(nameGroup._1, Name(nameGroup._2)))
 
-  implicit def stringToActionObject(nameGroup: String): ActionObject =
+  implicit def convertStringToActionObject(nameGroup: String): ActionObject =
     ActionObject(NameGroup(Determinant.the, Name(nameGroup)))
 
+
+  case class ActionGroup(action: Action, actionObject: ActionObject)
+
+  implicit def convertActionGroupToGoal(actionGroup: ActionGroup): Goal =
+    Goal(actionGroup.action, Some(actionGroup.actionObject))
+
+  implicit def convertActionGroupToInteraction(actionGroup: ActionGroup): Interaction =
+    Interaction(actionGroup.action, Some(actionGroup.actionObject))
+
   /**
-    * Alows Goals constructs like `("invoice" a "customer")`
+    * Allows ActionGroup constructs like `("invoice" a "customer")`
     */
-  implicit class GoalStringHelper(verb: String) {
+  implicit class ActionGroupStringHelper(verb: String) {
 
-    def a(name: Name): Goal = Goal(Action(Verb(verb)), Some(ActionObject(NameGroup(Determinant.a, name))))
+    def a(name: Name): ActionGroup = ActionGroup(Action(Verb(verb)), ActionObject(NameGroup(Determinant.a, name)))
 
-    def an(name: Name): Goal = Goal(Action(Verb(verb)), Some(ActionObject(NameGroup(Determinant.an, name))))
+    def an(name: Name): ActionGroup = ActionGroup(Action(Verb(verb)), ActionObject(NameGroup(Determinant.an, name)))
 
-    def the(name: Name): Goal = Goal(Action(Verb(verb)), Some(ActionObject(NameGroup(Determinant.the, name))))
+    def the(name: Name): ActionGroup = ActionGroup(Action(Verb(verb)), ActionObject(NameGroup(Determinant.the, name)))
 
-    def some(name: Name): Goal = Goal(Action(Verb(verb)), Some(ActionObject(NameGroup(Determinant.some, name))))
+    def some(name: Name): ActionGroup = ActionGroup(Action(Verb(verb)), ActionObject(NameGroup(Determinant.some, name)))
 
-    def any(name: Name): Goal = Goal(Action(Verb(verb)), Some(ActionObject(NameGroup(Determinant.any, name))))
+    def any(name: Name): ActionGroup = ActionGroup(Action(Verb(verb)), ActionObject(NameGroup(Determinant.any, name)))
 
-    def every(name: Name): Goal = Goal(Action(Verb(verb)), Some(ActionObject(NameGroup(Determinant.every, name))))
+    def every(name: Name): ActionGroup = ActionGroup(Action(Verb(verb)),
+      ActionObject(NameGroup(Determinant.every, name)))
 
-    def all(name: Name): Goal = Goal(Action(Verb(verb)), Some(ActionObject(NameGroup(Determinant.all, name))))
+    def all(name: Name): ActionGroup = ActionGroup(Action(Verb(verb)), ActionObject(NameGroup(Determinant.all, name)))
 
-    def few(name: Name): Goal = Goal(Action(Verb(verb)), Some(ActionObject(NameGroup(Determinant.few, name))))
+    def few(name: Name): ActionGroup = ActionGroup(Action(Verb(verb)), ActionObject(NameGroup(Determinant.few, name)))
   }
 
   // Use Case
@@ -105,5 +124,9 @@ trait UseCaseDSL
 
     def resultsIn(postCondition: EntityState): UseCase =
       resultingIn(postCondition)
+
+    def iWantTo(interaction: Interaction): UseCase =
+      useCase.withInteraction(interaction)
   }
+
 }

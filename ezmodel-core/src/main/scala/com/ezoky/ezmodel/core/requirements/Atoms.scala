@@ -1,5 +1,4 @@
-package com.ezoky.ezmodel.core
-
+package com.ezoky.ezmodel.core.requirements
 
 private[core] trait Atoms {
 
@@ -35,25 +34,25 @@ private[core] trait Atoms {
   case class Verb(verb: String)
 
 
-  abstract class Determinant(determinant: String)
+  case class Determinant(determinant: String)
 
   object Determinant {
 
-    case object a extends Determinant("a")
+    val a = Determinant("a")
 
-    case object an extends Determinant("an")
+    val an = Determinant("an")
 
-    case object the extends Determinant("the")
+    val the = Determinant("the")
 
-    case object some extends Determinant("some")
+    val some = Determinant("some")
 
-    case object any extends Determinant("any")
+    val any = Determinant("any")
 
-    case object every extends Determinant("every")
+    val every = Determinant("every")
 
-    case object all extends Determinant("all")
+    val all = Determinant("all")
 
-    case object few extends Determinant("few")
+    val few = Determinant("few")
 
   }
 

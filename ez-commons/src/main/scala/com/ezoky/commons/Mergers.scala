@@ -15,7 +15,7 @@ trait Mergers {
   }
 
   object Merger {
-    
+
     def define[T](merge: (T, T) => T): Merger[T] =
       (t1: T, t2: T) => merge(t1, t2)
 
@@ -28,4 +28,9 @@ trait Mergers {
     def mergeWith(other: T): T =
       Merger[T].merge(t, other)
   }
+
+  implicit def OptionMerger[T: Merger]: Merger[Option[T]] =
+    Merger.define((opt1, opt2) =>
+      opt1.fold(opt2)(t1 => opt2.fold(Some(t1))(t2 => Some(t1.mergeWith(t2))))
+    )
 }

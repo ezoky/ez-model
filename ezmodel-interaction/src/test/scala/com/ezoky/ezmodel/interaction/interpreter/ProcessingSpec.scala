@@ -22,11 +22,11 @@ class ProcessingSpec
 
 
       And("a modelling syntax")
-      case object iWantToAddOne
-      case object iWantToAddTwo
-      case object iWantToAddThree
-      case object iWantToSubtractOne
-      case class iWantToMultiplyBy(mul: Int)
+      case object inOrderToToAddOne
+      case object inOrderToAddTwo
+      case object inOrderToAddThree
+      case object inOrderToSubtractOne
+      case class inOrderToMultiplyBy(mul: Int)
 
 
       And("a set of statements")
@@ -36,17 +36,17 @@ class ProcessingSpec
 
 
       And("some parsing directives")
-      implicit val addOneParser: Parser[iWantToAddOne.type, Add] =
+      implicit val addOneParser: Parser[inOrderToToAddOne.type, Add] =
         Parser.define(_ => Statement(Add(1)))
-      implicit val addTwoParser: Parser[iWantToAddTwo.type, Add] =
+      implicit val addTwoParser: Parser[inOrderToAddTwo.type, Add] =
         Parser.define(_ => Statement(Add(2)))
-      implicit val addThreeParser: Parser[iWantToAddThree.type, Add] =
+      implicit val addThreeParser: Parser[inOrderToAddThree.type, Add] =
         Parser.define(_ => Statement(Add(3)))
 
-      implicit val subParser: Parser[iWantToSubtractOne.type, Subtract] =
+      implicit val subParser: Parser[inOrderToSubtractOne.type, Subtract] =
         Parser.define(_ => Statement(Subtract(1)))
 
-      implicit val mulParser: Parser[iWantToMultiplyBy, Multiply] =
+      implicit val mulParser: Parser[inOrderToMultiplyBy, Multiply] =
         Parser.define(s => Statement(Multiply(s.mul)))
 
 
@@ -62,7 +62,7 @@ class ProcessingSpec
 
 
       When("i say something")
-      val whatISay = Say(iWantToAddOne, iWantToAddTwo, iWantToAddThree, iWantToSubtractOne, iWantToMultiplyBy(7))
+      val whatISay = Say(inOrderToToAddOne, inOrderToAddTwo, inOrderToAddThree, inOrderToSubtractOne, inOrderToMultiplyBy(7))
 
 
       Then("the processor can understand it, compiles int and changes its state accordingly")
