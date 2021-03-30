@@ -1,10 +1,10 @@
-package com.ezoky.ezmodel.interaction.interpreter
+package com.ezoky.ezinterpreter
 
 /**
   * @author gweinbach on 21/02/2021
   * @since 0.2.0
   */
-private[interaction] trait Processing
+trait Processing
   extends Interpreting {
 
   trait Processor[S, U, F[_]] {

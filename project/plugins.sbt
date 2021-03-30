@@ -8,6 +8,9 @@ addSbtPlugin("com.typesafe.sbt" % "sbt-git" % "1.0.0")
 // The Play plugin
 addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.7.5")
 
+// The Lagom plugin
+addSbtPlugin("com.lightbend.lagom" % "lagom-sbt-plugin" % "1.6.4")
+
 // Scalafix plugin
 addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.9.26")
 

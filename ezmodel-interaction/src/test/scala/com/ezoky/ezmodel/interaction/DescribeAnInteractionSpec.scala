@@ -1,6 +1,5 @@
 package com.ezoky.ezmodel.interaction
 
-import com.ezoky.ezmodel.core.Models
 import com.ezoky.ezmodel.core.Models._
 import com.ezoky.ezmodel.interaction.dsl.DSL._
 import org.scalatest.GivenWhenThen

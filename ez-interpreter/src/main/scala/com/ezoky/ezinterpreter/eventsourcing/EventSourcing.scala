@@ -1,6 +1,6 @@
-package com.ezoky.ezmodel.interaction.interpreter.eventsourcing
+package com.ezoky.ezinterpreter.eventsourcing
 
-import com.ezoky.ezmodel.interaction.interpreter.Interpreting
+import com.ezoky.ezinterpreter.Interpreting
 import shapeless._
 
 /**

@@ -1,4 +1,4 @@
-package com.ezoky.ezmodel.interaction.interpreter.eventsourcing
+package com.ezoky.ezinterpreter.eventsourcing
 
 /**
   * @author gweinbach on 07/03/2021

@@ -1,11 +1,11 @@
-package com.ezoky.ezmodel.interaction.interpreter
+package com.ezoky.ezinterpreter
 
-import shapeless._
+import shapeless.{::, HList, HNil}
 
 /**
   * ..and then interpreted in terms of state change
   */
-private[interaction] trait Interpreting
+trait Interpreting
   extends Parsing {
 
   /**

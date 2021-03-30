@@ -1,4 +1,4 @@
-package com.ezoky.ezmodel.interaction.interpreter
+package com.ezoky.ezinterpreter
 
 import org.scalatest.GivenWhenThen
 import org.scalatest.wordspec.AnyWordSpec

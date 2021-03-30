@@ -1,15 +1,11 @@
-package com.ezoky.ezmodel.interaction.interpreter
+package com.ezoky.ezinterpreter
 
 import shapeless.{::, HList, HNil}
 
 /**
-  * @author gweinbach on 21/02/2021
-  * @since 0.2.0
-  */
-/**
   * ...will be parsed into statements...
   */
-private[interaction] trait Parsing
+trait Parsing
   extends Saying {
 
   case class Statement[+S](stated: S) {
@@ -52,5 +48,5 @@ private[interaction] trait Parsing
   implicit def hListParser[H, T <: HList, SH, ST <: HList](implicit
                                                            parserH: Parser[H, SH],
                                                            parserT: Parser[T, ST]): Parser[H :: T, SH :: ST] =
-    Parser.define(hList =>  parserH.parse(hList.head).combine(parserT.parse(hList.tail)))
+    Parser.define(hList => parserH.parse(hList.head).combine(parserT.parse(hList.tail)))
 }

@@ -1,7 +1,7 @@
 package com.ezoky.ezmodel.interaction.processing
 
+import com.ezoky.ezinterpreter.Parsing
 import com.ezoky.ezmodel.core.Models._
-import com.ezoky.ezmodel.interaction.interpreter.Parsing
 
 /**
   * @author gweinbach on 07/03/2021

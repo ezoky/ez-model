@@ -1,6 +1,6 @@
 package com.ezoky.ezmodel.interaction
 
-import com.ezoky.ezmodel.interaction.interpreter.Processing
+import com.ezoky.ezinterpreter.Processing
 import com.ezoky.ezmodel.interaction.processing.{ModellingSyntax, simple}
 
 /**

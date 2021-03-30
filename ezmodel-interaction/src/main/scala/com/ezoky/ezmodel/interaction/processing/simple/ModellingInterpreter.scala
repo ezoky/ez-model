@@ -1,7 +1,7 @@
 package com.ezoky.ezmodel.interaction.processing.simple
 
+import com.ezoky.ezinterpreter.Interpreting
 import com.ezoky.ezmodel.interaction.ModellingState
-import com.ezoky.ezmodel.interaction.interpreter.Interpreting
 import com.ezoky.ezmodel.interaction.processing.ModellingCommands
 
 /**

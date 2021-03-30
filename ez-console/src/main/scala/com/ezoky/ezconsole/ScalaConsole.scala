@@ -126,7 +126,7 @@ class ScalaConsole[S: TypeTag : ClassTag](module: ConsoleModule[S]) {
                 }
                 processed <- tryInterpret(
                   s"""{
-                     |  ${ScalaConsole.ModuleStateVariableName} = Processor(${ScalaConsole.ModuleStateVariableName}).process(Say($fullCode)).state
+                     |  ${ScalaConsole.ModuleStateVariableName} = StateProcessor(${ScalaConsole.ModuleStateVariableName}).process(Say($fullCode)).state
                      |  println()
                      |  println(${ScalaConsole.ModuleStateVariableName})
                      |}

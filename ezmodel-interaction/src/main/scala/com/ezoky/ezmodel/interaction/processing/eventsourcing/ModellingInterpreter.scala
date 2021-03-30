@@ -2,7 +2,7 @@ package com.ezoky.ezmodel.interaction.processing.eventsourcing
 
 import com.ezoky.ezmodel.core.Models._
 import com.ezoky.ezmodel.interaction.ModellingState
-import com.ezoky.ezmodel.interaction.interpreter.eventsourcing.{EventSourcing, Publishing}
+import com.ezoky.ezinterpreter.eventsourcing.{EventSourcing, Publishing}
 import com.ezoky.ezmodel.interaction.processing.ModellingSyntax
 
 /**
@@ -29,6 +29,8 @@ trait ModellingEvents {
   case class InteractionDefined(interaction: Interaction)
 
   case class EntityDefined(entity: Entity)
+
+  case class InteractionDescribed(interactionDescriptor: AnyInteractionDescriptor)
 
 }
 
@@ -68,6 +70,10 @@ trait PublishedModellingEvents {
                                                inDomain: Option[DID],
                                                entity: Entity)
 
+  case class InteractionDescribedByModeller[MID, DID](inModel: Option[MID],
+                                                      inDomain: Option[DID],
+                                                      interactionDescriptor: AnyInteractionDescriptor)
+
 }
 
 trait EventSourcingInterpreters
@@ -104,6 +110,12 @@ trait EventSourcingInterpreters
     EventSourcer.define(
       _ => command => EntityDefined(command.entity),
       (state, event: EntityDefined) => state.setCurrentEntity(event.entity)
+    )
+
+  implicit val describeInteractionInterpreter: EventSourcer[ModellingState, DescribeAnInteraction, InteractionDescribed, InteractionDescribedByModeller[_, _]] =
+    EventSourcer.define(
+      _ => command => InteractionDescribed(command.interactionDescriptor),
+      (state, event: InteractionDescribed) => state.setCurrentInteractionDescriptor(event.interactionDescriptor)
     )
 
 }
@@ -170,6 +182,20 @@ trait Publishers
             state.currentModel.map(m => modelId(m)),
             state.currentDomain.map(d => domainId(d)),
             event.entity
+          )
+        )
+    )
+
+  implicit def describeInteractionPublisher(implicit
+                                            modelId: ModelId,
+                                            domainId: DomainId): Publisher[ModellingState, DescribeAnInteraction, InteractionDescribedByModeller[modelId.IdType, domainId.IdType]] =
+    Publisher.define(
+      (state, event) =>
+        Some(
+          InteractionDescribedByModeller(
+            state.currentModel.map(m => modelId(m)),
+            state.currentDomain.map(d => domainId(d)),
+            event.interactionDescriptor
           )
         )
     )
