@@ -1,0 +1,30 @@
+<configuration debug="false" scan="true">
+
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <!--
+      non verbose
+      -->
+      <pattern>%d{HH:mm:ss.SSS} EZ dev %highlight([%level]) %logger{36} - %msg%n</pattern>
+      <!--
+      verbose
+                  <pattern>%d{HH:mm:ss.SSS} EZ dev [%-5level] [%thread] %logger{36} - %msg%n</pattern>
+      -->
+    </encoder>
+  </appender>
+
+  <!-- appender name="FILE" class="ch.qos.logback.core.FileAppender">
+      <file>test.log</file>
+      <append>true</append>
+      <encoder>
+          <pattern>%d{HH:mm:ss.SSS} EZ dev [%-5level] [%thread] %logger{36} - %msg%n</pattern>
+      </encoder>
+  </appender -->
+
+  <logger name="com.ezoky.ezmodel.control" level="info"/>
+
+  <root level="warn">
+    <appender-ref ref="STDOUT"/>
+    <!--<appender-ref ref="FILE" />-->
+  </root>
+</configuration>

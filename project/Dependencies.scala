@@ -23,6 +23,8 @@ object Dependencies {
     val Kittens = "2.1.0"
     val Akka = "2.6.8"
     val Refined = "0.9.13"
+    val Quicklens = "1.6.1"
+
     val PlayJson = "2.7.4" // might be different from Play Version
     val Spark = "2.4.3"
 
@@ -138,7 +140,7 @@ object Dependencies {
   val `spark-sql` = "org.apache.spark" %% "spark-sql" % Versions.Spark
 
   // A comprehensive and dev friendly Lens library
-  val quicklens = "com.softwaremill.quicklens" %% "quicklens" % "1.4.12"
+  val quicklens = "com.softwaremill.quicklens" %% "quicklens" % Versions.Quicklens
 
   // better files: a dependency-free pragmatic thin Scala wrapper around Java NIO - https://github.com/pathikrit/better-files
   val `better-files` = "com.github.pathikrit" %% "better-files" % Versions.BetterFiles

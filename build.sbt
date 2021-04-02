@@ -59,8 +59,10 @@ lazy val `ezmodel` =
     .aggregate(
       `ez-commons`,
       `ez-console`,
+      `ez-interpreter`,
       `ezmodel-core`,
       `ezmodel-interaction`,
+      `ezmodel-control`,
       `ezmodel-console`
     )
     .settings(skip in publish := true)
@@ -118,6 +120,18 @@ lazy val `ezmodel-interaction` =
     .settings(
       Common.defaultSettings ++ Seq(
         libraryDependencies += Dependencies.shapeless
+      ): _*
+    )
+    .disablePlugins(sbtassembly.AssemblyPlugin)
+
+lazy val `ezmodel-control` =
+  project.in(file("ezmodel-control"))
+    .dependsOn(`ezmodel-core`)
+    .settings(
+      Common.defaultSettings ++ Seq(
+        libraryDependencies ++= Dependencies.`cats-minimal`,
+        libraryDependencies += Dependencies.shapeless,
+        libraryDependencies += Dependencies.quicklens
       ): _*
     )
     .disablePlugins(sbtassembly.AssemblyPlugin)
