@@ -9,7 +9,7 @@ import org.scalatest.funsuite.AnyFunSuite
 class PlantUMLRendererTest
   extends AnyFunSuite {
 
-  test("rendering a diagram") {
+  test("rendering a use case diagram") {
 
     val diagram = PlantUMLDiagram(
       packages = Set(
@@ -23,6 +23,9 @@ class PlantUMLRendererTest
               ),
               useCases = Set(
                 PlantUMLUseCase("Use case 1")
+              ),
+              relations = Set(
+                PlantUMLOrientedLink("Actor 1", "Use case 1")
               )
             )
           ),
@@ -39,6 +42,10 @@ class PlantUMLRendererTest
       useCases = Set(
         PlantUMLUseCase("Use case 1"),
         PlantUMLUseCase("Use case 2")
+      ),
+      relations = Set(
+        PlantUMLOrientedLink("Actor 2", "Use case 1"),
+        PlantUMLOrientedLink("Actor 2", "Use case 2")
       )
     )
 
@@ -48,6 +55,7 @@ class PlantUMLRendererTest
          |  package "package 1.1" {
          |    actor "Actor 1"
          |    usecase "Use case 1"
+         |    "Actor 1" --> "Use case 1"
          |  }
          |  actor "Actor 2"
          |}
@@ -58,6 +66,8 @@ class PlantUMLRendererTest
          |actor "Actor 3"
          |usecase "Use case 1"
          |usecase "Use case 2"
+         |"Actor 2" --> "Use case 1"
+         |"Actor 2" --> "Use case 2"
          |@enduml
          |""".stripMargin
 
