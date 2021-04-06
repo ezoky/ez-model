@@ -37,7 +37,7 @@ ThisBuild / scalacOptions ++= Seq(
   "-feature", // warns about misused language features
   "-Xlint", // enables handy linter warnings
   //  "-Xfatal-warnings", // turns compiler warnings into errors
-  //  "-Xlog-implicits", // adds extra info on implicits usage
+    "-Xlog-implicits", // adds extra info on implicits usage
 )
 
 // Enables SemanticDB compiler for Scalafix
@@ -62,6 +62,7 @@ lazy val `ezmodel` =
       `ez-interpreter`,
       `ezmodel-core`,
       `ezmodel-interaction`,
+      `ezmodel-plantuml`,
       `ezmodel-control`,
       `ezmodel-console`
     )
@@ -109,6 +110,16 @@ lazy val `ezmodel-core` =
       Common.defaultSettings ++ Seq(
         libraryDependencies ++= Dependencies.`cats-minimal`,
         libraryDependencies += Dependencies.`ez-logging` % sbt.Test
+      ): _*
+    )
+    .disablePlugins(sbtassembly.AssemblyPlugin)
+
+lazy val `ezmodel-plantuml` =
+  project.in(file("ezmodel-plantuml"))
+    .dependsOn(`ezmodel-core`)
+    .settings(
+      Common.defaultSettings ++ Seq(
+        libraryDependencies += Dependencies.shapeless
       ): _*
     )
     .disablePlugins(sbtassembly.AssemblyPlugin)
