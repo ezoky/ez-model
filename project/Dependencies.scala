@@ -45,6 +45,7 @@ object Dependencies {
     val Config = "1.3.4"
     val PdiJWT = "4.0.0"
     val Auth0 = "0.8.3"
+    val PlantUML = "8059"
 
     object Test {
       val SLF4J = "1.7.30"
@@ -151,6 +152,9 @@ object Dependencies {
 
   // Ammonite REPL, Scripts and Shell
   val `ammonite` = "com.lihaoyi" % "ammonite" % Versions.Ammonite cross CrossVersion.full
+
+  // PLantUML (beware of the fact license is GPL
+  val `plant-uml` = "net.sourceforge.plantuml" % "plantuml" % Versions.PlantUML
 
   // EZOKY
   val `ez-logging` = "com.ezoky" %% "ez-logging" % Versions.EzLogging

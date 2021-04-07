@@ -1,6 +1,6 @@
-package com.ezoky.ezmodel.plantuml
+package com.ezoky.ezplantuml
 
-import com.ezoky.ezmodel.plantuml.PlantUMLNode.PlantUMLNodeId
+import com.ezoky.ezplantuml.PlantUMLNode._
 
 /**
   * @author gweinbach on 05/04/2021
@@ -10,21 +10,73 @@ sealed trait PlantUML
 
 sealed trait PlantUMLContainer
   extends PlantUML {
+
   val packages: Set[PlantUMLPackage]
   val actors: Set[PlantUMLActor]
   val useCases: Set[PlantUMLUseCase]
+
+  lazy val allNodes: Set[PlantUMLNode] =
+    packages ++ actors ++ useCases
+
+  def nodeReferences(parentPath: List[PlantUMLContainer]): Map[PlantUMLReference, PlantUMLNode] = {
+    val path = parentPath :+ this
+    allNodes.foldLeft(
+      packages.foldLeft(Map.empty[PlantUMLReference, PlantUMLNode])((map, umlPackage) =>
+        map ++ umlPackage.nodeReferences(path)
+      )
+    )((map, umlNode) =>
+      map + (PlantUMLReference(path, umlNode) -> umlNode)
+    )
+  }
+
   val relations: Set[PlantUMLRelation]
+
+  val pathElementId: String
 }
 
 sealed trait PlantUMLNode
   extends PlantUML {
+
   val name: String
   val nodeType: PlantUMLNodeType
+
+  def reference(path: PlantUMLPath): PlantUMLReference =
+    PlantUMLReference(path, this)
+}
+
+case class PlantUMLReference(path: PlantUMLPath,
+                             element: PlantUML) {
+  override def toString: String =
+    path.id + "." + element
+}
+
+object PlantUMLReference {
+
+  implicit val PlantUMLReferenceOrdering: Ordering[PlantUMLReference] =
+    (x: PlantUMLReference, y: PlantUMLReference) =>
+      if (x.path.size == y.path.size) {
+        Ordering[String].compare(x.element.toString, y.element.toString)
+      }
+      else {
+        Ordering[Int].compare(x.path.size, y.path.size)
+      }
 }
 
 object PlantUMLNode {
 
-  implicit class PlantUMLNodeId(val id: String) extends AnyVal
+  val UnknownId: PlantUMLNodeId =
+    "<unknown id>"
+
+  implicit class PlantUMLNodeId(val id: String) extends AnyVal {
+    override def toString: String = id
+  }
+
+  type PlantUMLPath = List[PlantUMLContainer]
+
+  implicit class PlantUMLPathHelper(path: PlantUMLPath) {
+    def id: String =
+      path.foldLeft("")((s, container) => s + "." + container.pathElementId)
+  }
 
 }
 
@@ -58,8 +110,8 @@ object PlantUMLNodeType {
 
 sealed trait PlantUMLRelation
   extends PlantUML {
-  val srcNode: PlantUMLNodeId
-  val destNode: PlantUMLNodeId
+  val srcNode: PlantUMLNode
+  val destNode: PlantUMLNode
   val srcMultiplicity: Option[PlantUMLMultiplicity]
   val destMultiplicity: Option[PlantUMLMultiplicity]
   val oriented: Boolean
@@ -168,7 +220,9 @@ final case class PlantUMLDiagram(packages: Set[PlantUMLPackage] = Set.empty,
                                  actors: Set[PlantUMLActor] = Set.empty,
                                  useCases: Set[PlantUMLUseCase] = Set.empty,
                                  relations: Set[PlantUMLRelation] = Set.empty)
-  extends PlantUMLContainer
+  extends PlantUMLContainer {
+  override val pathElementId: String = "_root_"
+}
 
 final case class PlantUMLPackage(name: String,
                                  packages: Set[PlantUMLPackage] = Set.empty,
@@ -178,6 +232,7 @@ final case class PlantUMLPackage(name: String,
   extends PlantUMLContainer
     with PlantUMLNode {
   override val nodeType: PlantUMLNodeType = PlantUMLNodeType.Package
+  override val pathElementId: String = name
 }
 
 
@@ -196,8 +251,8 @@ final case class PlantUMLActor(name: String)
 
 // Relations
 
-final case class PlantUMLink(srcNode: PlantUMLNodeId,
-                             destNode: PlantUMLNodeId,
+final case class PlantUMLink(srcNode: PlantUMLNode,
+                             destNode: PlantUMLNode,
                              srcMultiplicity: Option[PlantUMLMultiplicity] = None,
                              destMultiplicity: Option[PlantUMLMultiplicity] = None,
                              dash: Boolean = false,
@@ -208,8 +263,8 @@ final case class PlantUMLink(srcNode: PlantUMLNodeId,
   override val oriented: Boolean = false
 }
 
-final case class PlantUMLOrientedLink(srcNode: PlantUMLNodeId,
-                                      destNode: PlantUMLNodeId,
+final case class PlantUMLOrientedLink(srcNode: PlantUMLNode,
+                                      destNode: PlantUMLNode,
                                       srcMultiplicity: Option[PlantUMLMultiplicity] = None,
                                       destMultiplicity: Option[PlantUMLMultiplicity] = None,
                                       dash: Boolean = false,
@@ -220,8 +275,8 @@ final case class PlantUMLOrientedLink(srcNode: PlantUMLNodeId,
   override val oriented: Boolean = true
 }
 
-final case class PlantUMLExtension(srcNode: PlantUMLNodeId,
-                                   destNode: PlantUMLNodeId,
+final case class PlantUMLExtension(srcNode: PlantUMLNode,
+                                   destNode: PlantUMLNode,
                                    srcMultiplicity: Option[PlantUMLMultiplicity] = None,
                                    destMultiplicity: Option[PlantUMLMultiplicity] = None,
                                    dash: Boolean = false,
@@ -232,8 +287,8 @@ final case class PlantUMLExtension(srcNode: PlantUMLNodeId,
   override val oriented: Boolean = false
 }
 
-final case class PlantUMLDependency(srcNode: PlantUMLNodeId,
-                                    destNode: PlantUMLNodeId,
+final case class PlantUMLDependency(srcNode: PlantUMLNode,
+                                    destNode: PlantUMLNode,
                                     srcMultiplicity: Option[PlantUMLMultiplicity] = None,
                                     destMultiplicity: Option[PlantUMLMultiplicity] = None,
                                     label: Option[String] = None,
@@ -250,8 +305,8 @@ final case class PlantUMLDependency(srcNode: PlantUMLNodeId,
   override val dash: Boolean = true
 }
 
-final case class PlantUMLComposition(srcNode: PlantUMLNodeId,
-                                     destNode: PlantUMLNodeId,
+final case class PlantUMLComposition(srcNode: PlantUMLNode,
+                                     destNode: PlantUMLNode,
                                      srcMultiplicity: Option[PlantUMLMultiplicity] = None,
                                      destMultiplicity: Option[PlantUMLMultiplicity] = None,
                                      dash: Boolean = false,
@@ -268,8 +323,8 @@ final case class PlantUMLComposition(srcNode: PlantUMLNodeId,
   override val shared: PlantUMLSharing = PlantUMLSharing.Composed
 }
 
-final case class PlantUMLAggregation(srcNode: PlantUMLNodeId,
-                                     destNode: PlantUMLNodeId,
+final case class PlantUMLAggregation(srcNode: PlantUMLNode,
+                                     destNode: PlantUMLNode,
                                      srcMultiplicity: Option[PlantUMLMultiplicity] = None,
                                      destMultiplicity: Option[PlantUMLMultiplicity] = None,
                                      dash: Boolean = false,

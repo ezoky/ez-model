@@ -60,6 +60,7 @@ lazy val `ezmodel` =
       `ez-commons`,
       `ez-console`,
       `ez-interpreter`,
+      `ez-plantuml`,
       `ezmodel-core`,
       `ezmodel-interaction`,
       `ezmodel-plantuml`,
@@ -103,6 +104,16 @@ lazy val `ez-interpreter` =
     )
     .disablePlugins(sbtassembly.AssemblyPlugin)
 
+lazy val `ez-plantuml` =
+  project.in(file("ez-plantuml"))
+    .settings(
+      Common.defaultSettings ++ Seq(
+        libraryDependencies += Dependencies.`ez-logging`,
+        libraryDependencies += Dependencies.`plant-uml`,
+      ): _*
+    )
+    .disablePlugins(sbtassembly.AssemblyPlugin)
+
 lazy val `ezmodel-core` =
   project.in(file("ezmodel-core"))
     .dependsOn(`ez-commons`)
@@ -116,6 +127,7 @@ lazy val `ezmodel-core` =
 
 lazy val `ezmodel-plantuml` =
   project.in(file("ezmodel-plantuml"))
+    .dependsOn(`ez-plantuml`)
     .dependsOn(`ezmodel-core`)
     .settings(
       Common.defaultSettings ++ Seq(
