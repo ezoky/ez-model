@@ -1,5 +1,6 @@
 package com.ezoky.ezmodel.core
 
+import com.ezoky.ezmodel.core.Models._
 import org.scalatest.funsuite.AnyFunSuite
 
 /**
@@ -17,7 +18,8 @@ class DomainTest
     val dom =
       Domain(Name("Driving"))
         .withUseCase(
-          UseCase(Actor(Name("Driver")), Goal(Action(Verb("change")), Some(ActionObject(NameGroup(Determinant.the, Name("Gear"))))))
+          UseCase(Actor(Name("Driver")),
+            Goal(Action(Verb("change")), Some(ActionObject(NameGroup(Determinant.the, Name("Gear"))))))
         )
         .withUseCase(
           UseCase(Actor(Name("Driver")), Goal(Action(Verb("brake"))))

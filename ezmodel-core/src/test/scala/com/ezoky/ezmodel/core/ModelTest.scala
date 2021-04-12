@@ -1,5 +1,6 @@
 package com.ezoky.ezmodel.core
 
+import com.ezoky.ezmodel.core.Models._
 import org.scalatest.funsuite.AnyFunSuite
 
 /**
@@ -8,7 +9,7 @@ import org.scalatest.funsuite.AnyFunSuite
   */
 class ModelTest
   extends AnyFunSuite
-    with StandardModels {
+    with StandardTypeClasses {
 
   test("A Model is a container for items partitioned into Domains") {
 

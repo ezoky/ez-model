@@ -1,5 +1,6 @@
 package com.ezoky.ezmodel.core
 
+import com.ezoky.ezmodel.core.Models._
 import org.scalatest.funsuite.AnyFunSuite
 
 class EntityTest
@@ -35,7 +36,7 @@ class EntityTest
     val minMax_1__3 = (0, 0)
     assert((range_1__3.min, range_1__3.max) === minMax_1__3)
   }
-  
+
   test("Entity elaboration") {
 
     val offre =
