@@ -1,6 +1,7 @@
 package com.ezoky.ezplantuml
 
 import com.ezoky.ezlogging.Safe
+import com.ezoky.ezplantuml.PlantUMLService.SVGString
 import net.sourceforge.plantuml.{FileFormat, FileFormatOption, SourceStringReader}
 
 /**
@@ -11,8 +12,17 @@ trait PlantUMLService {
 
   def diagramSource(diagram: PlantUMLDiagram): Option[String]
 
-  def diagramSVG(diagram: PlantUMLDiagram): Option[String]
+  def diagramSVG(diagram: PlantUMLDiagram): Option[SVGString]
 
+}
+
+object PlantUMLService {
+
+  case class SVGString(val svgString: String) extends AnyVal {
+
+    def map(f: String => String): SVGString =
+      SVGString(f(svgString))
+  }
 }
 
 trait SimplePlantUMLService
@@ -21,13 +31,13 @@ trait SimplePlantUMLService
   override def diagramSource(diagram: PlantUMLDiagram): Option[String] =
     Safe(diagram.render())
   
-  override def diagramSVG(diagram: PlantUMLDiagram): Option[String] =
+  override def diagramSVG(diagram: PlantUMLDiagram): Option[SVGString] =
     for {
       source <- diagramSource(diagram)
       svg <- sourceToSVG(source)
     } yield svg
 
-  private def sourceToSVG(diagramSource: String): Option[String] = {
+  private def sourceToSVG(diagramSource: String): Option[SVGString] = {
     import java.io.ByteArrayOutputStream
     import java.nio.charset.Charset
     for {
@@ -45,7 +55,7 @@ trait SimplePlantUMLService
       }
     } yield {
       outputStream.close()
-      svg
+      SVGString(svg)
     }
   }
 }

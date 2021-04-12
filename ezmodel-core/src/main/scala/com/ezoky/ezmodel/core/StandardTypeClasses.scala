@@ -1,8 +1,7 @@
 package com.ezoky.ezmodel.core
 
-import com.ezoky.commons.NaturalIds
-import com.ezoky.ezmodel.core.interactions.Descriptors
-import com.ezoky.ezmodel.core.requirements.UseCases
+
+import com.ezoky.ezmodel.core.Models._
 
 /**
   * Some common type classes (see [[com.ezoky.ezmodel.core.StandardTypeClasses]]) are provided for default
@@ -18,9 +17,8 @@ import com.ezoky.ezmodel.core.requirements.UseCases
   * @author gweinbach on 24/02/2021
   * @since 0.2.0
   */
-trait StandardModels
-  extends Models
-    with StandardTypeClasses
+object StandardTypeClasses
+  extends StandardTypeClasses
 
 trait StandardTypeClasses
   extends StandardModel
@@ -28,10 +26,8 @@ trait StandardTypeClasses
     with StandardUseCase
     with StandardEntity
 
-
-trait StandardModel
-  extends Models
-    with StandardDomain {
+private[core] trait StandardModel
+  extends StandardDomain {
 
   implicit val ModelNaturalId: NaturalId[Model] =
     NaturalId.define(_.name)
@@ -45,9 +41,8 @@ trait StandardModel
     )
 }
 
-trait StandardDomain
-  extends Domains
-    with StandardEntity
+private[core] trait StandardDomain
+  extends StandardEntity
     with StandardUseCase
     with StandardDescriptors {
 
@@ -65,8 +60,7 @@ trait StandardDomain
     )
 }
 
-trait StandardEntity
-  extends Entities {
+private[core] trait StandardEntity {
 
   implicit val AttributeNaturalId: NaturalId[Attribute] =
     NaturalId.define(_.name)
@@ -127,9 +121,8 @@ trait StandardEntity
     Merger.define { (t1, t2) => t2 }
 }
 
-trait StandardUseCase
-  extends UseCases
-    with StandardEntity {
+private[core] trait StandardUseCase
+  extends StandardEntity {
 
   implicit val ActorNaturalId: NaturalId[Actor] =
     NaturalId.define(_.name)
@@ -178,9 +171,7 @@ trait StandardUseCase
 }
 
 
-trait StandardDescriptors
-  extends Descriptors
-    with NaturalIds {
+private[core] trait StandardDescriptors {
 
   implicit val AnyInteractionDescriptorNaturalId: NaturalId[AnyInteractionDescriptor] =
     NaturalId.define(_.name)

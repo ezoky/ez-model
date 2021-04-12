@@ -1,5 +1,6 @@
 package com.ezoky.ezplantuml
 
+import com.ezoky.ezplantuml.PlantUMLService.SVGString
 import org.scalatest.funsuite.AnyFunSuite
 
 /**
@@ -17,10 +18,11 @@ class PlantUMLServiceTest
 
   test("generating SVG from a use case diagram") {
 
-    def filterSVG(svg: String): String =
-      svg
-        .replaceAll("""id=".*?"""", """id="ID"""")
-        .replaceAll("""url\(#.*?\)""", """url(#ID)""")
+    def filterSVG(svg: SVGString): SVGString =
+      svg.map(
+        _.replaceAll("""id=".*?"""", """id="ID"""")
+          .replaceAll("""url\(#.*?\)""", """url(#ID)""")
+      )
 
     assert(SimplePlantUMLService.diagramSVG(PlantUMLTestFixture.useCaseDiagram).map(filterSVG) ===
            Some(filterSVG(PlantUMLTestFixture.useCaseDiagramSVG)))
