@@ -23,7 +23,10 @@ object Dependencies {
     val Kittens = "2.1.0"
     val Akka = "2.6.8"
     val Refined = "0.9.13"
+
+    // Softwaremill
     val Quicklens = "1.6.1"
+    val SttpClient = "3.3.0-RC4"
 
     val PlayJson = "2.7.4" // might be different from Play Version
     val Spark = "2.4.3"
@@ -142,6 +145,8 @@ object Dependencies {
 
   // A comprehensive and dev friendly Lens library
   val quicklens = "com.softwaremill.quicklens" %% "quicklens" % Versions.Quicklens
+  // A Simple HTTP Client
+  val `sttp-client` = "com.softwaremill.sttp.client3" %% "core" % Versions.SttpClient
 
   // better files: a dependency-free pragmatic thin Scala wrapper around Java NIO - https://github.com/pathikrit/better-files
   val `better-files` = "com.github.pathikrit" %% "better-files" % Versions.BetterFiles
