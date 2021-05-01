@@ -1,46 +1,50 @@
 package com.ezoky.ezplantuml
 
+import cats.implicits._
+import com.ezoky.architecture._
 import com.ezoky.ezlogging.Safe
-import com.ezoky.ezplantuml.PlantUMLService.SVGString
+import com.ezoky.ezplantuml.PlantUMLRenderers._
 import net.sourceforge.plantuml.{FileFormat, FileFormatOption, SourceStringReader}
+
+import java.io.ByteArrayOutputStream
+import java.nio.charset.Charset
 
 /**
   * @author gweinbach on 06/04/2021
   * @since 0.2.0
   */
-trait PlantUMLService {
+trait PlantUMLServiceAPI
+  extends API {
 
-  def diagramSource(diagram: PlantUMLDiagram): Option[String]
+  @Query
+  def diagramSource(diagram: PlantUMLDiagram): QueryProducing[Option[String]]
 
-  def diagramSVG(diagram: PlantUMLDiagram): Option[SVGString]
+  @Query
+  def diagramSVG(diagram: PlantUMLDiagram): QueryProducing[Option[SVGString]]
 
 }
 
-object PlantUMLService {
+case class SVGString(val svgString: String) extends AnyVal {
 
-  case class SVGString(val svgString: String) extends AnyVal {
-
-    def map(f: String => String): SVGString =
-      SVGString(f(svgString))
-  }
+  def map(f: String => String): SVGString =
+    SVGString(f(svgString))
 }
 
-trait SimplePlantUMLService
-  extends PlantUMLService {
+trait PlantUMLService
+  extends PlantUMLServiceAPI {
 
-  override def diagramSource(diagram: PlantUMLDiagram): Option[String] =
-    Safe(diagram.render())
-  
-  override def diagramSVG(diagram: PlantUMLDiagram): Option[SVGString] =
+  override def diagramSource(diagram: PlantUMLDiagram): QueryProducing[Option[String]] =
+    queryMonad.pure(Safe(diagram.render()))
+
+  override def diagramSVG(diagram: PlantUMLDiagram): QueryProducing[Option[SVGString]] =
     for {
       source <- diagramSource(diagram)
-      svg <- sourceToSVG(source)
+      svg <- queryMonad.pure(sourceToSVG(source))
     } yield svg
 
-  private def sourceToSVG(diagramSource: String): Option[SVGString] = {
-    import java.io.ByteArrayOutputStream
-    import java.nio.charset.Charset
+  private def sourceToSVG(optDiagramSource: Option[String]): Option[SVGString] = {
     for {
+      diagramSource <- optDiagramSource
       reader <- Safe(new SourceStringReader(diagramSource))
       outputStream <- Safe(new ByteArrayOutputStream)
       // Write the first image to "outputStream"
@@ -59,5 +63,3 @@ trait SimplePlantUMLService
     }
   }
 }
-
-object SimplePlantUMLService extends SimplePlantUMLService

@@ -37,7 +37,7 @@ ThisBuild / scalacOptions ++= Seq(
   "-feature", // warns about misused language features
   "-Xlint", // enables handy linter warnings
   //  "-Xfatal-warnings", // turns compiler warnings into errors
-  "-Xlog-implicits", // adds extra info on implicits usage
+  //  "-Xlog-implicits", // adds extra info on implicits usage
 )
 
 // Enables SemanticDB compiler for Scalafix
@@ -49,7 +49,7 @@ ThisBuild / scalafixScalaBinaryVersion := CrossVersion.binaryScalaVersion(scalaV
 
 autoCompilerPlugins := true
 
-//addCompilerPlugin(CompilerPlugin.`kind-projector`)
+addCompilerPlugin(CompilerPlugin.`kind-projector`)
 addCompilerPlugin(CompilerPlugin.`better-monadic-for`)
 
 
@@ -58,6 +58,8 @@ lazy val `ezmodel` =
   project.in(file("."))
     .aggregate(
       `ez-commons`,
+      `ez-architecture`,
+      `ez-architecture-zio`,
       `ez-console`,
       `ez-interpreter`,
       `ez-plantuml`,
@@ -86,6 +88,25 @@ lazy val `ez-commons` =
     )
     .disablePlugins(sbtassembly.AssemblyPlugin)
 
+lazy val `ez-architecture` =
+  project.in(file("ez-architecture"))
+    .settings(
+      Common.defaultSettings ++ Seq(
+        libraryDependencies += Dependencies.`cats-core`,
+      ): _*
+    )
+    .disablePlugins(sbtassembly.AssemblyPlugin)
+
+lazy val `ez-architecture-zio` =
+  project.in(file("ez-architecture-zio"))
+    .dependsOn(`ez-architecture`)
+    .settings(
+      Common.defaultSettings ++ Seq(
+        libraryDependencies += Dependencies.zio
+      ): _*
+    )
+    .disablePlugins(sbtassembly.AssemblyPlugin)
+
 lazy val `ez-console` =
   project.in(file("ez-console"))
     .settings(
@@ -107,6 +128,8 @@ lazy val `ez-interpreter` =
 
 lazy val `ez-plantuml` =
   project.in(file("ez-plantuml"))
+    .dependsOn(`ez-architecture`)
+    .dependsOn(`ez-architecture-zio` % "test->test")
     .settings(
       Common.defaultSettings ++ Seq(
         libraryDependencies += Dependencies.`ez-logging`,
@@ -128,6 +151,8 @@ lazy val `ezmodel-core` =
 
 lazy val `ezmodel-plantuml` =
   project.in(file("ezmodel-plantuml"))
+    .dependsOn(`ez-architecture`)
+    .dependsOn(`ez-architecture-zio` % "test->test")
     .dependsOn(`ez-plantuml`)
     .dependsOn(`ezmodel-core`)
     .settings(

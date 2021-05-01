@@ -1,7 +1,8 @@
 package com.ezoky.ezplantuml
 
-import com.ezoky.ezplantuml.PlantUMLService.SVGString
+import com.ezoky.architecture.zioapi.ZIOAPI
 import org.scalatest.funsuite.AnyFunSuite
+import zio._
 
 /**
   * @author gweinbach on 05/04/2021
@@ -12,8 +13,9 @@ class PlantUMLServiceTest
 
   test("generating PlantUML source from a use case diagram") {
 
-    assert(SimplePlantUMLService.diagramSource(PlantUMLTestFixture.useCaseDiagram) ===
-           Some(PlantUMLTestFixture.useCaseDiagramSrc))
+    val result =
+      Runtime.default.unsafeRun(ZIOPlantUMLService.diagramSource(PlantUMLTestFixture.useCaseDiagram))
+    assert(result === Some(PlantUMLTestFixture.useCaseDiagramSrc))
   }
 
   test("generating SVG from a use case diagram") {
@@ -24,7 +26,13 @@ class PlantUMLServiceTest
           .replaceAll("""url\(#.*?\)""", """url(#ID)""")
       )
 
-    assert(SimplePlantUMLService.diagramSVG(PlantUMLTestFixture.useCaseDiagram).map(filterSVG) ===
-           Some(filterSVG(PlantUMLTestFixture.useCaseDiagramSVG)))
+    val result =
+      Runtime.default.unsafeRun(ZIOPlantUMLService.diagramSVG(PlantUMLTestFixture.useCaseDiagram).map(_.map(filterSVG)))
+    assert(result === Some(filterSVG(PlantUMLTestFixture.useCaseDiagramSVG)))
   }
 }
+
+
+object ZIOPlantUMLService
+  extends ZIOAPI
+    with PlantUMLService

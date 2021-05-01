@@ -7,7 +7,7 @@ import PlantUMLReference._
   * @author gweinbach on 05/04/2021
   * @since 0.2.0
   */
-trait PlantUMLRenderers {
+object PlantUMLRenderers {
 
   trait PlantUMLRenderer[U <: PlantUML] {
 

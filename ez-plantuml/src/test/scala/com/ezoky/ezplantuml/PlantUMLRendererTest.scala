@@ -1,6 +1,7 @@
 package com.ezoky.ezplantuml
 
 import org.scalatest.funsuite.AnyFunSuite
+import PlantUMLRenderers._
 
 /**
   * @author gweinbach on 05/04/2021

@@ -1,7 +1,5 @@
 package com.ezoky.ezplantuml
 
-import com.ezoky.ezplantuml.PlantUMLService.SVGString
-
 /**
   * @author gweinbach on 06/04/2021
   * @since 0.2.0

@@ -9,7 +9,7 @@ object Dependencies {
     val scala211 = "2.11.12"
     val scala212 = "2.12.12"
     val scala213 = "2.13.5"
-    val scala3 = "3.0.0-RC1"
+    val scala3 = "3.0.0-RC3"
 
     val scala = scala213
     val dotty = scala3
@@ -17,12 +17,13 @@ object Dependencies {
     val ScalaParserCombinator = "1.1.2"
 
     val Scalaz = "7.3.1"
-
     val Shapeless = "2.3.3"
     val Cats = "2.1.1"
     val Kittens = "2.1.0"
     val Akka = "2.6.8"
     val Refined = "0.9.13"
+
+    val Zio = "1.0.7"
 
     // Softwaremill
     val Quicklens = "1.6.1"
@@ -98,6 +99,10 @@ object Dependencies {
   val `cats-minimal` = Seq(`cats-macros`, `cats-kernel`, `cats-core`)
   val kittens = "org.typelevel" %% "kittens" % Versions.Kittens
   // cf Test object for cats-laws
+
+  // ZIO
+  val zio = "dev.zio" %% "zio" % Versions.Zio
+  val `zio-streams` = "dev.zio" %% "zio-streams" % Versions.Zio
 
   // Akka
   val `akka-actor` = "com.typesafe.akka" %% "akka-actor" % Versions.Akka
@@ -224,6 +229,5 @@ object CompilerPlugin {
   }
 
   val `better-monadic-for` = "com.olegpy" %% "better-monadic-for" % Versions.`better-monadic-for`
-  val `kind-projector` =
-    "org.typelevel" %% "kind-projector" % Versions.`kind-projector` cross CrossVersion.full
+  val `kind-projector` = "org.typelevel" %% "kind-projector" % Versions.`kind-projector` cross CrossVersion.full
 }

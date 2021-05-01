@@ -46,7 +46,7 @@ class PlantUMLModelRenderingServiceTest
       Model(Name("Test"))
         .withDomain(domain1)
 
-    val diagrams = SimplePlantUMLRenderingService.generateSVG(model)
+    val diagrams = SimpleRenderModelInPlantUML.generateSVG(model)
 
     println(diagrams)
     assert(diagrams.size == 1)
