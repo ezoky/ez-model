@@ -1,8 +1,7 @@
 package com.ezoky.architecture.zioapi
 
 import cats.Monad
-import com.ezoky.architecture.APIImpl
-import com.ezoky.architecture.zioapi.ZIOAPI._
+import com.ezoky.architecture.API
 import zio._
 
 /**
@@ -10,16 +9,13 @@ import zio._
   * @since 0.2.0
   */
 
-abstract class ZIOAPI
-  extends APIImpl[ZIOQueryProducing, ZIOCommandConsuming, ZIOPublisherOf]
+object ZIOAPI extends API {
 
-object ZIOAPI {
+  override type QueryProducing[+T] = Task[T]
+  override type CommandConsuming[T] = RIO[T, Nothing]
+  override type PublisherOf[T] = Task[T]
 
-  type ZIOQueryProducing[T] = Task[T]
-  type ZIOCommandConsuming[T] = RIO[T, Nothing]
-  type ZIOPublisherOf[T] = Task[T]
-
-  implicit val queryMonad: Monad[Task] =
+  override implicit val queryMonad: Monad[Task] =
     new Monad[Task] {
       override def pure[A](x: A): Task[A] =
         Task.succeed(x)
@@ -32,5 +28,11 @@ object ZIOAPI {
           case Left(l) => tailRecM(l)(f)
           case Right(r) => ZIO.succeed(r)
         }
+    }
+
+  override def validate[T, A <: Task[T], Collection[+Element] <: Iterable[Element]](in: Collection[A]): Task[Iterable[T]] =
+    ZIO.partition(in)(identity).flatMap { case (es, bs) =>
+      if (es.isEmpty) Task.succeed(bs)
+      else Task.fail(es.head)
     }
 }

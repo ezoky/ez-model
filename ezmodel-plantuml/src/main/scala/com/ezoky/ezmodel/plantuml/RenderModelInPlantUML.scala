@@ -1,5 +1,6 @@
 package com.ezoky.ezmodel.plantuml
 
+import cats.implicits._
 import com.ezoky.architecture._
 import com.ezoky.ezmodel.core.Models._
 import com.ezoky.ezplantuml.{PlantUMLDiagram, PlantUMLServiceAPI, SVGString}
@@ -8,8 +9,11 @@ import com.ezoky.ezplantuml.{PlantUMLDiagram, PlantUMLServiceAPI, SVGString}
   * @author gweinbach on 07/04/2021
   * @since 0.2.0
   */
-trait RenderModelInPlantUMLAPI
-  extends API {
+trait RenderModelInPlantUMLAPI[A <: API] {
+
+  val api: A
+
+  import api._
 
   @Query
   def generateDiagrams(model: Model): QueryProducing[Set[PlantUMLDiagram]]
@@ -22,25 +26,29 @@ case class ModellingDiagram(plantUMLDiagram: PlantUMLDiagram,
                             svg: Option[SVGString])
 
 
-class RenderModelInPlantUML(plantUMLService: PlantUMLServiceAPI)
-  extends RenderModelInPlantUMLAPI
+class RenderModelInPlantUML[A <: API](plantUMLService: PlantUMLServiceAPI[A])(override val api: A)
+  extends RenderModelInPlantUMLAPI[A]
     with PlantUMLModelRendering {
 
+  import api._
 
   override def generateSVG(model: Model): QueryProducing[Set[ModellingDiagram]] = {
     for {
       setOfPlantUMLDiagrams <- generateDiagrams(model)
-      setOfModellingDiagrams <- ZIO.validate {
-          setOfPlantUMLDiagrams.map(diagram =>
-             plantUMLService.diagramSVG(diagram).map {
-                svgString =>
-                  ModellingDiagram(
-                    diagram,
-                    svgString
-                  )
-          })
-      }(identity)
-    } yield setOfModellingDiagrams
+      setOfModellingDiagrams <- api.validate {
+        setOfPlantUMLDiagrams.toList.map {
+          diagram =>
+            import plantUMLService.api._
+            plantUMLService.diagramSVG(diagram).map {
+              svgString =>
+                ModellingDiagram(
+                  diagram,
+                  svgString
+                )
+            }
+        }
+      }
+    } yield setOfModellingDiagrams.toSet
   }
 
   //  generateDiagrams(model).map(plantUmlDiagramSet =>
@@ -53,8 +61,11 @@ class RenderModelInPlantUML(plantUMLService: PlantUMLServiceAPI)
 
 
   override def generateDiagrams(model: Model): QueryProducing[Set[PlantUMLDiagram]] =
-    model.domains.values.foldLeft(Set.empty[PlantUMLDiagram])((set, domain) =>
-      set ++ PlantUMLModelRenderer[Domain, PlantUMLDiagram].renderUML(domain)
+    queryMonad.pure(
+      for {
+        domain <- model.domains.values.toSet
+        plantUMLDiagram <- PlantUMLModelRenderer[Domain, PlantUMLDiagram].renderUML(domain)
+      } yield plantUMLDiagram
     )
 }
 

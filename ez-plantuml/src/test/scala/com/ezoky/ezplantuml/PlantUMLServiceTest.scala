@@ -34,5 +34,4 @@ class PlantUMLServiceTest
 
 
 object ZIOPlantUMLService
-  extends ZIOAPI
-    with PlantUMLService
+    extends PlantUMLService(ZIOAPI)

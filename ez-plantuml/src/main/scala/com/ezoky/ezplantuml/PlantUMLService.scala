@@ -13,8 +13,11 @@ import java.nio.charset.Charset
   * @author gweinbach on 06/04/2021
   * @since 0.2.0
   */
-trait PlantUMLServiceAPI
-  extends API {
+trait PlantUMLServiceAPI[A <: API] {
+
+  val api: A
+
+  import api._
 
   @Query
   def diagramSource(diagram: PlantUMLDiagram): QueryProducing[Option[String]]
@@ -30,8 +33,10 @@ case class SVGString(val svgString: String) extends AnyVal {
     SVGString(f(svgString))
 }
 
-trait PlantUMLService
-  extends PlantUMLServiceAPI {
+class PlantUMLService[A <: API](override val api: A)
+  extends PlantUMLServiceAPI[A] {
+
+  import api._
 
   override def diagramSource(diagram: PlantUMLDiagram): QueryProducing[Option[String]] =
     queryMonad.pure(Safe(diagram.render()))
