@@ -17,8 +17,8 @@ addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.9.26")
 // Coverage plugin
 addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.6.1")
 
-// Scala 3 plugin
-addSbtPlugin("ch.epfl.lamp" % "sbt-dotty" % "0.4.4")
+// Scala 3 plugin - should not be required with sbt 1.5.x
+//addSbtPlugin("ch.epfl.lamp" % "sbt-dotty" % "0.4.4")
 
 // SBT assembly plugin to enable CLI and Console assembly
 addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "0.15.0")

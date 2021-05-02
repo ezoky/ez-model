@@ -3,12 +3,13 @@ package com.ezoky.ezmodel.plantumlview
 import org.scalatest.funsuite.AnyFunSuite
 import com.ezoky.ezmodel.core.Models._
 import com.ezoky.ezmodel.core.StandardTypeClasses._
+import zio.Runtime
 
 /**
   * @author gweinbach on 21/04/2021
   * @since 0.2.0
   */
-class SimplePlantUmlViewServiceTest extends AnyFunSuite {
+class SimpleViewPlantUmlTest extends AnyFunSuite {
 
   test("View SVG from Model") {
 
@@ -59,7 +60,8 @@ class SimplePlantUmlViewServiceTest extends AnyFunSuite {
       Model(Name("Test"))
         .withDomain(domain1)
 
-    val diagrams = SimplePlantUmlViewService.viewPlantUmlModel(model)
+    val diagrams =
+      Runtime.default.unsafeRun(ZIOViewModelInPlantUML.zioViewPlantUmlModel(model))
 
     println(diagrams)
 //    assert(diagrams.size == 1)

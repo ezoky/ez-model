@@ -1,14 +1,17 @@
 package com.ezoky.ezmodel.plantuml
 
+import com.ezoky.architecture.zioapi.ZIOAPI
 import com.ezoky.ezmodel.core.Models._
 import com.ezoky.ezmodel.core.StandardTypeClasses._
+import com.ezoky.ezplantuml.PlantUMLService
 import org.scalatest.funsuite.AnyFunSuite
+import zio.Runtime
 
 /**
   * @author gweinbach on 07/04/2021
   * @since 0.2.0
   */
-class PlantUMLModelRenderingServiceTest
+class RenderModelInPlantUMLTest
   extends AnyFunSuite {
 
   test("Generate SVG from Model") {
@@ -46,10 +49,20 @@ class PlantUMLModelRenderingServiceTest
       Model(Name("Test"))
         .withDomain(domain1)
 
-    val diagrams = SimpleRenderModelInPlantUML.generateSVG(model)
+    val result =
+      Runtime.default.unsafeRun(ZIORenderModelInPlantUML.generateSVG(model))
 
-    println(diagrams)
-    assert(diagrams.size == 1)
+    println(result)
+    assert(result.size == 1)
 
   }
 }
+
+
+import ZIOAPI._
+
+object ZIOPlantUMLService
+  extends PlantUMLService[ZIOAPI.QueryProducing]
+
+object ZIORenderModelInPlantUML
+  extends RenderModelInPlantUML[ZIOAPI.QueryProducing](ZIOPlantUMLService)

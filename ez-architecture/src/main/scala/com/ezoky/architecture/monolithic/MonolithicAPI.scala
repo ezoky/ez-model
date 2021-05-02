@@ -1,16 +1,24 @@
 package com.ezoky.architecture.monolithic
 
-import cats.Monad
+import cats._
+import cats.implicits._
 import com.ezoky.architecture.API
 
 /**
   * @author gweinbach on 22/04/2021
   * @since 0.2.0
   */
-trait MonolithicAPI
+object MonolithicAPI
   extends API {
 
-  type Identity[T] = T
+  override type QueryProducing[+T] = T
 
-//  implicit override val queryMonad: Monad[Identity] = Monad[Identity]
+  override type CommandConsuming[T] = T => Unit
+  override type CommandConsumingNothing = CommandConsuming[Nothing]
+  override type PublisherOf[+T] = T
+
+  override val queryMonad: Monad[Id] = Monad[Id]
+
+  override def validate[T, A <: Id[T], Collection[+Element] <: Iterable[Element]](in: Collection[A]): Iterable[T] =
+    in
 }

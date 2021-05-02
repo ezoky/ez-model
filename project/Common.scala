@@ -27,7 +27,7 @@ object Common {
     SbtGit.showCurrentGitBranch,
 
     crossScalaVersions := supportedScalaVersions,
-    conflictManager := ConflictManager.strict,
+    conflictManager := ConflictManager.default,
     libraryDependencies ++= Dependencies.Test.Minimal,
     dependencyOverrides ++= Dependencies.Overrides,
 
@@ -43,7 +43,7 @@ object Common {
         Some(Opts.resolver.sonatypeStaging)
     },
     publishMavenStyle := true,
-    publishArtifact in Test := false,
+    Test / publishArtifact := false,
     pomIncludeRepository := (_ => false),
 
     // sonatype credentials

@@ -32,6 +32,7 @@ class PlantUMLServiceTest
   }
 }
 
+import ZIOAPI._
 
 object ZIOPlantUMLService
-    extends PlantUMLService(ZIOAPI)
+    extends PlantUMLService[ZIOAPI.QueryProducing]

@@ -27,7 +27,7 @@ object Dependencies {
 
     // Softwaremill
     val Quicklens = "1.6.1"
-    val SttpClient = "3.3.0-RC4"
+    val SttpClient = "3.3.0"
 
     val PlayJson = "2.7.4" // might be different from Play Version
     val Spark = "2.4.3"
@@ -152,6 +152,12 @@ object Dependencies {
   val quicklens = "com.softwaremill.quicklens" %% "quicklens" % Versions.Quicklens
   // A Simple HTTP Client
   val `sttp-client` = "com.softwaremill.sttp.client3" %% "core" % Versions.SttpClient
+  // /!\ Warning! This requires Java 11
+  val `sttp-client-zio-backend` = "com.softwaremill.sttp.client3" %% "httpclient-backend-zio" % Versions.SttpClient
+  val `sttp-async-client-zio-backend` =
+    "com.softwaremill.sttp.client3" %% "async-http-client-backend-zio" % Versions.SttpClient
+  // override required with ConflictManager.strict to allow any zio backend
+  val `netty-handler` = "io.netty" % "netty-handler" % "4.1.60.Final"
 
   // better files: a dependency-free pragmatic thin Scala wrapper around Java NIO - https://github.com/pathikrit/better-files
   val `better-files` = "com.github.pathikrit" %% "better-files" % Versions.BetterFiles

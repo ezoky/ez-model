@@ -1,7 +1,6 @@
 package com.ezoky.ezmodel.plantuml
 
 import com.ezoky.ezmodel.core.Models._
-import com.ezoky.ezmodel.core.StandardTypeClasses._
 import com.ezoky.ezplantuml._
 
 /**

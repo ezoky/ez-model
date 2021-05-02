@@ -1,5 +1,6 @@
 package com.ezoky.ezplantuml
 
+import cats.Monad
 import cats.implicits._
 import com.ezoky.architecture._
 import com.ezoky.ezlogging.Safe
@@ -13,11 +14,7 @@ import java.nio.charset.Charset
   * @author gweinbach on 06/04/2021
   * @since 0.2.0
   */
-trait PlantUMLServiceAPI[A <: API] {
-
-  val api: A
-
-  import api._
+trait PlantUMLServiceAPI[QueryProducing[_]] {
 
   @Query
   def diagramSource(diagram: PlantUMLDiagram): QueryProducing[Option[String]]
@@ -33,18 +30,16 @@ case class SVGString(val svgString: String) extends AnyVal {
     SVGString(f(svgString))
 }
 
-class PlantUMLService[A <: API](override val api: A)
-  extends PlantUMLServiceAPI[A] {
-
-  import api._
+class PlantUMLService[QueryProducing[_]: Monad]
+  extends PlantUMLServiceAPI[QueryProducing] {
 
   override def diagramSource(diagram: PlantUMLDiagram): QueryProducing[Option[String]] =
-    queryMonad.pure(Safe(diagram.render()))
+    Monad[QueryProducing].pure(Safe(diagram.render()))
 
   override def diagramSVG(diagram: PlantUMLDiagram): QueryProducing[Option[SVGString]] =
     for {
       source <- diagramSource(diagram)
-      svg <- queryMonad.pure(sourceToSVG(source))
+      svg <- Monad[QueryProducing].pure(sourceToSVG(source))
     } yield svg
 
   private def sourceToSVG(optDiagramSource: Option[String]): Option[SVGString] = {

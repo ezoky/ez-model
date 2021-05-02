@@ -70,7 +70,7 @@ lazy val `ezmodel` =
       `ezmodel-control`,
       `ezmodel-console`
     )
-    .settings(skip in publish := true)
+    .settings(publish / skip := true)
     .disablePlugins(sbtassembly.AssemblyPlugin)
 
 // This enables dependencies on junit.jar to run coverage tests from intelliJ
@@ -165,10 +165,13 @@ lazy val `ezmodel-plantuml` =
 lazy val `ezmodel-plantuml-view` =
   project.in(file("ezmodel-plantuml-view"))
     .dependsOn(`ezmodel-plantuml`)
+    .dependsOn(`ez-architecture-zio`)
     .settings(
       Common.defaultSettings ++ Seq(
+        libraryDependencies += Dependencies.`ez-logging`,
         libraryDependencies += Dependencies.`sttp-client`,
-        libraryDependencies += Dependencies.`ez-logging`
+        libraryDependencies += Dependencies.`sttp-async-client-zio-backend`,
+        dependencyOverrides += Dependencies.`netty-handler` // required by `sttp-async-client-zio-backend`
       ): _*
     )
     .disablePlugins(sbtassembly.AssemblyPlugin)
@@ -204,21 +207,21 @@ lazy val `ezmodel-console` =
     )
     .settings(
       Common.defaultSettings ++ Seq(
-        mainClass in assembly := Some("com.ezoky.ezmodel.console.EzModellerConsole"),
-        //        assembledMappings in assembly += {
+        assembly / mainClass := Some("com.ezoky.ezmodel.console.EzModellerConsole"),
+        //        assembly / assembledMappings += {
         //          sbtassembly.MappingSet(None, Vector(
         //            ((baseDirectory.value / "conf" / "dev" / "logback.xml") -> "logback.xml"),
         //            ((baseDirectory.value / "conf" / "dev" / "application.conf") -> "application.conf")
         //          ))
         //        },
-        //        assemblyMergeStrategy in assembly := {
+        //        assembly / assemblyMergeStrategy := {
         //          // Merge config files
         //          case PathList(ps@_*) if ps.last endsWith ".conf" => MergeStrategy.concat
         //          case o =>
-        //            val oldStrategy = (assemblyMergeStrategy in assembly).value
+        //            val oldStrategy = (assembly / assemblyMergeStrategy).value
         //            oldStrategy(o)
         //        },
-        assemblyJarName in assembly := "ezmodel-console.jar"
+        assembly / assemblyJarName := "ezmodel-console.jar"
       ): _*
     )
 

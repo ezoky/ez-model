@@ -12,8 +12,8 @@ import zio._
 object ZIOAPI extends API {
 
   override type QueryProducing[+T] = Task[T]
-  override type CommandConsuming[T] = RIO[T, Nothing]
-  override type PublisherOf[T] = Task[T]
+  override type CommandConsuming[T] = RIO[T, Unit]
+  override type PublisherOf[+T] = Task[T]
 
   override implicit val queryMonad: Monad[Task] =
     new Monad[Task] {
