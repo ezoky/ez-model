@@ -8,7 +8,7 @@ import com.ezoky.ezmodel.plantuml.RenderModelInPlantUML
 import com.ezoky.ezplantuml.PlantUMLWrapper
 import sttp.client3.SttpBackend
 import sttp.client3.asynchttpclient.zio.AsyncHttpClientZioBackend
-import sttp.model.StatusCode
+import sttp.model.{Method, StatusCode}
 import zio.internal.Platform
 import zio.{Exit, Runtime, Task, ZIO}
 
@@ -71,7 +71,11 @@ class ViewModelInPlantUMLTest extends AnyFunSuite {
 
     val backendStub =
       AsyncHttpClientZioBackend.stub
-      .whenRequestMatches(_.uri == serverConfig.sendSVGEndPoint)
+      .whenRequestMatches { request =>
+        (request.uri == serverConfig.sendSVGEndPoint) &&
+        (request.method == Method.POST) &&
+        (request.body.show.startsWith("""string: <?xml version="1.0" encoding="UTF-8" standalone="no"?><svg"""))
+      }
       .thenRespond("", StatusCode.Ok)
       .whenRequestMatches(_.uri != serverConfig.sendSVGEndPoint)
       .thenRespondServerError()

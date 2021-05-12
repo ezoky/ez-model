@@ -24,7 +24,7 @@ trait PlantUMLWrapperAPI[QueryProducing[_]] {
 
 }
 
-case class SVGString(val svgString: String) extends AnyVal {
+case class SVGString(svgString: String) extends AnyVal {
 
   def map(f: String => String): SVGString =
     SVGString(f(svgString))
