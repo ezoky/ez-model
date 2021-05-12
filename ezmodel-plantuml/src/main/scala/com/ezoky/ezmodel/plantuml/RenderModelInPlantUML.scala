@@ -4,7 +4,7 @@ import cats._
 import cats.implicits._
 import com.ezoky.architecture._
 import com.ezoky.ezmodel.core.Models._
-import com.ezoky.ezplantuml.{PlantUMLDiagram, PlantUMLService, SVGString}
+import com.ezoky.ezplantuml.{PlantUMLDiagram, PlantUMLWrapper, SVGString}
 
 /**
   * @author gweinbach on 07/04/2021
@@ -23,7 +23,7 @@ case class ModellingDiagram(plantUMLDiagram: PlantUMLDiagram,
                             svg: Option[SVGString])
 
 
-class RenderModelInPlantUML[QueryProducing[_] : Monad](plantUMLService: PlantUMLService[QueryProducing])
+class RenderModelInPlantUML[QueryProducing[_] : Monad](plantUMLService: PlantUMLWrapper[QueryProducing])
   extends RenderModelInPlantUMLAPI[QueryProducing]
     with PlantUMLModelRendering {
 
@@ -53,4 +53,9 @@ class RenderModelInPlantUML[QueryProducing[_] : Monad](plantUMLService: PlantUML
         plantUMLDiagram <- PlantUMLModelRenderer[Domain, PlantUMLDiagram].renderUML(domain)
       } yield plantUMLDiagram
     )
+}
+
+object RenderModelInPlantUML {
+  def apply[QueryProducing[_] : Monad : PlantUMLWrapper: RenderModelInPlantUML]: RenderModelInPlantUML[QueryProducing] =
+    implicitly[RenderModelInPlantUML[QueryProducing]]
 }

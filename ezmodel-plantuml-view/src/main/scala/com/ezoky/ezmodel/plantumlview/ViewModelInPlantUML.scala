@@ -1,66 +1,89 @@
 package com.ezoky.ezmodel.plantumlview
 
-import com.ezoky.architecture.zioapi.ZIOAPI
-import com.ezoky.ezlogging.EzLoggableClass
+import cats.Monad
+import cats.implicits._
+import com.ezoky.architecture.Command
+import com.ezoky.ezmodel.core.Models
 import com.ezoky.ezmodel.core.Models.Model
 import com.ezoky.ezmodel.plantuml.{ModellingDiagram, RenderModelInPlantUML}
-import com.ezoky.ezplantuml.PlantUMLService
-import zio.{Task, ZIO}
+import sttp.client3._
+import sttp.model.Uri
 
 /**
   * @author gweinbach on 21/04/2021
   * @since 0.2.0
   */
-trait ViewModelInPlantUML {
+trait ViewModelInPlantUMLAPI[Effect[_]] {
 
-  def viewPlantUmlModel(model: Model): Unit
+  @Command
+  def viewDiagramInPlantUML(diagram: ModellingDiagram): Effect[Unit]
+
+  @Command
+  def viewModelInPlantUML(model: Model): Effect[Unit]
 
 }
 
+trait ViewModelInPlantUMLConfig {
+  val sendSVGEndPoint: Uri
+}
 
-import sttp.client3._
-import sttp.client3.asynchttpclient.zio._
-import com.ezoky.architecture.zioapi.ZIOAPI
+case class ViewModelInPlantUMLServerConfig(serverHost: String)
+  extends ViewModelInPlantUMLConfig {
+  lazy val sendSVGEndPoint = uri"${serverHost}/api/sendSVG"
+}
 
-import ZIOAPI._
+abstract class ViewModelInPlantUML[Effect[_] : Monad](renderModelInPlantUML: RenderModelInPlantUML[Effect])
+  extends ViewModelInPlantUMLAPI[Effect] {
 
-object ZIOPlantUMLService
-  extends PlantUMLService[ZIOAPI.QueryProducing]
+  def configReader[A](configure: ViewModelInPlantUMLConfig => A): Effect[A]
 
-object ZIORenderModelInPlantUML
-  extends RenderModelInPlantUML[ZIOAPI.QueryProducing](ZIOPlantUMLService)
+  def useBackend(action: SttpBackend[Effect, Any] => Effect[Unit]): Effect[Unit]
 
-object ZIOViewModelInPlantUML
-  extends ViewModelInPlantUML
-    with EzLoggableClass {
+  def postRequest(postRequest: Request[Either[String, String], Any]): Effect[Unit] =
+    useBackend(backend => postRequest.send(backend).map(_ => ()))
 
-  val renderModelInPlantUML: RenderModelInPlantUML[ZIOAPI.QueryProducing] = ZIORenderModelInPlantUML
-
-  override def viewPlantUmlModel(model: Model): Unit =
-    zioViewPlantUmlModel(model)
-
-  def zioViewPlantUmlModel(model: Model) = {
-    AsyncHttpClientZioBackend.managed().use { backend =>
-      for {
-        diagrams <- renderModelInPlantUML.generateSVG(model)
-        responses <-
-          ZIO.validate(
-            diagrams.toList
-            .map(buildSVGDiagramRequest)
-            .map(_.fold[ZIO[Any, Throwable, Response[Either[String, String]]]](Task.fail(new RuntimeException("no SVG")))(_.send(backend)))
-          )(identity)
-      } yield responses
+  override def viewDiagramInPlantUML(diagram: ModellingDiagram): Effect[Unit] =
+    diagram.svg.fold(Monad[Effect].unit) {
+      svgContent =>
+        configReader {
+          config =>
+            basicRequest.body(svgContent.svgString).post(config.sendSVGEndPoint)
+        }.flatMap(postRequest)
     }
-  }
 
 
-  private def buildSVGDiagramRequest(diagram: ModellingDiagram) =
+  override def viewModelInPlantUML(model: Models.Model): Effect[Unit] =
     for {
-      svgContent <- diagram.svg
-    } yield {
-      trace(s"SVG content = ${svgContent.svgString}")
-      basicRequest.body(svgContent.svgString).post(uri"http://localhost:7071/api/sendSVG")
-    }
+      diagramSet <- renderModelInPlantUML.generateSVG(model)
+      _ <- diagramSet.map(viewDiagramInPlantUML(_)).toList.traverse(identity)
+    } yield ()
+}
+
+
+//class ZIOViewModelInPlantUML(override val renderModelInPlantUML: RenderModelInPlantUML[Task])
+//  extends ViewModelInPlantUML[Task](renderModelInPlantUML)
+//    with EzLoggableClass {
+
+
+//  override def viewDiagramInPlantUML(model: Model): Unit =
+//    zioViewPlantUmlModel(model)
+//
+//  def zioViewPlantUmlModel(model: Model) = {
+//     backend =>
+//      for {
+//        diagrams <- renderModelInPlantUML.generateSVG(model)
+//        responses <- diagrams.toList.map(buildSVGDiagramRequest).traverse(identity)
+//      } yield responses
+//    }
+//
+//
+//  private def buildSVGDiagramRequest(diagram: ModellingDiagram) =
+//    for {
+//      svgContent <- diagram.svg
+//    } yield {
+//      trace(s"SVG content = ${svgContent.svgString}")
+//      basicRequest.body(svgContent.svgString).post(uri"http://localhost:7071/api/sendSVG")
+//    }
 //
 //  {
 //    val backend = HttpURLConnectionBackend()
@@ -78,7 +101,7 @@ object ZIOViewModelInPlantUML
 //    warn(result.toString())
 //  }
 
-}
+//}
 
 //object SimpleViewModelInPlantUML extends SimpleViewModelInPlantUML$ {
 //  override val plantUMLRenderingService: PlantUMLRenderingService = SimplePlantUMLRenderingService

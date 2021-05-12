@@ -14,7 +14,7 @@ class PlantUMLServiceTest
   test("generating PlantUML source from a use case diagram") {
 
     val result =
-      Runtime.default.unsafeRun(ZIOPlantUMLService.diagramSource(PlantUMLTestFixture.useCaseDiagram))
+      Runtime.default.unsafeRun(ZIOImpl.ZIOPlantUMLWrapper.diagramSource(PlantUMLTestFixture.useCaseDiagram))
     assert(result === Some(PlantUMLTestFixture.useCaseDiagramSrc))
   }
 
@@ -27,12 +27,17 @@ class PlantUMLServiceTest
       )
 
     val result =
-      Runtime.default.unsafeRun(ZIOPlantUMLService.diagramSVG(PlantUMLTestFixture.useCaseDiagram).map(_.map(filterSVG)))
+      Runtime.default.unsafeRun(ZIOImpl.ZIOPlantUMLWrapper.diagramSVG(PlantUMLTestFixture.useCaseDiagram).map(_.map(filterSVG)))
     assert(result === Some(filterSVG(PlantUMLTestFixture.useCaseDiagramSVG)))
   }
 }
 
-import ZIOAPI._
+object ZIOImpl {
 
-object ZIOPlantUMLService
-    extends PlantUMLService[ZIOAPI.QueryProducing]
+  val api = new ZIOAPI[Any]
+
+  import api._
+
+  object ZIOPlantUMLWrapper
+    extends PlantUMLWrapper[api.QueryProducing]
+}

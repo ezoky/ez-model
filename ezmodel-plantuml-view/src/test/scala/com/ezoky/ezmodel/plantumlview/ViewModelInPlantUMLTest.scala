@@ -1,15 +1,22 @@
 package com.ezoky.ezmodel.plantumlview
 
+import com.ezoky.architecture.zioapi.ZIOAPI
 import org.scalatest.funsuite.AnyFunSuite
 import com.ezoky.ezmodel.core.Models._
 import com.ezoky.ezmodel.core.StandardTypeClasses._
-import zio.Runtime
+import com.ezoky.ezmodel.plantuml.RenderModelInPlantUML
+import com.ezoky.ezplantuml.PlantUMLWrapper
+import sttp.client3.SttpBackend
+import sttp.client3.asynchttpclient.zio.AsyncHttpClientZioBackend
+import sttp.model.StatusCode
+import zio.internal.Platform
+import zio.{Exit, Runtime, Task, ZIO}
 
 /**
   * @author gweinbach on 21/04/2021
   * @since 0.2.0
   */
-class SimpleViewPlantUmlTest extends AnyFunSuite {
+class ViewModelInPlantUMLTest extends AnyFunSuite {
 
   test("View SVG from Model") {
 
@@ -60,12 +67,47 @@ class SimpleViewPlantUmlTest extends AnyFunSuite {
       Model(Name("Test"))
         .withDomain(domain1)
 
-    val diagrams =
-      Runtime.default.unsafeRun(ZIOViewModelInPlantUML.zioViewPlantUmlModel(model))
+    val serverConfig = ViewModelInPlantUMLServerConfig("http://localhost:7071")
 
-    println(diagrams)
-//    assert(diagrams.size == 1)
-    assert(true)
+    val backendStub =
+      AsyncHttpClientZioBackend.stub
+      .whenRequestMatches(_.uri == serverConfig.sendSVGEndPoint)
+      .thenRespond("", StatusCode.Ok)
+      .whenRequestMatches(_.uri != serverConfig.sendSVGEndPoint)
+      .thenRespondServerError()
+
+    val zioImpl = new ZIOImpl(backendStub)
+
+    val result =
+      Runtime(serverConfig, Platform.default)
+        .unsafeRunSync(zioImpl.ZIOViewModelInPlantUML.viewModelInPlantUML(model))
+
+    assert(result == Exit.Success(()))
   }
+
+}
+
+
+class ZIOImpl(backend: SttpBackend[Task, Any]) {
+
+  val Api = new ZIOAPI[ViewModelInPlantUMLConfig] {}
+
+  import Api._
+
+  implicit val ZIOPlantUMLService: PlantUMLWrapper[QueryProducing] =
+    new PlantUMLWrapper[QueryProducing]
+
+  implicit val ZIORenderModelInPlantUML: RenderModelInPlantUML[QueryProducing] =
+    new RenderModelInPlantUML[QueryProducing](ZIOPlantUMLService)
+
+  implicit val ZIOViewModelInPlantUML: ViewModelInPlantUML[Effect] =
+    new ViewModelInPlantUML[Effect](ZIORenderModelInPlantUML) {
+
+      override def configReader[A](configure: ViewModelInPlantUMLConfig => A): Effect[A] =
+        ZIO.access(configure)
+
+      override def useBackend(action: SttpBackend[Effect, Any] => Effect[Unit]): Effect[Unit] =
+        action(backend.asInstanceOf[SttpBackend[Effect, Any]])
+    }
 
 }

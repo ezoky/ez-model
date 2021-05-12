@@ -1,19 +1,24 @@
 package com.ezoky.architecture
 
-import cats.Monad
+import cats._
+import cats.implicits._
 
 /**
   * @author gweinbach on 22/04/2021
   * @since 0.2.0
   */
-trait API {
+trait API[EnvType, ErrorType] {
 
-  type QueryProducing[+T]
-  type CommandConsuming[T]
-  type CommandConsumingNothing <: CommandConsuming[Nothing]
-  type PublisherOf[+T]
+  type EffectType[-R, +E, +T]
 
-  implicit val queryMonad: Monad[QueryProducing]
+  type Effect[+T] = EffectType[EnvType, ErrorType, T]
+  implicit def effectMonad: Monad[Effect]
 
-  def validate[T, A <: QueryProducing[T], Collection[+Element] <: Iterable[Element]](in: Collection[A]): QueryProducing[Iterable[T]]
+  type QueryProducing[T] = Effect[T]
+
+  type CommandConsuming[T] = Effect[T] => Unit
+  type CommandConsumingNothing = CommandConsuming[Nothing]
+
+  type PublisherOf[T] = Unit => Effect[T]
+
 }

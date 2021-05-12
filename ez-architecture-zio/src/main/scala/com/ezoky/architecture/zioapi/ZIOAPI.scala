@@ -1,6 +1,6 @@
 package com.ezoky.architecture.zioapi
 
-import cats.Monad
+import cats._
 import com.ezoky.architecture.API
 import zio._
 
@@ -9,30 +9,23 @@ import zio._
   * @since 0.2.0
   */
 
-object ZIOAPI extends API {
+class ZIOAPI[EnvType]
+  extends API[EnvType, Throwable] {
 
-  override type QueryProducing[+T] = Task[T]
-  override type CommandConsuming[T] = RIO[T, Unit]
-  override type PublisherOf[+T] = Task[T]
+  override type EffectType[-R, +E, +T] = ZIO[R, E, T]
 
-  override implicit val queryMonad: Monad[Task] =
-    new Monad[Task] {
-      override def pure[A](x: A): Task[A] =
-        Task.succeed(x)
+  override implicit def effectMonad: Monad[Effect] = new Monad[Effect] {
 
-      override def flatMap[A, B](fa: Task[A])(f: A => Task[B]): Task[B] =
-        fa.flatMap(f)
+    override def pure[A](x: A): Effect[A] =
+      ZIO.succeed(x)
 
-      override def tailRecM[A, B](a: A)(f: A => Task[Either[A, B]]): Task[B] =
-        ZIO.effectSuspend(f(a)).flatMap {
-          case Left(l) => tailRecM(l)(f)
-          case Right(r) => ZIO.succeed(r)
-        }
-    }
+    override def flatMap[A, B](fa: Effect[A])(f: A => Effect[B]): Effect[B] =
+      fa.flatMap(f)
 
-  override def validate[T, A <: Task[T], Collection[+Element] <: Iterable[Element]](in: Collection[A]): Task[Iterable[T]] =
-    ZIO.partition(in)(identity).flatMap { case (es, bs) =>
-      if (es.isEmpty) Task.succeed(bs)
-      else Task.fail(es.head)
-    }
+    override def tailRecM[A, B](a: A)(f: A => Effect[Either[A, B]]): Effect[B] =
+      ZIO.effectSuspend(f(a)).flatMap {
+        case Left(l) => tailRecM(l)(f)
+        case Right(r) => ZIO.succeed(r)
+      }
+  }
 }

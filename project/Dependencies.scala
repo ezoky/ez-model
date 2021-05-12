@@ -18,12 +18,13 @@ object Dependencies {
 
     val Scalaz = "7.3.1"
     val Shapeless = "2.3.3"
-    val Cats = "2.1.1"
-    val Kittens = "2.1.0"
+    val Cats = "2.6.0"
+    val Kittens = "2.3.0"
     val Akka = "2.6.8"
     val Refined = "0.9.13"
 
     val Zio = "1.0.7"
+    val ZioCats = "3.0.2.0"
 
     // Softwaremill
     val Quicklens = "1.6.1"
@@ -91,18 +92,18 @@ object Dependencies {
   val scalaz = Seq(`scalaz-core`)
 
   // Cats
-  val `cats-macros` = "org.typelevel" %% "cats-macros" % Versions.Cats
   val `cats-kernel` = "org.typelevel" %% "cats-kernel" % Versions.Cats
   val `cats-core` = "org.typelevel" %% "cats-core" % Versions.Cats
   val `cats-mtl` = "org.typelevel" %% "cats-mtl" % Versions.Cats
   // Minimal dependencies to use cats library
-  val `cats-minimal` = Seq(`cats-macros`, `cats-kernel`, `cats-core`)
+  val `cats-minimal` = Seq(`cats-kernel`, `cats-core`)
   val kittens = "org.typelevel" %% "kittens" % Versions.Kittens
   // cf Test object for cats-laws
 
   // ZIO
   val zio = "dev.zio" %% "zio" % Versions.Zio
   val `zio-streams` = "dev.zio" %% "zio-streams" % Versions.Zio
+  val `zio-interop-cats` = "dev.zio" %% "zio-interop-cats" % Versions.ZioCats
 
   // Akka
   val `akka-actor` = "com.typesafe.akka" %% "akka-actor" % Versions.Akka

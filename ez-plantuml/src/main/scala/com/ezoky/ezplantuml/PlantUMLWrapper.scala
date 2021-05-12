@@ -14,7 +14,7 @@ import java.nio.charset.Charset
   * @author gweinbach on 06/04/2021
   * @since 0.2.0
   */
-trait PlantUMLServiceAPI[QueryProducing[_]] {
+trait PlantUMLWrapperAPI[QueryProducing[_]] {
 
   @Query
   def diagramSource(diagram: PlantUMLDiagram): QueryProducing[Option[String]]
@@ -30,8 +30,8 @@ case class SVGString(val svgString: String) extends AnyVal {
     SVGString(f(svgString))
 }
 
-class PlantUMLService[QueryProducing[_]: Monad]
-  extends PlantUMLServiceAPI[QueryProducing] {
+class PlantUMLWrapper[QueryProducing[_]: Monad]
+  extends PlantUMLWrapperAPI[QueryProducing] {
 
   override def diagramSource(diagram: PlantUMLDiagram): QueryProducing[Option[String]] =
     Monad[QueryProducing].pure(Safe(diagram.render()))
@@ -62,4 +62,9 @@ class PlantUMLService[QueryProducing[_]: Monad]
       SVGString(svg)
     }
   }
+}
+
+object PlantUMLWrapper {
+  def apply[QueryProducing[_] : Monad: PlantUMLWrapper]: PlantUMLWrapper[QueryProducing] =
+    implicitly[PlantUMLWrapper[QueryProducing]]
 }

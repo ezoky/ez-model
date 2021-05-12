@@ -3,7 +3,7 @@ package com.ezoky.ezmodel.plantuml
 import com.ezoky.architecture.zioapi.ZIOAPI
 import com.ezoky.ezmodel.core.Models._
 import com.ezoky.ezmodel.core.StandardTypeClasses._
-import com.ezoky.ezplantuml.PlantUMLService
+import com.ezoky.ezplantuml.PlantUMLWrapper
 import org.scalatest.funsuite.AnyFunSuite
 import zio.Runtime
 
@@ -50,7 +50,7 @@ class RenderModelInPlantUMLTest
         .withDomain(domain1)
 
     val result =
-      Runtime.default.unsafeRun(ZIORenderModelInPlantUML.generateSVG(model))
+      Runtime.default.unsafeRun(ZIOImpl.ZIORenderModelInPlantUML.generateSVG(model))
 
     println(result)
     assert(result.size == 1)
@@ -59,10 +59,15 @@ class RenderModelInPlantUMLTest
 }
 
 
-import ZIOAPI._
+object ZIOImpl {
 
-object ZIOPlantUMLService
-  extends PlantUMLService[ZIOAPI.QueryProducing]
+  val api = new ZIOAPI[Any] {}
 
-object ZIORenderModelInPlantUML
-  extends RenderModelInPlantUML[ZIOAPI.QueryProducing](ZIOPlantUMLService)
+  import api._
+
+  implicit val ZIOPlantUMLService: PlantUMLWrapper[api.QueryProducing] =
+    new PlantUMLWrapper[api.QueryProducing]
+
+  implicit val ZIORenderModelInPlantUML: RenderModelInPlantUML[api.QueryProducing] =
+    new RenderModelInPlantUML[api.QueryProducing](ZIOPlantUMLService)
+}

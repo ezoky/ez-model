@@ -102,7 +102,8 @@ lazy val `ez-architecture-zio` =
     .dependsOn(`ez-architecture`)
     .settings(
       Common.defaultSettings ++ Seq(
-        libraryDependencies += Dependencies.zio
+        libraryDependencies += Dependencies.zio,
+        libraryDependencies += Dependencies.`zio-interop-cats`
       ): _*
     )
     .disablePlugins(sbtassembly.AssemblyPlugin)
