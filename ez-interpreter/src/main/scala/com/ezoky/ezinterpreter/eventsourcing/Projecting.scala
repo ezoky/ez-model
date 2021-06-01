@@ -11,6 +11,9 @@ trait Projecting {
     def project(state: StateType,
                 event: EventType): StateType
 
+    def apply(state: StateType,
+              event: EventType): StateType =
+      project(state, event)
   }
 
   object Projector {
@@ -24,6 +27,6 @@ trait Projecting {
     def apply[StateType, EventType](state: StateType,
                                     event: EventType)
                                    (implicit projector: Projector[StateType, EventType]): StateType =
-      projector.project(state, event)
+      projector(state, event)
   }
 }

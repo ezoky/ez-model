@@ -14,6 +14,10 @@ trait Publishing
     def publish(state: StateType,
                 persistentEvent: PersistentEventType): Option[PublishedEventType]
 
+    def apply(state: StateType,
+              persistentEvent: PersistentEventType): Option[PublishedEventType] =
+      publish(state, persistentEvent)
+
   }
 
   object Publisher {
@@ -28,7 +32,7 @@ trait Publishing
                                                                   persistentEvent: PersistentEventType)
                                                                  (implicit
                                                                   publisher: Publisher[StateType, PersistentEventType, PublishedEventType]): Option[PublishedEventType] =
-      publisher.publish(state, persistentEvent)
+      publisher(state, persistentEvent)
   }
 
 
