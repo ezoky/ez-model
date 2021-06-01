@@ -13,13 +13,15 @@ import sttp.model.Uri
   * @author gweinbach on 21/04/2021
   * @since 0.2.0
   */
-trait ViewModelInPlantUMLAPI[Effect[_]] {
+trait ViewModelInPlantUMLAPI[F[_]] {
+
+  type CommandConsumingNothing = () => F[Unit]
 
   @Command
-  def viewDiagramInPlantUML(diagram: ModellingDiagram): Effect[Unit]
+  def viewDiagramInPlantUML(diagram: ModellingDiagram): CommandConsumingNothing
 
   @Command
-  def viewModelInPlantUML(model: Model): Effect[Unit]
+  def viewModelInPlantUML(model: Model): CommandConsumingNothing
 
 }
 
@@ -32,77 +34,30 @@ case class ViewModelInPlantUMLServerConfig(serverHost: String)
   lazy val sendSVGEndPoint = uri"${serverHost}/api/sendSVG"
 }
 
-abstract class ViewModelInPlantUML[Effect[_] : Monad](renderModelInPlantUML: RenderModelInPlantUML[Effect])
-  extends ViewModelInPlantUMLAPI[Effect] {
+abstract class ViewModelInPlantUML[F[_] : Monad](renderModelInPlantUML: RenderModelInPlantUML[F])
+  extends ViewModelInPlantUMLAPI[F] {
 
-  def configReader[A](configure: ViewModelInPlantUMLConfig => A): Effect[A]
+  def configReader[A](configure: ViewModelInPlantUMLConfig => A): F[A]
 
-  def useBackend(action: SttpBackend[Effect, Any] => Effect[Unit]): Effect[Unit]
+  def useBackend(action: SttpBackend[F, Any] => F[Response[Either[String, String]]]): F[Unit]
 
-  def postRequest(postRequest: Request[Either[String, String], Any]): Effect[Unit] =
-    useBackend(backend => postRequest.send(backend).map(_ => ()))
+  def sendRequest(request: Request[Either[String, String], Any]): F[Unit] =
+    useBackend(backend => request.send(backend))
 
-  override def viewDiagramInPlantUML(diagram: ModellingDiagram): Effect[Unit] =
-    diagram.svg.fold(Monad[Effect].unit) {
+  override def viewDiagramInPlantUML(diagram: ModellingDiagram): CommandConsumingNothing = { () =>
+    diagram.svg.fold(Monad[F].unit) {
       svgContent =>
         configReader {
           config =>
             basicRequest.body(svgContent.svgString).post(config.sendSVGEndPoint)
-        }.flatMap(postRequest)
+        }.flatMap(sendRequest)
     }
+  }
 
-
-  override def viewModelInPlantUML(model: Models.Model): Effect[Unit] =
+  override def viewModelInPlantUML(model: Models.Model): CommandConsumingNothing = { () =>
     for {
       diagramSet <- renderModelInPlantUML.generateSVG(model)
-      _ <- diagramSet.map(viewDiagramInPlantUML(_)).toList.traverse(identity)
+      _ <- diagramSet.map(viewDiagramInPlantUML(_)()).toList.traverse(identity)
     } yield ()
+  }
 }
-
-
-//class ZIOViewModelInPlantUML(override val renderModelInPlantUML: RenderModelInPlantUML[Task])
-//  extends ViewModelInPlantUML[Task](renderModelInPlantUML)
-//    with EzLoggableClass {
-
-
-//  override def viewDiagramInPlantUML(model: Model): Unit =
-//    zioViewPlantUmlModel(model)
-//
-//  def zioViewPlantUmlModel(model: Model) = {
-//     backend =>
-//      for {
-//        diagrams <- renderModelInPlantUML.generateSVG(model)
-//        responses <- diagrams.toList.map(buildSVGDiagramRequest).traverse(identity)
-//      } yield responses
-//    }
-//
-//
-//  private def buildSVGDiagramRequest(diagram: ModellingDiagram) =
-//    for {
-//      svgContent <- diagram.svg
-//    } yield {
-//      trace(s"SVG content = ${svgContent.svgString}")
-//      basicRequest.body(svgContent.svgString).post(uri"http://localhost:7071/api/sendSVG")
-//    }
-//
-//  {
-//    val backend = HttpURLConnectionBackend()
-//    val result = for {
-//      diagram <- plantUMLRenderingService.generateSVG(model)
-//      svgContent <- diagram.svg
-//      response = {
-//        warn(svgContent.svgString)
-//        basicRequest
-//          .body(svgContent.svgString)
-//          .post(uri"http://localhost:7071/api/sendSVG")
-//          .send(backend)
-//      }
-//    } yield response
-//    warn(result.toString())
-//  }
-
-//}
-
-//object SimpleViewModelInPlantUML extends SimpleViewModelInPlantUML$ {
-//  override val plantUMLRenderingService: PlantUMLRenderingService = SimplePlantUMLRenderingService
-//}

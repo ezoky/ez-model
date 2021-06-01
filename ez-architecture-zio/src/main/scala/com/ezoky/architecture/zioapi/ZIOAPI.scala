@@ -14,6 +14,9 @@ class ZIOAPI[EnvType]
 
   override type EffectType[-R, +E, +T] = ZIO[R, E, T]
 
+  override def fail(e: Throwable): ZIO[Any, Throwable, Nothing] =
+    ZIO.fail(e)
+
   override implicit def effectMonad: Monad[Effect] = new Monad[Effect] {
 
     override def pure[A](x: A): Effect[A] =

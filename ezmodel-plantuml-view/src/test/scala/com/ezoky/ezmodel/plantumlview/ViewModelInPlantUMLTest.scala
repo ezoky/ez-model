@@ -1,12 +1,13 @@
 package com.ezoky.ezmodel.plantumlview
 
 import com.ezoky.architecture.zioapi.ZIOAPI
+import com.ezoky.ezlogging.EzLoggableClass
 import org.scalatest.funsuite.AnyFunSuite
 import com.ezoky.ezmodel.core.Models._
 import com.ezoky.ezmodel.core.StandardTypeClasses._
 import com.ezoky.ezmodel.plantuml.RenderModelInPlantUML
 import com.ezoky.ezplantuml.PlantUMLWrapper
-import sttp.client3.SttpBackend
+import sttp.client3.{Response, SttpBackend}
 import sttp.client3.asynchttpclient.zio.AsyncHttpClientZioBackend
 import sttp.model.{Method, StatusCode}
 import zio.internal.Platform
@@ -84,7 +85,7 @@ class ViewModelInPlantUMLTest extends AnyFunSuite {
 
     val result =
       Runtime(serverConfig, Platform.default)
-        .unsafeRunSync(zioImpl.ZIOViewModelInPlantUML.viewModelInPlantUML(model))
+        .unsafeRunSync(zioImpl.ZIOViewModelInPlantUML.viewModelInPlantUML(model)())
 
     assert(result == Exit.Success(()))
   }
@@ -105,13 +106,18 @@ class ZIOImpl(backend: SttpBackend[Task, Any]) {
     new RenderModelInPlantUML[QueryProducing](ZIOPlantUMLService)
 
   implicit val ZIOViewModelInPlantUML: ViewModelInPlantUML[Effect] =
-    new ViewModelInPlantUML[Effect](ZIORenderModelInPlantUML) {
+    new ViewModelInPlantUML[Effect](ZIORenderModelInPlantUML) with EzLoggableClass {
 
       override def configReader[A](configure: ViewModelInPlantUMLConfig => A): Effect[A] =
         ZIO.access(configure)
 
-      override def useBackend(action: SttpBackend[Effect, Any] => Effect[Unit]): Effect[Unit] =
-        action(backend.asInstanceOf[SttpBackend[Effect, Any]])
+      override def useBackend(action: SttpBackend[Effect, Any] => Effect[Response[Either[String, String]]]): Effect[Unit] =
+        action(backend.asInstanceOf[SttpBackend[Effect, Any]]).map { response =>
+          response.body match {
+            case Left(errorMessage) => fail(new RuntimeException(errorMessage))
+            case Right(_) => succeed(())
+          }
+        }
     }
 
 }

@@ -1,7 +1,6 @@
 package com.ezoky.architecture.monolithic
 
 import cats._
-import cats.implicits._
 import com.ezoky.architecture.API
 
 /**
@@ -12,6 +11,9 @@ class MonolithicAPI[EnvType]
   extends API[EnvType, Throwable] {
 
   override type EffectType[-R, +E, +T] = R => Either[E, T]
+
+  override def fail(e: Throwable): Any => Either[Throwable, Nothing] =
+    _ => Left(e)
 
   override implicit def effectMonad: Monad[Effect] =
     new Monad[Effect] {
